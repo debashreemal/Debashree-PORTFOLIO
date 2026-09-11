@@ -17,7 +17,7 @@
 
 ##  Concept
 
-Portfolio OS reimagines the traditional developer portfolio as a **desktop operating system**. Instead of scrolling through a static page, visitors interact with a fully animated macOS-style interface — complete with a **dock**, **draggable panels**, a **custom cursor**, **ambient lighting**, and a **3D robot mascot** rendered in real-time.
+Portfolio OS reimagines the developer portfolio as a **desktop operating system**. Instead of scrolling through a static page, visitors interact with a fully animated macOS-style interface — complete with a **dock**, **draggable panels**, a **custom cursor**, **ambient lighting**, and a **3D robot mascot** rendered in real-time.
 
 <br/>
 
