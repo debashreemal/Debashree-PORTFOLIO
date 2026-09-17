@@ -40,7 +40,7 @@ function RobotModel() {
   scene.traverse((obj) => { console.log(obj.name, obj.type); });
 
   // 2. True 3D Mouse Tracking sequence
-  useFrame((state, delta) => {
+  useFrame((_, delta) => {
     if (groupRef.current) {
       // HOVER OVERRIDE: If the user brings the mouse to the robot to manually grab it, 
       // the robot smoothly 'relaxes' its neck back to the neutral looking-forward position!
