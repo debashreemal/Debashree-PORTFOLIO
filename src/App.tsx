@@ -57,11 +57,18 @@ export default function App() {
 
   // Cursor glow tracking (sets CSS variables for body::before glow)
   useEffect(() => {
+    let ticking = false;
     const onMove = (e: MouseEvent) => {
-      document.documentElement.style.setProperty('--mouse-x', `${e.clientX}px`);
-      document.documentElement.style.setProperty('--mouse-y', `${e.clientY}px`);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          document.documentElement.style.setProperty('--mouse-x', `${e.clientX}px`);
+          document.documentElement.style.setProperty('--mouse-y', `${e.clientY}px`);
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
-    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mousemove', onMove, { passive: true });
     return () => window.removeEventListener('mousemove', onMove);
   }, []);
 
@@ -104,6 +111,7 @@ export default function App() {
         onIconClick={togglePanel}
         visible={sequenceComplete}
       />
+
     </>
   );
 }

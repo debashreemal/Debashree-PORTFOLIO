@@ -10,30 +10,37 @@ import RotatingText from './RotatingText';
 // Global variable strictly for buttery 60fps tracking without causing React to stutter
 const cursorState = { x: 0, y: 0, isHoveringCanvas: false };
 
+let robotTicking = false;
 if (typeof window !== 'undefined') {
   window.addEventListener('mousemove', (e) => {
-    // SPATIAL TRACKING ALGORITHM:
-    // The robot physically sits on the Right Hand Side at roughly 81% (0.81) of the screen width, and its eyes are at roughly 40% (0.40) screen height.
-    // By calculating the cursor's Delta exactly relative to the robot's mechanical eyes, it will literally 'look' at the cursor natively!
-    const robotEyeX = window.innerWidth * 0.81;
-    const robotEyeY = window.innerHeight * 0.40;
+    if (!robotTicking) {
+      window.requestAnimationFrame(() => {
+        // SPATIAL TRACKING ALGORITHM:
+        // The robot physically sits on the Right Hand Side at roughly 81% (0.81) of the screen width, and its eyes are at roughly 40% (0.40) screen height.
+        // By calculating the cursor's Delta exactly relative to the robot's mechanical eyes, it will literally 'look' at the cursor natively!
+        const robotEyeX = window.innerWidth * 0.81;
+        const robotEyeY = window.innerHeight * 0.40;
 
-    // Generate normalized true-relative coordinates (Sensitivity calmed down to 0.8 for subtle glances)
-    cursorState.x = ((e.clientX - robotEyeX) / window.innerWidth) * 0.8;
-    cursorState.y = -(e.clientY - robotEyeY) / window.innerHeight; 
-  });
+        // Generate normalized true-relative coordinates (Sensitivity calmed down to 0.8 for subtle glances)
+        cursorState.x = ((e.clientX - robotEyeX) / window.innerWidth) * 0.8;
+        cursorState.y = -(e.clientY - robotEyeY) / window.innerHeight; 
+        robotTicking = false;
+      });
+      robotTicking = true;
+    }
+  }, { passive: true });
 }
 
 // 1. Our Native 3D Robot Component Engine
 function RobotModel() {
   // Pre-loads and parses the .glb geometry natively at lightspeed from the public folder
-  const { scene } = useGLTF('/robot.glb');
+  const { scene } = useGLTF('/robot_opt.glb');
   const groupRef = useRef<THREE.Group>(null);
 
   scene.traverse((obj) => { console.log(obj.name, obj.type); });
 
   // 2. True 3D Mouse Tracking sequence
-  useFrame(() => {
+  useFrame((state, delta) => {
     if (groupRef.current) {
       // HOVER OVERRIDE: If the user brings the mouse to the robot to manually grab it, 
       // the robot smoothly 'relaxes' its neck back to the neutral looking-forward position!
@@ -47,9 +54,9 @@ function RobotModel() {
       // Capped the pitch limit strictly to PI/10 (roughly 18 degrees) so the vertical movements are equally subtle.
       const targetY = cursorState.isHoveringCanvas ? 0 : -cursorState.y * (Math.PI / 10);   
 
-      // Lerp (Linear Interpolate) creates buttery smooth mechanical neck/body movement
-      groupRef.current.rotation.y += (targetX - groupRef.current.rotation.y) * 0.05;
-      groupRef.current.rotation.x += (targetY - groupRef.current.rotation.x) * 0.05;
+      // Frame-independent spring damping creates consistently buttery smooth mechanical neck/body movement across any monitor refresh rate (60Hz, 120Hz, 144Hz)
+      groupRef.current.rotation.y = THREE.MathUtils.damp(groupRef.current.rotation.y, targetX, 4, delta);
+      groupRef.current.rotation.x = THREE.MathUtils.damp(groupRef.current.rotation.x, targetY, 4, delta);
     }
   });
 
@@ -64,8 +71,8 @@ function RobotModel() {
   );
 }
 
-// Preload the compressed Draco model instantly
-useGLTF.preload('/robot.glb');
+// Preload the optimized model instantly
+useGLTF.preload('/robot_opt.glb');
 
 // 3. Hero Section Parent Component
 const Robot = memo(function Robot({ onReady }: { onReady: () => void }) {
@@ -90,8 +97,11 @@ const Robot = memo(function Robot({ onReady }: { onReady: () => void }) {
         }}
       >
         {/* LHS: Hero Text occupying exactly 70vw */}
-        <div
+        <motion.div
           className="hero-text"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
           style={{ 
             width: '70vw', 
             zIndex: 2, 
@@ -111,8 +121,8 @@ const Robot = memo(function Robot({ onReady }: { onReady: () => void }) {
                 initial={{ color: '#2a2a2a' }}
                 animate={{ color: '#ffffff' }}
                 transition={{ 
-                  duration: 0.08, 
-                  delay: index * 0.05, // Much faster shimmer!
+                  duration: 0.1, 
+                  delay: 0.8 + (index * 0.06), // Base delay so it waits for the fade-in, then smooth shimmer
                   ease: "linear"
                 }}
               >
@@ -151,7 +161,7 @@ const Robot = memo(function Robot({ onReady }: { onReady: () => void }) {
               mainClassName="hero-rotating-text"
             />
           </div>
-        </div>
+        </motion.div>
 
         {/* RHS: 3D Robot Native Canvas */}
         <div 
@@ -168,17 +178,19 @@ const Robot = memo(function Robot({ onReady }: { onReady: () => void }) {
         >
           {/* React Three Fiber Canvas engine replaces Sketchfab completely */}
           {/* By floating the physical 3D camera upwards to Y=2.5, we perfectly frame the upper chest natively */}
-          <Canvas camera={{ position: [0, 2.5, 4.5], fov: 45 }} gl={{ alpha: true }} style={{ background: 'transparent' }}>
+          <Canvas dpr={[1, 1.5]} performance={{ min: 0.5 }} camera={{ position: [0, 2.5, 4.5], fov: 45 }} gl={{ alpha: true, antialias: true }} style={{ background: 'transparent' }}>
             {/* Professional studio lighting setup */}
             <ambientLight intensity={0.6} />
             <spotLight position={[10, 10, 10]} intensity={1.5} angle={0.15} penumbra={1} />
-            <Environment preset="city" />
+            <Environment preset="city" resolution={256} />
             
             {/* INJECTED CONTROL: This single line grants you the power to click, drag, spin, and scroll-wheel zoom! */}
             {/* Added maxPolarAngle constraint so you can't accidentally drag the camera 'underground' violently */}
             <OrbitControls 
               enableZoom={true} 
               enablePan={true} 
+              enableDamping={true}
+              dampingFactor={0.05}
               makeDefault 
               target={[0, 2.5, 0]} 
               maxPolarAngle={Math.PI / 1.5}

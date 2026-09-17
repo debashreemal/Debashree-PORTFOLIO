@@ -9,18 +9,20 @@
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@800&display=swap" as="style" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" /></noscript>
   
   <!-- Lord Icon Animated Icons -->
-  <script src="https://cdn.lordicon.com/lordicon.js"></script>
-  <!-- Preload Lord Icon assets for instant dock rendering -->
-  <link rel="preload" href="https://cdn.lordicon.com/lhjjdftm.json" as="fetch" crossorigin />
-  <link rel="preload" href="https://cdn.lordicon.com/tsrgicte.json" as="fetch" crossorigin />
-  <link rel="preload" href="https://cdn.lordicon.com/nfuackpv.json" as="fetch" crossorigin />
-  <link rel="preload" href="https://cdn.lordicon.com/ailnzwyn.json" as="fetch" crossorigin />
-  <link rel="preload" href="https://cdn.lordicon.com/hmpomorl.json" as="fetch" crossorigin />
-  <link rel="preload" href="https://cdn.lordicon.com/vpbspaec.json" as="fetch" crossorigin />
+  <script src="https://cdn.lordicon.com/lordicon.js" defer></script>
+  <!-- Preload local Lord Icon assets for instant dock rendering -->
+  <link rel="preload" href="/icons/lhjjdftm.json" as="fetch" crossorigin />
+  <link rel="preload" href="/icons/tsrgicte.json" as="fetch" crossorigin />
+  <link rel="preload" href="/icons/nfuackpv.json" as="fetch" crossorigin />
+  <link rel="preload" href="/icons/ailnzwyn.json" as="fetch" crossorigin />
+  <link rel="preload" href="/icons/vpbspaec.json" as="fetch" crossorigin />
+  
+  <!-- Preload 3D Model immediately instead of waiting for React to mount -->
+  <link rel="preload" href="/robot_opt.glb" as="fetch" crossorigin />
   
   <style>
     /* Critical CSS to prevent white flash and layout shift during load */
