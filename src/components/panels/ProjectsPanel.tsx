@@ -125,7 +125,6 @@ export default function ProjectsPanel({ onClose }: PanelProps) {
                     color: '#ffffff',
                     position: 'relative',
                     zIndex: 1,
-                    boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
                     overflow: 'hidden'
                   }}
                 >

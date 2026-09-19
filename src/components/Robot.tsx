@@ -114,21 +114,8 @@ const Robot = memo(function Robot({ onReady }: { onReady: () => void }) {
           }}
         >
           {/* Line 1: Name — appears instantly in grey, then shimmers to white character by character */}
-          <h1 className="hero-name" style={{ display: 'flex' }}>
-            {"DEBASHREE MAL".split('').map((char, index) => (
-              <motion.span
-                key={index}
-                initial={{ color: '#2a2a2a' }}
-                animate={{ color: '#ffffff' }}
-                transition={{ 
-                  duration: 0.1, 
-                  delay: 0.8 + (index * 0.06), // Base delay so it waits for the fade-in, then smooth shimmer
-                  ease: "linear"
-                }}
-              >
-                {char === ' ' ? '\u00A0' : char}
-              </motion.span>
-            ))}
+          <h1 className="hero-name" style={{ color: '#ffffff' }}>
+            DEBASHREE MAL
           </h1>
 
           {/* Line 2: Taglines — smaller, loops fast with quick delete */}
@@ -144,7 +131,7 @@ const Robot = memo(function Robot({ onReady }: { onReady: () => void }) {
               overflow: 'hidden',
             }}
           >
-            <span style={{ color: 'white', fontWeight: 500, fontStyle: 'italic' }}>Build</span>
+            <span style={{ color: 'white', fontWeight: 500 }}>Build</span>
             <RotatingText
               texts={['Ideas', 'Logic', 'Systems', 'Scale']}
               staggerFrom="last"

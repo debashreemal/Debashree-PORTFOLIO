@@ -89,10 +89,10 @@ body {
 }
 
 .hero-name {
-  font-family: 'Inter', -apple-system, sans-serif;
-  font-size: 3.4rem;
+  font-family: 'Press Start 2P', 'Inter', -apple-system, sans-serif;
+  font-size: 3.5rem;
   font-weight: 800;
-  letter-spacing: 0.45em;
+  letter-spacing: 0.1em;
   min-height: 1.2em;
   white-space: nowrap;
   text-shadow: none;
@@ -120,7 +120,6 @@ body {
 .hero-rotating-text {
   font-size: 1.6rem;
   font-weight: 600;
-  font-style: italic;
   color: #ffffff;
   letter-spacing: 0.04em;
   display: inline-flex !important;
@@ -222,7 +221,6 @@ body {
   -webkit-backdrop-filter: blur(32px);
   border: none;
   border-radius: 16px;
-  box-shadow: 0 -16px 60px rgba(0, 0, 0, 0.7);
   width: 85vw;
   max-width: 85vw;
   height: 600px;
