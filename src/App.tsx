@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
-import Lenis from 'lenis';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import MenuBar from './components/MenuBar';
 import Robot from './components/Robot';
 import Dock from './components/Dock';
@@ -15,36 +14,13 @@ import type { PanelType } from './types';
 export default function App() {
   const [activePanel, setActivePanel] = useState<PanelType>(null);
   const [sequenceComplete, setSequenceComplete] = useState(false);
+  const glowRef = useRef<HTMLDivElement>(null);
 
   const togglePanel = (panel: PanelType) => {
     setActivePanel(prev => prev === panel ? null : panel);
   };
 
   const closePanel = () => setActivePanel(null);
-
-  // Initialize Lenis smooth scroll
-  useEffect(() => {
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      orientation: 'vertical',
-      gestureOrientation: 'vertical',
-      smoothWheel: true,
-      wheelMultiplier: 1,
-      infinite: false,
-    });
-
-    function raf(time: number) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
-
-    requestAnimationFrame(raf);
-
-    return () => {
-      lenis.destroy();
-    };
-  }, []);
 
   // Escape key closes active panel
   useEffect(() => {
@@ -55,14 +31,15 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleEsc);
   }, []);
 
-  // Cursor glow tracking (sets CSS variables for body::before glow)
+  // Hardware-accelerated cursor glow tracking
   useEffect(() => {
     let ticking = false;
     const onMove = (e: MouseEvent) => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
-          document.documentElement.style.setProperty('--mouse-x', `${e.clientX}px`);
-          document.documentElement.style.setProperty('--mouse-y', `${e.clientY}px`);
+          if (glowRef.current) {
+            glowRef.current.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
+          }
           ticking = false;
         });
         ticking = true;
@@ -78,6 +55,8 @@ export default function App() {
 
   return (
     <>
+      <div ref={glowRef} className="cursor-glow" />
+
       {/* Ambient glow orbs removed for pure black background */}
 
 

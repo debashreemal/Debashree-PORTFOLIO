@@ -36,6 +36,12 @@ export default function CircularGallery({
     const items = Array.from(scroller.querySelectorAll('.circular-gallery-item')) as HTMLDivElement[];
     itemsRef.current = items;
 
+    // Cache metrics to prevent layout thrashing
+    const metrics = items.map(item => ({
+      left: item.offsetLeft,
+      width: item.offsetWidth
+    }));
+
     // Use Lenis for smooth scrolling
     const lenis = new Lenis({
       wrapper: scroller,
@@ -47,6 +53,8 @@ export default function CircularGallery({
       lerp: 0.1,
     });
 
+    let lastActiveIndex = -1;
+
     const updateTransforms = () => {
       const scrollLeft = scroller.scrollLeft;
       const containerWidth = scroller.clientWidth;
@@ -57,8 +65,8 @@ export default function CircularGallery({
       let minDistance = Infinity;
 
       items.forEach((item, i) => {
-        const itemLeft = item.offsetLeft;
-        const itemWidth = item.offsetWidth;
+        const itemLeft = metrics[i].left;
+        const itemWidth = metrics[i].width;
         const itemCenter = itemLeft + itemWidth / 2;
         
         // Distance from center of viewport
@@ -76,7 +84,7 @@ export default function CircularGallery({
         if (bend !== 0) {
           // Map bend=3 to a noticeable pixel curve. 
           // max_y is the vertical displacement at the edge of the container
-          const max_y = bend * 10; // reduced from 30 for a subtle, more horizontal curve
+          const max_y = bend * 10; 
           
           // Parabola y = a * x^2
           const a = max_y / (H * H);
@@ -88,21 +96,21 @@ export default function CircularGallery({
         }
         
         // Apply transform
-        // We set will-change: transform in CSS for performance
         item.style.transform = `translate3d(0, ${y}px, 0) rotateZ(${rotationZ}deg)`;
       });
 
-      // Update active index
-      if (onActiveIndexChange) {
+      // Update active index only if changed
+      if (onActiveIndexChange && closestIndex !== lastActiveIndex) {
+        lastActiveIndex = closestIndex;
         onActiveIndexChange(closestIndex);
       }
     };
 
     lenis.on('scroll', updateTransforms);
+    scroller.addEventListener('scroll', updateTransforms, { passive: true });
 
     const raf = (time: number) => {
       lenis.raf(time);
-      updateTransforms(); // Need to call this continuously to handle native scroll changes
       animationFrameRef.current = requestAnimationFrame(raf);
     };
     animationFrameRef.current = requestAnimationFrame(raf);
@@ -113,6 +121,7 @@ export default function CircularGallery({
     return () => {
       if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
       lenis.destroy();
+      scroller.removeEventListener('scroll', updateTransforms);
     };
   }, [bend, onActiveIndexChange]);
 

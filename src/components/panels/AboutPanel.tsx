@@ -4,6 +4,12 @@ import { FaTrophy } from 'react-icons/fa';
 import TiltedCard from './TiltedCard';
 import profileAvatar from '../../assets/profileimage.avif';
 
+// Eagerly preload the avatar image so it is cached before the panel ever opens
+if (typeof window !== 'undefined') {
+  const img = new Image();
+  img.src = profileAvatar;
+}
+
 const containerVariants = {
   hidden: { opacity: 0 },
   show: {
@@ -54,7 +60,7 @@ export default function AboutPanel({ onClose }: PanelProps) {
         <div className="traffic-dot traffic-green" />
       </div>
 
-      <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '17px', fontWeight: 600, color: '#ffffff', letterSpacing: '0.2em', padding: '16px 24px 0 24px', margin: 0, opacity: 0.9 }}>
+      <h2 style={{ fontFamily: "'JetBrains Mono', sans-serif", fontSize: '17px', fontWeight: 600, color: '#ffffff', letterSpacing: '0.2em', padding: '16px 24px 0 24px', margin: 0, opacity: 0.9 }}>
         IDENTITY MATRIX
       </h2>
 
@@ -89,11 +95,11 @@ export default function AboutPanel({ onClose }: PanelProps) {
             <motion.h1 
               variants={currentNameVariants} 
               onAnimationComplete={() => { hasAnimatedName = true; }}
-              style={{ margin: 0, fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: '32px' }}
+              style={{ margin: 0, fontFamily: "'JetBrains Mono', sans-serif", fontWeight: 700, fontSize: '32px' }}
             >
               DEBASHREE MAL
             </motion.h1>
-            <motion.p variants={itemVariants} style={{ margin: 0, color: '#94a3b8', fontFamily: "'Inter', sans-serif", fontSize: '14px', fontWeight: 600 }}>
+            <motion.p variants={itemVariants} style={{ margin: 0, color: '#94a3b8', fontFamily: "'JetBrains Mono', sans-serif", fontSize: '14px', fontWeight: 600 }}>
               Computer Engineering
             </motion.p>
           </div>

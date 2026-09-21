@@ -180,7 +180,7 @@ export default function SkillsOrbit() {
       // Text
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.font = `600 ${16.5 * dpr}px 'Syne', sans-serif`;
+      ctx.font = `600 ${16.5 * dpr}px 'JetBrains Mono', sans-serif`;
       ctx.fillStyle = "#ffffff";
       ctx.fillText("SKILLS", cx, cy);
     }
@@ -233,7 +233,7 @@ export default function SkillsOrbit() {
         ctx.drawImage(img, -s / 2, -s / 2, s, s);
       } else {
         ctx.fillStyle = skill.color;
-        ctx.font = `600 ${9 * dpr}px 'Syne', sans-serif`; // Enlarged fallback text size
+        ctx.font = `600 ${9 * dpr}px 'JetBrains Mono', sans-serif`; // Enlarged fallback text size
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText(skill.name.slice(0, 3).toUpperCase(), 0, 0);
@@ -359,7 +359,7 @@ export default function SkillsOrbit() {
         position: "relative",
         height: "100%",
         width: "100%",
-        fontFamily: "'Syne', sans-serif",
+        fontFamily: "'JetBrains Mono', sans-serif",
       }}
     >
       <div
@@ -367,7 +367,7 @@ export default function SkillsOrbit() {
           position: "absolute",
           top: "18px",
           left: "22px",
-          fontFamily: "'Syne', sans-serif",
+          fontFamily: "'JetBrains Mono', sans-serif",
           fontSize: "17px",
           letterSpacing: "0.2em",
           color: "#ffffff",
@@ -390,7 +390,7 @@ export default function SkillsOrbit() {
           bottom: "20px",
           left: "50%",
           transform: "translateX(-50%)",
-          fontFamily: "'Syne', sans-serif",
+          fontFamily: "'JetBrains Mono', sans-serif",
           fontSize: "11px",
           color: "#e2e8f0",
           background: "rgba(24, 24, 27, 0.85)",

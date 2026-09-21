@@ -24,7 +24,7 @@ body {
   height: 100%;
   overflow: hidden;
   background-color: var(--bg);
-  font-family: 'Inter', sans-serif;
+  font-family: 'JetBrains Mono', sans-serif;
   color: var(--text);
 }
 
@@ -64,7 +64,7 @@ body {
 /* ───────── RAIN / ROBOT CHARS ───────── */
 .rain-char {
   position: fixed;
-  font-family: 'Inter', sans-serif;
+  font-family: 'JetBrains Mono', sans-serif;
   font-size: 14px;
   line-height: 1;
   color: var(--cyan);
@@ -89,7 +89,7 @@ body {
 }
 
 .hero-name {
-  font-family: 'Press Start 2P', 'Inter', -apple-system, sans-serif;
+  font-family: 'Press Start 2P', 'JetBrains Mono', -apple-system, sans-serif;
   font-size: 3.5rem;
   font-weight: 800;
   letter-spacing: 0.1em;
@@ -102,7 +102,7 @@ body {
 .hero-subtitle {
   color: #64748b;
   font-size: 0.8rem;
-  font-family: 'Inter', sans-serif;
+  font-family: 'JetBrains Mono', sans-serif;
   opacity: 0;
   transition: opacity 1s ease;
   margin-top: 10px;
@@ -171,7 +171,7 @@ body {
 }
 
 .menubar-left .name {
-  font-family: 'Syne', sans-serif;
+  font-family: 'JetBrains Mono', sans-serif;
   font-size: 12px;
   font-weight: 700;
   color: #ffffff;
@@ -184,7 +184,7 @@ body {
   gap: 0;
   font-size: 11px;
   color: #94a3b8;
-  font-family: 'Inter', sans-serif;
+  font-family: 'JetBrains Mono', sans-serif;
 }
 
 .menubar-right .item {
@@ -237,17 +237,20 @@ body {
 
 
 /* ───────── LANDING PAGE CURSOR GLOW ───────── */
-body::before {
-  content: "";
+.cursor-glow {
   position: fixed;
-  inset: 0;
+  top: -200px;
+  left: -200px;
+  width: 400px;
+  height: 400px;
   pointer-events: none;
   z-index: 0;
   background: radial-gradient(
-    200px at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    circle,
     rgba(200, 200, 200, 0.05),
     transparent 70%
   );
+  will-change: transform;
 }
 
 /* Ensure content stays above the glow */
@@ -308,7 +311,7 @@ body::before {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Syne', sans-serif;
+  font-family: 'JetBrains Mono', sans-serif;
   font-weight: 700;
   font-size: 28px;
   color: #fff;
@@ -318,7 +321,7 @@ body::before {
 }
 
 .about-info .about-name {
-  font-family: 'Syne', sans-serif;
+  font-family: 'JetBrains Mono', sans-serif;
   font-size: 20px;
   font-weight: 700;
   color: #fff;
@@ -328,7 +331,7 @@ body::before {
   font-size: 11px;
   color: #00c8ff;
   margin-top: 3px;
-  font-family: 'Inter', sans-serif;
+  font-family: 'JetBrains Mono', sans-serif;
 }
 
 .about-bio {
@@ -336,7 +339,7 @@ body::before {
   font-size: 12px;
   line-height: 1.7;
   margin-bottom: 14px;
-  font-family: 'Inter', sans-serif;
+  font-family: 'JetBrains Mono', sans-serif;
 }
 
 .about-tags {
@@ -348,7 +351,7 @@ body::before {
 
 .about-tag {
   font-size: 10px;
-  font-family: 'Inter', sans-serif;
+  font-family: 'JetBrains Mono', sans-serif;
   color: #00c8ff;
   border: none;
   border-radius: 999px;
@@ -364,7 +367,7 @@ body::before {
 }
 
 .about-stat .stat-num {
-  font-family: 'Syne', sans-serif;
+  font-family: 'JetBrains Mono', sans-serif;
   font-size: 18px;
   font-weight: 700;
   color: #00c8ff;
@@ -374,7 +377,7 @@ body::before {
   font-size: 10px;
   color: #64748b;
   margin-top: 2px;
-  font-family: 'Inter', sans-serif;
+  font-family: 'JetBrains Mono', sans-serif;
 }
 
 /* ───────── PROJECTS PANEL ───────── */
@@ -408,7 +411,7 @@ body::before {
 }
 
 .project-card-title {
-  font-family: 'Syne', sans-serif;
+  font-family: 'JetBrains Mono', sans-serif;
   font-size: 28px;
   font-weight: 700;
   color: #fff;
@@ -416,7 +419,7 @@ body::before {
 
 .project-card-tag {
   font-size: 11px;
-  font-family: 'Inter', sans-serif;
+  font-family: 'JetBrains Mono', sans-serif;
   padding: 4px 10px;
   border-radius: 999px;
   white-space: nowrap;
@@ -427,13 +430,13 @@ body::before {
   color: #e2e8f0;
   line-height: 1.7;
   margin-bottom: 12px;
-  font-family: 'Inter', sans-serif;
+  font-family: 'JetBrains Mono', sans-serif;
 }
 
 .project-card-stack {
   font-size: 12px;
   color: #cbd5e1;
-  font-family: 'Inter', sans-serif;
+  font-family: 'JetBrains Mono', sans-serif;
   margin-bottom: 10px;
 }
 
@@ -442,7 +445,7 @@ body::before {
   align-items: center;
   gap: 4px;
   font-size: 10px;
-  font-family: 'Inter', sans-serif;
+  font-family: 'JetBrains Mono', sans-serif;
   text-decoration: none;
   border-radius: 6px;
   padding: 3px 8px;
@@ -464,7 +467,7 @@ body::before {
   color: #475569;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-family: 'Inter', sans-serif;
+  font-family: 'JetBrains Mono', sans-serif;
   font-weight: 600;
   padding: 0 0 8px 0;
   border-bottom: none;
@@ -490,7 +493,7 @@ body::before {
 .skills-table tbody td {
   padding: 7px 0;
   font-size: 13px;
-  font-family: 'Inter', sans-serif;
+  font-family: 'JetBrains Mono', sans-serif;
   color: #cbd5e1;
   border-bottom: none;
 }
@@ -530,7 +533,7 @@ body::before {
   padding: 2px 8px;
   border-radius: 999px;
   white-space: nowrap;
-  font-family: 'Inter', sans-serif;
+  font-family: 'JetBrains Mono', sans-serif;
 }
 
 .skills-footer {
@@ -538,7 +541,7 @@ body::before {
   color: #475569;
   text-align: center;
   margin-top: 12px;
-  font-family: 'Inter', sans-serif;
+  font-family: 'JetBrains Mono', sans-serif;
 }
 
 /* ───────── TERMINAL PANEL ───────── */
@@ -547,7 +550,7 @@ body::before {
   border-radius: 8px;
   padding: 16px;
   min-height: 200px;
-  font-family: 'Inter', sans-serif;
+  font-family: 'JetBrains Mono', sans-serif;
   font-size: 12px;
   line-height: 1.9;
 }
@@ -577,7 +580,7 @@ body::before {
 }
 
 .resume-title {
-  font-family: 'Syne', sans-serif;
+  font-family: 'JetBrains Mono', sans-serif;
   font-size: 18px;
   font-weight: 700;
   color: #fff;
@@ -586,7 +589,7 @@ body::before {
 .resume-subtitle {
   font-size: 11px;
   color: #64748b;
-  font-family: 'Inter', sans-serif;
+  font-family: 'JetBrains Mono', sans-serif;
   margin-top: 4px;
 }
 
@@ -599,7 +602,7 @@ body::before {
 .resume-info-row {
   font-size: 12px;
   color: #94a3b8;
-  font-family: 'Inter', sans-serif;
+  font-family: 'JetBrains Mono', sans-serif;
   line-height: 2;
 }
 
@@ -613,7 +616,7 @@ body::before {
   border: none;
   border-radius: 8px;
   font-size: 13px;
-  font-family: 'Inter', sans-serif;
+  font-family: 'JetBrains Mono', sans-serif;
   font-weight: 600;
   cursor: pointer;
   text-align: center;
@@ -630,12 +633,12 @@ body::before {
   color: #475569;
   margin-top: 8px;
   text-align: center;
-  font-family: 'Inter', sans-serif;
+  font-family: 'JetBrains Mono', sans-serif;
 }
 
 /* ───────── CONTACT PANEL ───────── */
 .contact-title {
-  font-family: 'Syne', sans-serif;
+  font-family: 'JetBrains Mono', sans-serif;
   font-size: 18px;
   font-weight: 700;
   color: #fff;
@@ -644,7 +647,7 @@ body::before {
 .contact-subtitle {
   font-size: 11px;
   color: #64748b;
-  font-family: 'Inter', sans-serif;
+  font-family: 'JetBrains Mono', sans-serif;
   margin-top: 4px;
 }
 
@@ -659,7 +662,7 @@ body::before {
   padding: 10px 12px;
   border-radius: 8px;
   font-size: 12px;
-  font-family: 'Inter', sans-serif;
+  font-family: 'JetBrains Mono', sans-serif;
   color: #94a3b8;
   text-decoration: none;
   transition: background 0.15s ease, color 0.15s ease;
@@ -676,7 +679,7 @@ body::before {
   color: #475569;
   text-align: center;
   margin-top: 14px;
-  font-family: 'Inter', sans-serif;
+  font-family: 'JetBrains Mono', sans-serif;
 }
 
 /* ───────── MOBILE RESPONSIVE ───────── */
@@ -719,27 +722,8 @@ body::before {
     grid-template-columns: repeat(2, 1fr);
   }
 }
-/* ───────── LENIS SMOOTH SCROLL ───────── */
-html.lenis,
-html.lenis body {
-  height: auto;
-}
-
-.lenis.lenis-smooth {
-  scroll-behavior: auto !important;
-}
-
-.lenis.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
-}
-
-.lenis.lenis-stopped {
-  overflow: hidden;
-}
-
-.lenis.lenis-scrolling iframe {
-  pointer-events: none;
-}
+/* ───────── REMOVED LENIS SMOOTH SCROLL ───────── */
+/* Smooth scroll removed as body is unscrollable and requestAnimationFrame was wasting CPU */
 
 /* ───────── PERFORMANCE OPTIMIZATIONS ───────── */
 .panel, 

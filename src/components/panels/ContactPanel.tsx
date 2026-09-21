@@ -30,7 +30,7 @@ export default function ContactPanel({ onClose }: PanelProps) {
         <div className="traffic-dot traffic-green" />
       </div>
 
-      <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '17px', fontWeight: 600, color: '#ffffff', letterSpacing: '0.2em', padding: '16px 24px 0 24px', margin: 0, opacity: 0.9 }}>
+      <h2 style={{ fontFamily: "'JetBrains Mono', sans-serif", fontSize: '17px', fontWeight: 600, color: '#ffffff', letterSpacing: '0.2em', padding: '16px 24px 0 24px', margin: 0, opacity: 0.9 }}>
         LET'S WORK TOGETHER
       </h2>
 
@@ -66,7 +66,7 @@ export default function ContactPanel({ onClose }: PanelProps) {
               }}
             >
               {item.icon}
-              <span style={{ fontFamily: "'Syne', sans-serif", fontSize: '15px', marginTop: '16px', fontWeight: 600, letterSpacing: '0.1em' }}>
+              <span style={{ fontFamily: "'JetBrains Mono', sans-serif", fontSize: '15px', marginTop: '16px', fontWeight: 600, letterSpacing: '0.1em' }}>
                 {item.title}
               </span>
             </a>

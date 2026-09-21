@@ -50,7 +50,7 @@ export default function TerminalPanel({ onClose }: PanelProps) {
       const div = document.createElement('div');
       div.className = 'terminal-line';
       div.style.whiteSpace = 'pre';
-      div.style.fontFamily = "'Inter', sans-serif";
+      div.style.fontFamily = "'JetBrains Mono', sans-serif";
       div.style.fontSize = '15px';
       div.style.lineHeight = '2';
 

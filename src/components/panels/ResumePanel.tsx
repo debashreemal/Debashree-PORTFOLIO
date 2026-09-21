@@ -10,7 +10,7 @@ export default function ResumePanel({ onClose }: PanelProps) {
         <div className="traffic-dot traffic-green" />
       </div>
 
-      <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '17px', fontWeight: 600, color: '#ffffff', letterSpacing: '0.2em', padding: '16px 24px 0 24px', margin: 0, opacity: 0.9 }}>
+      <h2 style={{ fontFamily: "'JetBrains Mono', sans-serif", fontSize: '17px', fontWeight: 600, color: '#ffffff', letterSpacing: '0.2em', padding: '16px 24px 0 24px', margin: 0, opacity: 0.9 }}>
         RESUME
       </h2>
 
@@ -26,8 +26,8 @@ export default function ResumePanel({ onClose }: PanelProps) {
               colors="primary:#ffffff,secondary:#00c8ff"
               style={{width: '200px', height: '200px'}}>
           </lord-icon>
-          <div className="resume-title" style={{ fontSize: '28px', fontFamily: "'Inter', sans-serif", fontWeight: 700, color: '#fff' }}>Resume</div>
-          <div className="resume-subtitle" style={{ color: '#00c8ff', fontFamily: "'Inter', sans-serif", fontSize: '14px' }}>Debashree Mal · Computer Engineering</div>
+          <div className="resume-title" style={{ fontSize: '28px', fontFamily: "'JetBrains Mono', sans-serif", fontWeight: 700, color: '#fff' }}>Resume</div>
+          <div className="resume-subtitle" style={{ color: '#00c8ff', fontFamily: "'JetBrains Mono', sans-serif", fontSize: '14px' }}>Debashree Mal · Computer Engineering</div>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', margin: '16px 0', color: '#e2e8f0' }}>
             <div className="resume-info-row">🎓 Computer Engineering · 2nd Year</div>
@@ -48,7 +48,7 @@ export default function ResumePanel({ onClose }: PanelProps) {
               color: '#ffffff',
               borderRadius: '8px',
               textDecoration: 'none',
-              fontFamily: "'Inter', sans-serif",
+              fontFamily: "'JetBrains Mono', sans-serif",
               fontWeight: 600,
               fontSize: '14px',
               marginTop: '16px',

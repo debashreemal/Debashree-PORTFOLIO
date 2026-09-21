@@ -101,7 +101,7 @@ export default function ProjectsPanel({ onClose }: PanelProps) {
         <div className="traffic-dot traffic-yellow" />
         <div className="traffic-dot traffic-green" />
       </div>
-      <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: '17px', fontWeight: 600, color: '#ffffff', letterSpacing: '0.2em', padding: '16px 24px 0 24px', margin: 0, opacity: 0.9 }}>PROJECTS I'VE BUILT</h2>
+      <h2 style={{ fontFamily: "'JetBrains Mono', sans-serif", fontSize: '17px', fontWeight: 600, color: '#ffffff', letterSpacing: '0.2em', padding: '16px 24px 0 24px', margin: 0, opacity: 0.9 }}>PROJECTS I'VE BUILT</h2>
       <div style={{ flex: 1, overflow: 'hidden', height: 'calc(100% - 80px)', position: 'relative' }}>
         <CircularGallery
           bend={3}
@@ -115,8 +115,7 @@ export default function ProjectsPanel({ onClose }: PanelProps) {
                   className="project-card"
                   style={{
                     border: 'none',
-                    background: 'rgba(16, 16, 16, 0.9)',
-                    backdropFilter: 'blur(12px)',
+                    background: 'rgba(24, 24, 24, 0.95)',
                     borderRadius: '24px',
                     height: '100%',
                     display: 'flex',
@@ -131,7 +130,7 @@ export default function ProjectsPanel({ onClose }: PanelProps) {
                 <div style={{ flex: 3.5, paddingLeft: '1.5rem', paddingRight: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                   <div className="project-card-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span className="project-card-title" style={{ color: '#ffffff', fontSize: '20px' }}>{p.name}</span>
-                    {p.year && <span style={{ color: '#64748b', fontFamily: "'Inter', sans-serif", fontSize: '12px', fontWeight: 500 }}>{p.year}</span>}
+                    {p.year && <span style={{ color: '#64748b', fontFamily: "'JetBrains Mono', sans-serif", fontSize: '12px', fontWeight: 500 }}>{p.year}</span>}
                   </div>
                   <p className="project-card-desc" style={{ fontSize: '14px', color: '#cbd5e1', lineHeight: '1.5' }}>{p.desc}</p>
                   <div className="project-card-stack" style={{ fontSize: '13px', display: 'flex', flexWrap: 'wrap', gap: '14px', marginTop: '4px' }}>
@@ -202,7 +201,7 @@ export default function ProjectsPanel({ onClose }: PanelProps) {
                       {p.images ? (
                         p.images.map((imgUrl, imgIdx) => (
                           <Card key={imgUrl} style={{ background: 'transparent', overflow: 'hidden', border: 'none' }}>
-                            <img loading="lazy" src={imgUrl} alt={`${p.name} screenshot ${imgIdx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'contain', willChange: 'transform', transform: 'translateZ(0)' }} />
+                            <img loading="lazy" decoding="async" src={imgUrl} alt={`${p.name} screenshot ${imgIdx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'contain', willChange: 'transform', transform: 'translateZ(0)' }} />
                           </Card>
                         ))
                       ) : (
