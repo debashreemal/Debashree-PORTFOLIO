@@ -30,7 +30,7 @@ export default function ResumePanel({ onClose }: PanelProps) {
           <div className="resume-subtitle" style={{ color: '#00c8ff', fontFamily: "'JetBrains Mono', sans-serif", fontSize: '14px' }}>Debashree Mal · Computer Engineering</div>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', margin: '16px 0', color: '#e2e8f0' }}>
-            <div className="resume-info-row">🎓 Computer Engineering · 2nd Year</div>
+            <div className="resume-info-row">🎓 Computer Engineering · 3rd Year</div>
             <div className="resume-info-row">⚡ SGPA: 9.72 / 10</div>
             <div className="resume-info-row">💼 Seeking: SDE Internship</div>
             <div className="resume-info-row">📍 Kharghar, Navi Mumbai</div>
