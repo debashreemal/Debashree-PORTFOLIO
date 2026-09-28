@@ -4,6 +4,7 @@ import { useGLTF, Environment, OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 import { motion } from 'framer-motion';
 import RotatingText from './RotatingText';
+import { FiGithub, FiLinkedin, FiMail } from 'react-icons/fi';
 
 
 
@@ -148,7 +149,38 @@ const Robot = memo(function Robot({ onReady }: { onReady: () => void }) {
               mainClassName="hero-rotating-text"
             />
           </div>
+
+          {/* Social Links & Contact directly under Hero Text */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 1.2, ease: "easeOut" }}
+            style={{ 
+              marginTop: '24px', 
+              display: 'flex', 
+              alignItems: 'center',
+              gap: '24px',
+              pointerEvents: 'auto'
+            }}
+          >
+            <a href="https://github.com/debashreemal" target="_blank" rel="noopener noreferrer" className="hero-vertical-icon">
+              <FiGithub size={28} strokeWidth={2} />
+              <span className="hero-tooltip">GitHub</span>
+            </a>
+
+            <a href="https://linkedin.com/in/debashree-mal-4a6214370" target="_blank" rel="noopener noreferrer" className="hero-vertical-icon">
+              <FiLinkedin size={28} strokeWidth={2} />
+              <span className="hero-tooltip">LinkedIn</span>
+            </a>
+
+            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=debashreee87@gmail.com" target="_blank" rel="noopener noreferrer" className="hero-vertical-icon">
+              <FiMail size={28} strokeWidth={2} />
+              <span className="hero-tooltip">Let's Talk</span>
+            </a>
+          </motion.div>
         </motion.div>
+
+
 
         {/* RHS: 3D Robot Native Canvas */}
         <div 

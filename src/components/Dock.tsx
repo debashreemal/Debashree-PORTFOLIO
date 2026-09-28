@@ -198,9 +198,12 @@ function DockIcon({ children, className = '' }: DockIconProps) {
 }
 
 interface Item {
-  id: PanelType;
+  id: any;
   icon: React.ReactNode;
   label: string;
+  isLink?: boolean;
+  url?: string;
+  isDivider?: boolean;
 }
 
 const ITEMS: Item[] = [
@@ -208,7 +211,6 @@ const ITEMS: Item[] = [
   { id: 'projects', icon: <DockLordIcon src="/icons/tsrgicte.json" trigger="loop" delay="200" stroke="bold" />, label: 'Projects' },
   { id: 'skills', icon: <DockLordIcon src="/icons/nfuackpv.json" trigger="loop" delay="300" stroke="bold" state="loop-spin" />, label: 'Skills' },
   { id: 'terminal', icon: <DockLordIcon src="/icons/ailnzwyn.json" trigger="loop" delay="400" stroke="bold" state="in-reveal" />, label: 'Terminal' },
-  { id: 'contact', icon: <DockLordIcon src="/icons/vpbspaec.json" trigger="loop" delay="500" stroke="bold" state="in-unfold" />, label: 'Contact' },
 ];
 
 export default function Dock({
@@ -253,26 +255,39 @@ export default function Dock({
         role="toolbar"
         aria-label="Application dock"
       >
-        {ITEMS.map((item, index) => (
-          <React.Fragment key={item.id ?? index}>
-            <DockItem
-              onClick={() => onIconClick(item.id)}
-              mouseX={mouseX}
-              spring={spring}
-              distance={distance}
-              magnification={magnification}
-              baseItemSize={baseItemSize}
-              isActive={activePanel === item.id}
-            >
-              <DockIcon>
-                {React.isValidElement(item.icon) 
-                  ? cloneElement(item.icon as React.ReactElement, { paused: !!activePanel }) 
-                  : item.icon}
-              </DockIcon>
-              <DockLabel>{item.label}</DockLabel>
-            </DockItem>
-          </React.Fragment>
-        ))}
+        {ITEMS.map((item, index) => {
+          if (item.isDivider) {
+            return (
+              <div key={item.id} style={{ width: '1px', height: '60%', background: 'rgba(255,255,255,0.1)', margin: '0 8px' }} />
+            );
+          }
+          return (
+            <React.Fragment key={item.id ?? index}>
+              <DockItem
+                onClick={() => {
+                  if (item.isLink) {
+                    window.open(item.url, '_blank', 'noopener,noreferrer');
+                  } else {
+                    onIconClick(item.id);
+                  }
+                }}
+                mouseX={mouseX}
+                spring={spring}
+                distance={distance}
+                magnification={magnification}
+                baseItemSize={baseItemSize}
+                isActive={activePanel === item.id}
+              >
+                <DockIcon>
+                  {React.isValidElement(item.icon) 
+                    ? cloneElement(item.icon as React.ReactElement, { paused: !!activePanel }) 
+                    : item.icon}
+                </DockIcon>
+                <DockLabel>{item.label}</DockLabel>
+              </DockItem>
+            </React.Fragment>
+          );
+        })}
       </motion.div>
     </motion.div>
   );
