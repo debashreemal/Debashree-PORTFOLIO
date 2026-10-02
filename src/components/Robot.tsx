@@ -33,12 +33,14 @@ if (typeof window !== 'undefined') {
 }
 
 // 1. Our Native 3D Robot Component Engine
-function RobotModel() {
+function RobotModel({ onLoaded }: { onLoaded?: () => void }) {
   // Pre-loads and parses the .glb geometry natively at lightspeed from the public folder
   const { scene } = useGLTF('/robot_opt.glb');
   const groupRef = useRef<THREE.Group>(null);
 
-  // Removed expensive scene.traverse console logging here
+  useEffect(() => {
+    if (onLoaded) onLoaded();
+  }, [onLoaded]);
 
   // 2. True 3D Mouse Tracking sequence
   useFrame((_, delta) => {
@@ -63,12 +65,19 @@ function RobotModel() {
 
   return (
     <group ref={groupRef} dispose={null}>
-      {/* 
-        User Request: "head to waist only". 
-        Removed the aggressive negative Y drop. 
-      */}
       <primitive object={scene} scale={3.5} position={[0, -2, 0]} />
     </group>
+  );
+}
+
+import { Html, useProgress } from '@react-three/drei';
+
+function Loader() {
+  const { progress } = useProgress();
+  return (
+    <Html center style={{ color: '#00c8ff', fontFamily: "'JetBrains Mono', sans-serif", fontSize: '14px', whiteSpace: 'nowrap', fontWeight: 600 }}>
+      WAKING ROBOT... {progress.toFixed(0)}%
+    </Html>
   );
 }
 
@@ -77,11 +86,6 @@ useGLTF.preload('/robot_opt.glb');
 
 // 3. Hero Section Parent Component
 const Robot = memo(function Robot({ onReady }: { onReady: () => void }) {
-  // Fire the portfolio boot sequence immediately — no typing delay
-  useEffect(() => {
-    const t = setTimeout(() => onReady(), 300);
-    return () => clearTimeout(t);
-  }, [onReady]);
 
   return (
     <>
@@ -195,13 +199,11 @@ const Robot = memo(function Robot({ onReady }: { onReady: () => void }) {
             position: 'relative'
           }}
         >
-          {/* React Three Fiber Canvas engine replaces Sketchfab completely */}
-          {/* By floating the physical 3D camera upwards to Y=2.5, we perfectly frame the upper chest natively */}
-          <Canvas dpr={[1, 1.5]} performance={{ min: 0.5 }} camera={{ position: [0, 2.5, 4.5], fov: 45 }} gl={{ alpha: true, antialias: true }} style={{ background: 'transparent' }}>
+          <Canvas dpr={1} performance={{ min: 0.5 }} camera={{ position: [0, 2.5, 4.5], fov: 45 }} gl={{ alpha: true, antialias: false, powerPreference: "high-performance" }} style={{ background: 'transparent' }}>
             {/* Professional studio lighting setup */}
             <ambientLight intensity={0.6} />
             <spotLight position={[10, 10, 10]} intensity={1.5} angle={0.15} penumbra={1} />
-            <Environment preset="city" resolution={256} />
+            <Environment preset="city" resolution={128} />
             
             {/* INJECTED CONTROL: This single line grants you the power to click, drag, spin, and scroll-wheel zoom! */}
             {/* Added maxPolarAngle constraint so you can't accidentally drag the camera 'underground' violently */}
@@ -215,8 +217,8 @@ const Robot = memo(function Robot({ onReady }: { onReady: () => void }) {
               maxPolarAngle={Math.PI / 1.5}
             />
 
-            <Suspense fallback={null}>
-              <RobotModel />
+            <Suspense fallback={<Loader />}>
+              <RobotModel onLoaded={onReady} />
             </Suspense>
           </Canvas>
         </div>
