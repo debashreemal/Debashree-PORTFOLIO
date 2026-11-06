@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo, lazy, Suspense } from 'react';
 import debashreePhoto from './assets/debashree.png';
+import FlyingButton from './components/FlyingButton';
 
 // Lazy-load heavy 3D WebGL canvas to keep initial page load instantaneous
 const HeroRobot = lazy(() => import('./components/canvas/HeroRobot'));
@@ -207,8 +208,14 @@ export const App: React.FC = () => {
 
   // Contact Refs (Last Screen)
   const cSheetRef = useRef<HTMLDivElement>(null);
-  const cBdRef = useRef<SVGSVGElement>(null);
-  const cTopBtnRef = useRef<HTMLDivElement>(null);
+  const cTitleRef = useRef<HTMLDivElement>(null);
+  const cSubTextRef = useRef<HTMLSpanElement>(null);
+  const cSayHelloRef = useRef<HTMLDivElement>(null);
+  const cTopBtnRef = useRef<HTMLButtonElement>(null);
+
+  // Moments-to-Contact Hero Coin-to-Sticker Refs
+  const coinCardRef = useRef<HTMLDivElement>(null);
+  const coinFlipperRef = useRef<HTMLDivElement>(null);
 
   // Hero Refs
   const hLeftRef = useRef<HTMLSpanElement>(null);
@@ -221,6 +228,7 @@ export const App: React.FC = () => {
   const aRRef = useRef<HTMLDivElement>(null);
   const aBarRef = useRef<HTMLDivElement>(null);
   const aCircRef = useRef<HTMLDivElement>(null);
+  const morphCircRef = useRef<HTMLDivElement>(null);
   const aPhRef = useRef<HTMLDivElement>(null);
   const tg1Ref = useRef<HTMLDivElement>(null);
   const tg2Ref = useRef<HTMLDivElement>(null);
@@ -251,11 +259,11 @@ export const App: React.FC = () => {
 
   const domeConfig = useMemo(() => {
     const k = K;
-    const tileWidth = Math.round(112 * k);
-    const tileHeight = Math.round(150 * k);
+    const tileWidth = Math.round(124 * k);
+    const tileHeight = Math.round(176 * k);
     const cols = 28;
-    // Radius calculated so horizontal pitch gives clean, elegant ~22px gap
-    const R = Math.round((cols * (tileWidth + 22)) / (2 * Math.PI));
+    // Radius calculated so horizontal pitch gives clean, elegant ~24px gap
+    const R = Math.round((cols * (tileWidth + 24)) / (2 * Math.PI));
     return {
       perspective: Math.round(750 * k),
       R,
@@ -264,8 +272,8 @@ export const App: React.FC = () => {
       tileHeight,
       marginLeft: Math.round(-tileWidth / 2),
       marginTop: Math.round(-tileHeight / 2),
-      fontSize: Math.max(8, Math.round(9.5 * k)),
-      borderRadius: Math.max(8, Math.round(10 * k)),
+      fontSize: Math.max(8, Math.round(10 * k)),
+      borderRadius: Math.max(8, Math.round(12 * k)),
     };
   }, [K]);
 
@@ -537,11 +545,15 @@ export const App: React.FC = () => {
             aRRef.current.style.transform = `translateY(${(p - 0.2) * 160}px)`;
           }
 
-          // Red circle expands and floats upward, echoing into the red glow of WINS
+          // Red circle in About
           if (aCircRef.current) {
-            const circScale = Math.max(0, eb(sg(p, 0.1, 0.175))) * (1 + ax * 0.4);
-            aCircRef.current.style.transform = `translateY(${(p - 0.2) * 120 - ax * 180}px) scale(${circScale})`;
-            aCircRef.current.style.opacity = `${cl(1 - ax * 0.7)}`;
+            if (p >= 0.20) {
+              aCircRef.current.style.opacity = '0';
+            } else {
+              const circScale = Math.max(0, eb(sg(p, 0.1, 0.175)));
+              aCircRef.current.style.transform = `translateY(${(p - 0.2) * 120}px) scale(${circScale})`;
+              aCircRef.current.style.opacity = '1';
+            }
           }
 
           // Photo cutout slides down gently with perspective depth
@@ -579,19 +591,85 @@ export const App: React.FC = () => {
       }
 
       // =========================================================
+      // ABOUT-TO-WINS: ORANGE CIRCLE -> "WINS" TITLE MORPH
+      // =========================================================
+      const morphActive = p >= 0.20 && p <= 0.33;
+      if (morphCircRef.current) {
+        morphCircRef.current.style.display = morphActive ? 'block' : 'none';
+        if (morphActive) {
+          const vw = window.innerWidth;
+          const vh = window.innerHeight;
+
+          // 1. About Circle Start Position (behind portrait)
+          const circSize = Math.max(260, Math.min(480, vw * 0.32));
+          const aboutRight = Math.max(40, Math.min(130, vw * 0.08));
+          const aboutTop = Math.max(80, Math.min(190, vh * 0.16));
+          const startX = vw - aboutRight - circSize;
+          const startY = aboutTop;
+
+          // 2. Wins Title Target Position
+          const winsLeft = Math.max(24, Math.min(68, vw * 0.055));
+          const winsTop = Math.max(40, Math.min(80, vh * 0.08));
+          const winsFontSize = Math.max(68, Math.min(140, vw * 0.095));
+          const winsW = winsFontSize * 2.3;
+          const winsH = winsFontSize * 0.95;
+          const targetX = winsLeft;
+          const targetY = winsTop;
+
+          // Normalized flight progress: 0 at p=0.20, 1 at p=0.28
+          const tFlight = Math.min(1, Math.max(0, (p - 0.20) / 0.08));
+          const flightEase = io(tFlight);
+
+          // Downward dipping arc across the viewport
+          const curX = startX + (targetX - startX) * flightEase;
+          const arcY = Math.sin(tFlight * Math.PI) * Math.min(140, vh * 0.18);
+          const curY = startY + (targetY - startY) * flightEase + arcY;
+
+          // Morphing from circle into horizontal word bounding capsule
+          const curW = circSize + (winsW - circSize) * flightEase;
+          const curH = circSize + (winsH - circSize) * flightEase;
+          const rEase = io(Math.min(1, Math.max(0, (tFlight - 0.65) / 0.35)));
+          const curR = 50 * (1 - rEase);
+
+          // As letters emerge, morph circle background dissolves into the letter glyphs
+          const dissolve = io(Math.min(1, Math.max(0, (p - 0.26) / 0.04)));
+          const morphBgOpacity = 1 - dissolve * 0.98;
+
+          morphCircRef.current.style.width = `${curW.toFixed(1)}px`;
+          morphCircRef.current.style.height = `${curH.toFixed(1)}px`;
+          morphCircRef.current.style.borderRadius = `${curR.toFixed(1)}%`;
+          morphCircRef.current.style.transform = `translate3d(${curX.toFixed(1)}px, ${curY.toFixed(1)}px, 0)`;
+          morphCircRef.current.style.opacity = `${morphBgOpacity}`;
+        }
+      }
+
+      // =========================================================
       // PANEL 2: WINS (0.22 < p < 0.53) - Clean, Distinct, No Overlap
       // =========================================================
       const winsVisible = p > 0.22 && p < 0.53;
       if (p2Ref.current) {
         p2Ref.current.style.display = winsVisible ? 'block' : 'none';
         if (winsVisible) {
-          // WINS title letter stagger reveal with spring easing & skew
+          // WINS title letters: bloom outward directly from the center of the arriving morph circle!
           const exitWins = sg(p, 0.47, 0.52);
+          const letterBloom = io(Math.min(1, Math.max(0, (p - 0.26) / 0.04)));
+          const letterVectors = [-54, -18, 18, 54]; // Spread outward horizontally from circle center
           wLettersRef.current.forEach((s, i) => {
             if (s) {
-              const u = sg(p, 0.26 + i * 0.014, 0.35 + i * 0.014);
-              s.style.transform = `translateX(${-240 * (1 - eo(u))}px) translateY(${-80 * exitWins}px) skewX(${-sk * 1.1}deg)`;
-              s.style.opacity = `${cl(u * 4) * (1 - exitWins)}`;
+              if (p < 0.26) {
+                s.style.opacity = '0';
+                s.style.transform = `scale(0.2)`;
+              } else if (p <= 0.31) {
+                // Smooth liquid expansion out of the circle
+                const offX = (letterVectors[i] || 0) * (1 - letterBloom);
+                const sc = 0.45 + 0.55 * letterBloom;
+                s.style.transform = `translateX(${offX.toFixed(1)}px) scale(${sc.toFixed(3)})`;
+                s.style.opacity = `${letterBloom}`;
+              } else {
+                // Fully formed stationary title in Wins
+                s.style.transform = `translateY(${-80 * exitWins}px) skewX(${-sk * 1.1}deg)`;
+                s.style.opacity = `${1 - exitWins}`;
+              }
             }
           });
 
@@ -667,117 +745,192 @@ export const App: React.FC = () => {
             rz += sk * 0.5;
             c.style.zIndex = `${zi}`;
             c.style.transform = `translate3d(${x}px, ${y}px, ${z}px) rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(${rz}deg) scale(${sc})`;
-            c.style.opacity = `${op * (1 - ex)}`;
-            c.style.filter = `brightness(${1 - dim})`;
+            c.style.opacity = `${Math.max(0, op - dim * 0.22) * (1 - ex)}`;
             c.style.visibility = op < 0.02 || r > 4.2 || ex >= 0.99 ? 'hidden' : 'visible';
           });
         }
       }
 
       // =========================================================
-      // PANEL 3: MOMENTS (0.53 < p < 0.89) - Inside Globe & Zoom Transition
+      // PANEL 3: MOMENTS (0.53 < p < 0.85) - Inside Globe & Clean Zoom Fly-Through
       // =========================================================
-      const momentsVisible = p > 0.53 && p < 0.89;
+      const momentsVisible = p > 0.53 && p < 0.85;
       if (p4Ref.current) {
         p4Ref.current.style.display = momentsVisible ? 'block' : 'none';
         if (momentsVisible) {
           // Entrance begins cleanly AFTER Wins has exited completely
           const momIn = io(sg(p, 0.54, 0.62));
-          // Transition dive towards Contact (starts at 0.76, completes at 0.88)
-          const momTrans = io(sg(p, 0.76, 0.88));
-          p4Ref.current.style.opacity = `${momIn * (1 - momTrans)}`;
-          p4Ref.current.style.filter = momTrans > 0.01 ? `blur(${momTrans * 10}px)` : 'none';
+          // Clean forward zoom into blank space (starts at 0.73, fully clears by 0.83)
+          const momFly = io(sg(p, 0.73, 0.83));
+          p4Ref.current.style.opacity = `${momIn * (1 - momFly)}`;
+          p4Ref.current.style.filter = 'none'; // Zero blur! Crystal sharp zoom
 
-          // Close active pop-out card if scrolling towards Contact
-          if (p > 0.76 && activeCardRef.current !== null) {
-            setActiveCard(null);
-          }
+            // Close active pop-out card if scrolling towards transition
+            if (p > 0.73 && activeCardRef.current !== null) {
+              setActiveCard(null);
+            }
 
-          // 3D Panoramic Fly-in & Zoom: Inside-the-Globe View
-          const en = io(sg(p, 0.54, 0.64));
-          const sr = sg(p, 0.58, 0.76);
+            // 3D Panoramic Fly-in & Clean Forward Zoom: Inside-the-Globe View
+            const en = io(sg(p, 0.54, 0.64));
+            const sr = sg(p, 0.58, 0.74);
 
-          // Resting zoom keeps cards large and immersive; transition zooms in deep towards viewer
-          const baseZoom = 460 * K;
-          const transitionZoom = momTrans * 520 * K;
-          const dz = -160 * (1 - en) + baseZoom + transitionZoom;
+            // Resting zoom keeps cards large and immersive; transition flies forward into blank space
+            const baseZoom = 480 * K;
+            const transitionZoom = momFly * 850 * K;
+            const dz = -160 * (1 - en) + baseZoom + transitionZoom;
 
-          if (!domeState.current.drag && activeCardRef.current === null) {
-            domeState.current.ry += domeState.current.vy * 0.94;
-            domeState.current.vy *= 0.94;
-          }
+            if (!domeState.current.drag && activeCardRef.current === null) {
+              domeState.current.ry += domeState.current.vy * 0.94;
+              domeState.current.vy *= 0.94;
+            }
 
-          // Panoramic 360 rotation around inside cyclorama
-          const ry = -tt * 0.7 + sr * 50 + mx * 8 + domeState.current.ry;
-          const rx = 0 + 4 * io(sr) - my * 5 + domeState.current.rx;
+            // Panoramic 360 rotation around inside cyclorama
+            const ry = -tt * 0.7 + sr * 50 + mx * 8 + domeState.current.ry;
+            const rx = 0 + 4 * io(sr) - my * 5 + domeState.current.rx;
 
-          if (domeRef.current) {
-            domeRef.current.style.transform = `translateZ(${dz}px) rotateX(${rx}deg) rotateY(${ry}deg)`;
-          }
+            // Entire inside 3D cyclorama rotates as a single hardware-accelerated 4x4 matrix
+            if (domeRef.current) {
+              domeRef.current.style.transform = `translateZ(${dz}px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+            }
 
-          // Individual 3D tiles: elastic pop, subtle depth blur & front face highlight across inside globe rows
-          tileInnersRef.current.forEach((tin, idx) => {
-            if (!tin) return;
-            const cols = domeConfig.cols;
-            const i = idx % cols;
-            const lo = (i * 360) / cols;
-            // Center is at 0 degrees (inside view looking directly ahead)
-            const normalizedAngle = (((lo + ry) % 360) + 360) % 360;
-            const angleDiff = normalizedAngle > 180 ? 360 - normalizedAngle : normalizedAngle;
-            const f = Math.cos((angleDiff * Math.PI) / 180);
-            const dist = angleDiff / 180;
-            const u = cl((en - dist * 0.3) / 0.7);
-            tin.style.transform = `scale(${Math.max(0, eb(u)) * (1 + 0.04 * Math.max(0, f))})`;
-            tin.style.opacity = `${(0.65 + 0.35 * Math.max(0, f)) * cl(u * 2.5)}`;
-          });
-
-          // MOMENTS heading: fades in cleanly, exits cleanly before Contact
-          if (mtlRef.current) {
-            const mo2 = sg(p, 0.55, 0.62) * (1 - io(sg(p, 0.74, 0.81)));
-            mtlRef.current.style.opacity = `${mo2}`;
-            mtlRef.current.style.transform = `translateX(${-(p - 0.66) * 45}px) skewY(${sk * 0.3}deg) scale(1)`;
+            // MOMENTS heading: fades in cleanly, exits cleanly before transition
+            if (mtlRef.current) {
+              const mo2 = sg(p, 0.55, 0.62) * (1 - io(sg(p, 0.71, 0.78)));
+              mtlRef.current.style.opacity = `${mo2}`;
+              mtlRef.current.style.transform = `translateX(${-(p - 0.66) * 45}px) skewY(${sk * 0.3}deg) scale(1)`;
+            }
           }
         }
-      }
 
-      // =========================================================
-      // PANEL 4: CONTACT (LAST SCREEN - Merges seamlessly with Moments)
-      // =========================================================
-      const contactVisible = p > 0.76;
-      if (p5Ref.current) {
-        p5Ref.current.style.display = contactVisible ? 'block' : 'none';
-        if (contactVisible) {
-          // Contact emerges in seamless synchronization as the Moments dome zooms forward
-          const contactIn = io(sg(p, 0.78, 0.88));
-          p5Ref.current.style.opacity = `${contactIn}`;
-          p5Ref.current.style.transform = `translate3d(0, ${(1 - contactIn) * 35}px, 0) scale(${0.92 + 0.08 * contactIn})`;
+        // =========================================================
+        // PANEL 4: CONTACT (LAST SCREEN - Emerges from Blank Space with Choreographed Movement)
+        // =========================================================
+        const contactVisible = p > 0.84;
+        if (p5Ref.current) {
+          p5Ref.current.style.display = contactVisible ? 'block' : 'none';
+          if (contactVisible) {
+            // Contact emerges smoothly AFTER the globe has passed into blank space
+            const contactIn = io(sg(p, 0.86, 0.98));
+            p5Ref.current.style.opacity = `${contactIn}`;
 
-          // Cream contact sheet glides up with luxury paper elevation
-          if (cSheetRef.current) {
-            cSheetRef.current.style.transform = `translateY(${100 * (1 - contactIn)}%)`;
-          }
+            // Top Title smoothly descends and settles with scale
+            if (cTitleRef.current) {
+              cTitleRef.current.style.transform = `translate3d(0, ${(1 - contactIn) * -50}px, 0) scale(${0.92 + 0.08 * contactIn})`;
+              cTitleRef.current.style.opacity = `${contactIn}`;
+            }
 
-          // Rotating "SAY HI" badge elastic pop
-          if (cBdRef.current) {
-            const bIn = sg(p, 0.83, 0.93);
-            cBdRef.current.style.transform = `scale(${Math.max(0, eb(bIn))}) rotate(${tt * 12}deg)`;
-          }
+            // Subtitle staggers in smoothly
+            if (cSubTextRef.current) {
+              const subIn = io(sg(p, 0.89, 0.99));
+              cSubTextRef.current.style.transform = `translate3d(0, ${(1 - subIn) * 20}px, 0)`;
+              cSubTextRef.current.style.opacity = `${subIn}`;
+            }
 
-          // Back to top floating pill
-          if (cTopBtnRef.current) {
-            const tpIn = sg(p, 0.87, 0.96);
-            cTopBtnRef.current.style.opacity = `${tpIn}`;
-            cTopBtnRef.current.style.pointerEvents = tpIn > 0.5 ? 'auto' : 'none';
+            // Say Hello Rocket Button container glides in smoothly
+            if (cSayHelloRef.current) {
+              const bIn = io(sg(p, 0.88, 0.98));
+              cSayHelloRef.current.style.transform = `translate3d(0, ${(1 - bIn) * 35}px, 0)`;
+              cSayHelloRef.current.style.opacity = `${bIn}`;
+            }
+
+            // Cream contact sheet glides up with luxury paper elevation
+            if (cSheetRef.current) {
+              cSheetRef.current.style.transform = `translateY(${100 * (1 - contactIn)}%)`;
+            }
+
+            // Back to top floating pill
+            if (cTopBtnRef.current) {
+              const tpIn = sg(p, 0.92, 0.99);
+              cTopBtnRef.current.style.opacity = `${tpIn}`;
+              cTopBtnRef.current.style.pointerEvents = tpIn > 0.5 ? 'auto' : 'none';
+            }
           }
         }
-      }
+
+        // =========================================================
+        // MOMENTS-TO-CONTACT HERO COIN-TO-STICKER TRANSITION
+        // =========================================================
+        // 1. The exact zoomed card slot in the dome becomes blank
+        const heroTileIdx = 56;
+        const heroTileInner = tileInnersRef.current[heroTileIdx];
+        if (heroTileInner) {
+          if (p >= 0.73) {
+            heroTileInner.style.opacity = '0';
+            heroTileInner.parentElement?.classList.add('dt-empty-slot');
+          } else {
+            heroTileInner.style.opacity = '1';
+            heroTileInner.parentElement?.classList.remove('dt-empty-slot');
+          }
+        }
+
+        // 2. Detached Hero Card: comes out from that exact spot, flips smoothly once in mid-air,
+        // and places as a sticker below "LET'S CONNECT"
+        const coinVisible = p > 0.73 && p <= 1.0;
+        if (coinCardRef.current) {
+          coinCardRef.current.style.display = coinVisible ? 'block' : 'none';
+          if (coinVisible) {
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+
+            // Card dimensions (responsive sticker size)
+            const cardW = Math.max(136, Math.min(176, vw * 0.135));
+            const cardH = cardW * 1.40;
+
+            // Start Position: exactly where the card was zoomed in the center
+            const startX = vw * 0.5 - cardW * 0.5;
+            const startY = vh * 0.5 - cardH * 0.5;
+
+            // Destination Position: Left side directly below "LET'S CONNECT"
+            const destX = Math.max(24, Math.min(72, vw * 0.055));
+            const titleTop = Math.max(50, Math.min(90, vh * 0.10));
+            const titleH = Math.max(80, Math.min(150, vw * 0.115));
+            const destY = titleTop + titleH + 18;
+
+            // Normalized progress: 0 at p=0.74, 1 at p=0.90
+            const rawT = Math.min(1, Math.max(0, (p - 0.74) / 0.16));
+
+            // Entrance / lift-off from the dome socket
+            const liftOff = Math.min(1, Math.max(0, (p - 0.73) / 0.02));
+
+            // Smooth coordinated flight path
+            const flightEase = io(rawT);
+            const curX = startX + (destX - startX) * flightEase;
+
+            // Gentle, elegant arc (lifts out and glides down smoothly)
+            const arcY = Math.sin(rawT * Math.PI) * -32;
+            const curY = startY + (destY - startY) * flightEase + arcY;
+
+            // Gentle scale: starts at socket size (0.88), expands to 1.12 in flight, settles to 1.0
+            const curScale = 0.88 + Math.sin(rawT * Math.PI) * 0.24 + 0.12 * rawT;
+
+            // Clean, controlled single 360-deg flip (NO chaotic multi-spin or wobble)
+            // 0 deg (front) -> 180 deg (collector back) -> 360 deg (front settles into sticker)
+            const spinDeg = io(rawT) * 360;
+
+            // Subtle tactile sticker tilt on landing: settles smoothly into -4.2 deg
+            const stickerTilt = -4.2 * io(Math.min(1, Math.max(0, (rawT - 0.70) / 0.30)));
+
+            // State attributes
+            const isStuck = rawT >= 0.95;
+            coinCardRef.current.dataset.stuck = isStuck ? 'true' : 'false';
+            coinCardRef.current.style.pointerEvents = isStuck ? 'auto' : 'none';
+            coinCardRef.current.style.opacity = `${liftOff}`;
+            coinCardRef.current.style.width = `${cardW}px`;
+            coinCardRef.current.style.height = `${cardH}px`;
+            coinCardRef.current.style.transform = `translate3d(${curX.toFixed(1)}px, ${curY.toFixed(1)}px, 0) scale(${curScale.toFixed(3)}) rotate(${stickerTilt.toFixed(2)}deg)`;
+
+            if (coinFlipperRef.current) {
+              coinFlipperRef.current.style.transform = `rotateY(${spinDeg.toFixed(1)}deg)`;
+            }
+          }
+        }
+
+        animId = requestAnimationFrame(frame);
+      };
 
       animId = requestAnimationFrame(frame);
-    };
-
-    animId = requestAnimationFrame(frame);
-    return () => cancelAnimationFrame(animId);
-  }, []);
+      return () => cancelAnimationFrame(animId);
+    }, []);
 
   // Toggle card inspection: 1st click pops card out in 3D, 2nd click docks it back!
   const handleCardClick = useCallback((idx: number) => {
@@ -786,8 +939,8 @@ export const App: React.FC = () => {
 
   // Pre-generate 3D Globe Gallery (Inside view: 4 rows with guaranteed ~30px vertical gap, concave curvature)
   const domeTiles = useMemo(() => {
-    // 4 tiers chosen with consistent 17.5 deg separation for clean ~32px vertical gaps across rows
-    const lats = [-26.25, -8.75, 8.75, 26.25];
+    // 4 tiers chosen with consistent 18.2 deg separation for clean ~34px vertical gaps across rows
+    const lats = [-27.3, -9.1, 9.1, 27.3];
     const cols = domeConfig.cols;
     const R = domeConfig.R;
     const tiles: React.ReactNode[] = [];
@@ -830,12 +983,13 @@ export const App: React.FC = () => {
               style={{
                 ['--i' as any]: currentIdx,
                 borderRadius: `${domeConfig.borderRadius}px`,
+                background: isSelected ? '#1c1c24' : '#131317',
                 border: isSelected
-                  ? '2px solid rgba(255, 255, 255, 0.9)'
-                  : '1px solid rgba(255, 255, 255, 0.16)',
+                  ? '2px solid rgba(255, 255, 255, 0.95)'
+                  : '1px solid rgba(255, 255, 255, 0.12)',
                 boxShadow: isSelected
-                  ? '0 25px 60px rgba(0, 0, 0, 0.95), 0 0 30px rgba(255, 255, 255, 0.25)'
-                  : '0 14px 35px rgba(0, 0, 0, 0.7)',
+                  ? '0 25px 60px rgba(0, 0, 0, 0.95), 0 0 25px rgba(255, 255, 255, 0.2)'
+                  : '0 12px 28px rgba(0, 0, 0, 0.65)',
               }}
             >
               {/* Portrait Image with smooth zoom on hover */}
@@ -886,341 +1040,355 @@ export const App: React.FC = () => {
       tabIndex={0}
     >
       {/* Top Navbar */}
-    <nav className="nav">
-      <div className="nav-links" style={{ marginLeft: 'auto' }}>
-        {SECTIONS.map((sec, i) => (
-          <span
-            key={sec}
-            className={`l ${cur === i ? 'on' : ''}`}
+      <nav className="nav">
+        <div className="nav-links" style={{ marginLeft: 'auto' }}>
+          {SECTIONS.map((sec, i) => (
+            <span
+              key={sec}
+              className={`l ${cur === i ? 'on' : ''}`}
+              onClick={() => goTo(i)}
+            >
+              {sec}
+            </span>
+          ))}
+        </div>
+      </nav>
+
+      {/* Side Indicator Dots */}
+      <div className="dots" id="dots">
+        {MILESTONES.map((_, i) => (
+          <i
+            key={i}
+            className={cur === i ? 'on' : ''}
             onClick={() => goTo(i)}
-          >
-            {sec}
-          </span>
+            title={`Slide ${i + 1}`}
+          />
         ))}
       </div>
-    </nav>
 
-    {/* Side Indicator Dots */}
-    <div className="dots" id="dots">
-      {MILESTONES.map((_, i) => (
-        <i
-          key={i}
-          className={cur === i ? 'on' : ''}
-          onClick={() => goTo(i)}
-          title={`Slide ${i + 1}`}
-        />
-      ))}
-    </div>
-
-    {/* =========================================================
+      {/* =========================================================
           Panel 0: HERO
           ========================================================= */}
-    <section ref={p0Ref} className="pn p0" style={{ zIndex: 1 }}>
-      {/* Split Name: DEBASHREE on Left, MAL on Right in exact #EFEAE0 (Recessed BEHIND Robot, Z-Index: 2) */}
-      <div className="hero-split-name">
-        <span ref={hLeftRef} className="hero-name-left l">DEBASHREE</span>
-        <span ref={hRightRef} className="hero-name-right l">MAL</span>
-      </div>
+      <section ref={p0Ref} className="pn p0" style={{ zIndex: 1 }}>
+        {/* Split Name: DEBASHREE on Left, MAL on Right in exact #EFEAE0 (Recessed BEHIND Robot, Z-Index: 2) */}
+        <div className="hero-split-name">
+          <span ref={hLeftRef} className="hero-name-left l">DEBASHREE</span>
+          <span ref={hRightRef} className="hero-name-right l">MAL</span>
+        </div>
 
-      {/* 3D Robot Model centered, in front of text (Z-Index: 10) */}
-      <div ref={hRobotRef} className="hero-robot-wrap">
-        <Suspense fallback={null}>
-          <HeroRobot isVisible={heroActive} />
-        </Suspense>
-      </div>
-    </section>
+        {/* 3D Robot Model centered, in front of text (Z-Index: 10) */}
+        <div ref={hRobotRef} className="hero-robot-wrap">
+          <Suspense fallback={null}>
+            <HeroRobot isVisible={heroActive} />
+          </Suspense>
+        </div>
+      </section>
 
-    {/* =========================================================
+      {/* =========================================================
           Panel 1: ABOUT (FULL SCREEN)
           ========================================================= */}
-    <section ref={p1Ref} className="pn p1" style={{ zIndex: 2, display: 'none' }}>
-      <div className="sheet" id="sheet" ref={sheetRef} />
+      <section ref={p1Ref} className="pn p1" style={{ zIndex: 2, display: 'none' }}>
+        <div className="sheet" id="sheet" ref={sheetRef} />
 
-      <div ref={aLRef} className="grp">
-        <div className="rv" style={{ left: 'clamp(24px, 6vw, 84px)', top: 'clamp(60px, 11vh, 120px)', height: 'clamp(60px, 10vw, 130px)' }}>
-          <span
-            ref={(el) => { aRevealsRef.current[0] = el; }}
-            style={{ font: '400 clamp(68px, 10vw, 140px)/.9 var(--an)', color: '#111' }}
-          >
-            ABOUT
-          </span>
-        </div>
-        <div className="rv" style={{ left: 'clamp(24px, 6vw, 84px)', top: 'calc(clamp(60px, 11vh, 120px) + clamp(55px, 8.8vw, 125px))', height: 'clamp(60px, 10vw, 130px)' }}>
-          <span
-            ref={(el) => { aRevealsRef.current[1] = el; }}
-            style={{ font: '400 clamp(68px, 10vw, 140px)/.9 var(--an)', color: '#111' }}
-          >
-            ME
-          </span>
-        </div>
+        <div ref={aLRef} className="grp">
+          <div className="rv" style={{ left: 'clamp(24px, 6vw, 84px)', top: 'clamp(60px, 11vh, 120px)', height: 'clamp(60px, 10vw, 130px)' }}>
+            <span
+              ref={(el) => { aRevealsRef.current[0] = el; }}
+              style={{ font: '400 clamp(68px, 10vw, 140px)/.9 var(--an)', color: '#111' }}
+            >
+              ABOUT
+            </span>
+          </div>
+          <div className="rv" style={{ left: 'clamp(24px, 6vw, 84px)', top: 'calc(clamp(60px, 11vh, 120px) + clamp(55px, 8.8vw, 125px))', height: 'clamp(60px, 10vw, 130px)' }}>
+            <span
+              ref={(el) => { aRevealsRef.current[1] = el; }}
+              style={{ font: '400 clamp(68px, 10vw, 140px)/.9 var(--an)', color: '#111' }}
+            >
+              ME
+            </span>
+          </div>
 
-        <div
-          ref={aBarRef}
-          style={{
-            position: 'absolute',
-            left: 'clamp(24px, 6vw, 84px)',
-            top: 'calc(clamp(60px, 11vh, 120px) + clamp(120px, 18vw, 255px))',
-            width: 'clamp(60px, 8vw, 100px)',
-            height: 'clamp(6px, 0.8vh, 10px)',
-            background: 'var(--rd)',
-            transformOrigin: 'left',
-          }}
-        />
-
-        <div
-          className="rv"
-          style={{
-            left: 'clamp(24px, 6vw, 84px)',
-            top: 'calc(clamp(60px, 11vh, 120px) + clamp(138px, 20vw, 285px))',
-            height: 'clamp(20px, 3vh, 32px)',
-          }}
-        >
-          <span
-            ref={(el) => { aRevealsRef.current[2] = el; }}
-            style={{ font: '500 clamp(11px, 1.2vw, 16px) var(--mo)', letterSpacing: '.12em', color: '#111' }}
-          >
-            FULL-STACK DEVELOPER / AI BUILDER
-          </span>
-        </div>
-
-        <div
-          className="rv"
-          style={{
-            left: 'clamp(24px, 6vw, 84px)',
-            top: 'calc(clamp(60px, 11vh, 120px) + clamp(168px, 23vw, 325px))',
-            height: 'clamp(20px, 3vh, 32px)',
-            width: 'min(520px, 50vw)',
-          }}
-        >
-          <span
-            ref={(el) => { aRevealsRef.current[3] = el; }}
-            style={{ fontSize: 'clamp(12px, 1.3vw, 18px)', color: '#333' }}
-          >
-            CE undergrad from Mumbai (class of 2028).
-          </span>
-        </div>
-        <div
-          className="rv"
-          style={{
-            left: 'clamp(24px, 6vw, 84px)',
-            top: 'calc(clamp(60px, 11vh, 120px) + clamp(192px, 26vw, 360px))',
-            height: 'clamp(20px, 3vh, 32px)',
-            width: 'min(520px, 50vw)',
-          }}
-        >
-          <span
-            ref={(el) => { aRevealsRef.current[4] = el; }}
-            style={{ fontSize: 'clamp(12px, 1.3vw, 18px)', color: '#333' }}
-          >
-            I build AI products for India's underserved
-          </span>
-        </div>
-        <div
-          className="rv"
-          style={{
-            left: 'clamp(24px, 6vw, 84px)',
-            top: 'calc(clamp(60px, 11vh, 120px) + clamp(216px, 29vw, 395px))',
-            height: 'clamp(20px, 3vh, 32px)',
-            width: 'min(520px, 50vw)',
-          }}
-        >
-          <span
-            ref={(el) => { aRevealsRef.current[5] = el; }}
-            style={{ fontSize: 'clamp(12px, 1.3vw, 18px)', color: '#333' }}
-          >
-            markets, from hackathon builds to live apps.
-          </span>
-        </div>
-
-        {/* Pill Badges */}
-        <div
-          ref={(el) => { pillsRef.current[0] = el; }}
-          className="pill"
-          style={{
-            left: 'clamp(24px, 6vw, 84px)',
-            bottom: 'clamp(40px, 8vh, 80px)',
-          }}
-        >
-          1ST / AXION HACKATHON
-        </div>
-        <div
-          ref={(el) => { pillsRef.current[1] = el; }}
-          className="pill"
-          style={{
-            left: 'calc(clamp(24px, 6vw, 84px) + clamp(170px, 18vw, 240px))',
-            bottom: 'clamp(40px, 8vh, 80px)',
-          }}
-        >
-          5+ PROJECTS
-        </div>
-        <div
-          ref={(el) => { pillsRef.current[2] = el; }}
-          className="pill"
-          style={{
-            left: 'calc(clamp(24px, 6vw, 84px) + clamp(280px, 28vw, 370px))',
-            bottom: 'clamp(40px, 8vh, 80px)',
-          }}
-        >
-          MUMBAI
-        </div>
-      </div>
-
-      <div ref={aRRef} className="grp">
-        {/* Red circle */}
-        <div ref={aCircRef} className="circ" />
-
-        {/* Arch cutout */}
-        <div ref={aPhRef} className="ph1">
-          <img
-            src={debashreePhoto}
-            alt="Debashree Mal"
+          <div
+            ref={aBarRef}
             style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              objectPosition: 'center 10%',
-              filter: 'drop-shadow(0 10px 22px rgba(0, 0, 0, 0.2)) contrast(1.04) brightness(1.02)',
+              position: 'absolute',
+              left: 'clamp(24px, 6vw, 84px)',
+              top: 'calc(clamp(60px, 11vh, 120px) + clamp(120px, 18vw, 255px))',
+              width: 'clamp(60px, 8vw, 100px)',
+              height: 'clamp(6px, 0.8vh, 10px)',
+              background: 'var(--rd)',
+              transformOrigin: 'left',
             }}
           />
+
+          <div
+            className="rv"
+            style={{
+              left: 'clamp(24px, 6vw, 84px)',
+              top: 'calc(clamp(60px, 11vh, 120px) + clamp(138px, 20vw, 285px))',
+              height: 'clamp(20px, 3vh, 32px)',
+            }}
+          >
+            <span
+              ref={(el) => { aRevealsRef.current[2] = el; }}
+              style={{ font: '500 clamp(11px, 1.2vw, 16px) var(--mo)', letterSpacing: '.12em', color: '#111' }}
+            >
+              FULL-STACK DEVELOPER / AI BUILDER
+            </span>
+          </div>
+
+          <div
+            className="rv"
+            style={{
+              left: 'clamp(24px, 6vw, 84px)',
+              top: 'calc(clamp(60px, 11vh, 120px) + clamp(168px, 23vw, 325px))',
+              height: 'clamp(20px, 3vh, 32px)',
+              width: 'min(520px, 50vw)',
+            }}
+          >
+            <span
+              ref={(el) => { aRevealsRef.current[3] = el; }}
+              style={{ fontSize: 'clamp(12px, 1.3vw, 18px)', color: '#333' }}
+            >
+              CE undergrad from Mumbai (class of 2028).
+            </span>
+          </div>
+          <div
+            className="rv"
+            style={{
+              left: 'clamp(24px, 6vw, 84px)',
+              top: 'calc(clamp(60px, 11vh, 120px) + clamp(192px, 26vw, 360px))',
+              height: 'clamp(20px, 3vh, 32px)',
+              width: 'min(520px, 50vw)',
+            }}
+          >
+            <span
+              ref={(el) => { aRevealsRef.current[4] = el; }}
+              style={{ fontSize: 'clamp(12px, 1.3vw, 18px)', color: '#333' }}
+            >
+              I build AI products for India's underserved
+            </span>
+          </div>
+          <div
+            className="rv"
+            style={{
+              left: 'clamp(24px, 6vw, 84px)',
+              top: 'calc(clamp(60px, 11vh, 120px) + clamp(216px, 29vw, 395px))',
+              height: 'clamp(20px, 3vh, 32px)',
+              width: 'min(520px, 50vw)',
+            }}
+          >
+            <span
+              ref={(el) => { aRevealsRef.current[5] = el; }}
+              style={{ fontSize: 'clamp(12px, 1.3vw, 18px)', color: '#333' }}
+            >
+              markets, from hackathon builds to live apps.
+            </span>
+          </div>
+
+          {/* Pill Badges */}
+          <div
+            ref={(el) => { pillsRef.current[0] = el; }}
+            className="pill"
+            style={{
+              left: 'clamp(24px, 6vw, 84px)',
+              bottom: 'clamp(40px, 8vh, 80px)',
+            }}
+          >
+            1ST / AXION HACKATHON
+          </div>
+          <div
+            ref={(el) => { pillsRef.current[1] = el; }}
+            className="pill"
+            style={{
+              left: 'calc(clamp(24px, 6vw, 84px) + clamp(170px, 18vw, 240px))',
+              bottom: 'clamp(40px, 8vh, 80px)',
+            }}
+          >
+            5+ PROJECTS
+          </div>
+          <div
+            ref={(el) => { pillsRef.current[2] = el; }}
+            className="pill"
+            style={{
+              left: 'calc(clamp(24px, 6vw, 84px) + clamp(280px, 28vw, 370px))',
+              bottom: 'clamp(40px, 8vh, 80px)',
+            }}
+          >
+            MUMBAI
+          </div>
         </div>
 
-        <div
-          ref={tg1Ref}
-          className="tag"
-          style={{
-            right: 'clamp(180px, 24vw, 360px)',
-            top: 'clamp(70px, 16vh, 160px)',
-            background: '#111',
-            color: 'var(--cr)',
-          }}
-        >
-          CE '28
-        </div>
-        <div
-          ref={tg2Ref}
-          className="tag"
-          style={{
-            right: 'clamp(30px, 6vw, 80px)',
-            top: 'clamp(220px, 48vh, 440px)',
-            background: 'var(--cr)',
-            color: '#111',
-            border: '2px solid #111',
-          }}
-        >
-          AI FOR BHARAT
-        </div>
-      </div>
-    </section>
+        <div ref={aRRef} className="grp">
+          {/* Red circle */}
+          <div ref={aCircRef} className="circ" />
 
-    {/* =========================================================
+          {/* Arch cutout */}
+          <div ref={aPhRef} className="ph1">
+            <img
+              src={debashreePhoto}
+              alt="Debashree Mal"
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                objectPosition: 'center 10%',
+                filter: 'drop-shadow(0 10px 22px rgba(0, 0, 0, 0.2)) contrast(1.04) brightness(1.02)',
+              }}
+            />
+          </div>
+
+          <div
+            ref={tg1Ref}
+            className="tag"
+            style={{
+              right: 'clamp(180px, 24vw, 360px)',
+              top: 'clamp(70px, 16vh, 160px)',
+              background: 'rgba(18, 18, 22, 0.78)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+              border: '1px solid rgba(255, 255, 255, 0.16)',
+              boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
+              color: 'var(--cr)',
+            }}
+          >
+            CE '28
+          </div>
+          <div
+            ref={tg2Ref}
+            className="tag"
+            style={{
+              right: 'clamp(30px, 6vw, 80px)',
+              top: 'clamp(220px, 48vh, 440px)',
+              background: 'rgba(239, 234, 224, 0.88)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+              color: '#111',
+              border: '1px solid rgba(0, 0, 0, 0.15)',
+              boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8)',
+            }}
+          >
+            AI FOR BHARAT
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================
           Panel 2: WINS (3D CARD STACK - FROM v9 & v10)
           ========================================================= */}
-    <section ref={p2Ref} className="pn p2" style={{ zIndex: 3, display: 'none' }}>
-      <div className="wt">
-        {'WINS'.split('').map((char, i) => (
-          <span
-            key={i}
-            ref={(el) => { wLettersRef.current[i] = el; }}
-            className="l"
-          >
-            {char}
-          </span>
-        ))}
-      </div>
-
-      {/* Left Info Block */}
-      <div ref={wInfoRef} className="w-info">
-        <div className="w-counter">0{wCard + 1} / 05</div>
-        <div className="w-bar-bg">
-          <i ref={wBarRef} className="w-bar-fill" />
-        </div>
-        <div className="wn key-swap" key={`wn-${wCard}`}>{W5_DATA[wCard].title}</div>
-        <div className="ws key-swap" key={`ws-${wCard}`}>{W5_DATA[wCard].sub}</div>
-        <div className="wd key-swap" key={`wd-${wCard}`}>{W5_DATA[wCard].desc}</div>
-
-        {/* Minimal Card Nav Controls */}
-        <div style={{ display: 'flex', gap: '8px', marginTop: '22px' }}>
-          <button
-            type="button"
-            onClick={() => {
-              if (wCard > 0) {
-                tgtRef.current = Math.max(0.34, tgtRef.current - 0.04);
-              } else {
-                goTo(1);
-              }
-            }}
-            style={{
-              background: 'transparent',
-              color: wCard === 0 ? '#666' : 'var(--cr)',
-              border: '1px solid rgba(239, 234, 224, 0.25)',
-              padding: '5px 12px',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontFamily: 'var(--mo)',
-              fontSize: '11px',
-              letterSpacing: '0.1em',
-            }}
-          >
-            PREV
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              if (wCard < 4) {
-                tgtRef.current = Math.min(0.50, tgtRef.current + 0.04);
-              } else {
-                goTo(3);
-              }
-            }}
-            style={{
-              background: 'transparent',
-              color: 'var(--cr)',
-              border: '1px solid var(--rd)',
-              padding: '5px 14px',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontFamily: 'var(--mo)',
-              fontSize: '11px',
-              letterSpacing: '0.1em',
-            }}
-          >
-            {wCard < 4 ? 'NEXT CARD →' : 'EXPLORE MOMENTS →'}
-          </button>
-        </div>
-      </div>
-
-      {/* 3D Peeling Stack */}
-      <div ref={wStackRef} className="w-stack">
-        {W5_DATA.map((w, i) => {
-          const k = W_CC[i];
-          const isDark = k[0] === '#1b1b1f';
-          return (
-            <div
+      <section ref={p2Ref} className="pn p2" style={{ zIndex: 3, display: 'none' }}>
+        <div className="wt">
+          {'WINS'.split('').map((char, i) => (
+            <span
               key={i}
-              ref={(el) => { cardRefs.current[i] = el; }}
-              className="wc"
+              ref={(el) => { wLettersRef.current[i] = el; }}
+              className="l"
+            >
+              {char}
+            </span>
+          ))}
+        </div>
+
+        {/* Left Info Block */}
+        <div ref={wInfoRef} className="w-info">
+          <div className="wn key-swap" key={`wn-${wCard}`}>{W5_DATA[wCard].title}</div>
+          <div className="ws key-swap" key={`ws-${wCard}`}>{W5_DATA[wCard].sub}</div>
+          <div className="wd key-swap" key={`wd-${wCard}`}>{W5_DATA[wCard].desc}</div>
+
+          {/* Minimal Card Nav Controls */}
+          <div style={{ display: 'flex', gap: '8px', marginTop: '22px' }}>
+            <button
+              type="button"
               onClick={() => {
-                tgtRef.current = 0.34 + (i / 4) * (0.50 - 0.34);
+                if (wCard > 0) {
+                  tgtRef.current = Math.max(0.34, tgtRef.current - 0.04);
+                } else {
+                  goTo(1);
+                }
               }}
               style={{
-                background: k[0],
-                color: k[1],
-                border: isDark ? '1px solid #333' : 'none',
+                background: 'rgba(255, 255, 255, 0.06)',
+                color: wCard === 0 ? 'rgba(255, 255, 255, 0.25)' : '#EFEAE0',
+                border: '1px solid rgba(255, 255, 255, 0.15)',
+                padding: '6px 14px',
+                borderRadius: '999px',
+                cursor: wCard === 0 ? 'not-allowed' : 'pointer',
+                fontFamily: 'var(--mo)',
+                fontSize: '11px',
+                letterSpacing: '0.1em',
+                boxShadow: 'none',
+                transition: 'background 0.2s ease, border-color 0.2s ease, color 0.2s ease',
               }}
             >
-              <i className="tp" />
-              <div className="im">
-                <i className={`ti ${w.icon}`} />
-              </div>
-              <div className="cn">{w.title}</div>
-              <div className="cs">{w.sub}</div>
-            </div>
-          );
-        })}
-      </div>
-    </section>
+              PREV
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                if (wCard < 4) {
+                  tgtRef.current = Math.min(0.50, tgtRef.current + 0.04);
+                } else {
+                  goTo(3);
+                }
+              }}
+              style={{
+                background: 'rgba(255, 255, 255, 0.06)',
+                color: '#EFEAE0',
+                border: '1px solid rgba(255, 255, 255, 0.15)',
+                padding: '6px 16px',
+                borderRadius: '999px',
+                cursor: 'pointer',
+                fontFamily: 'var(--mo)',
+                fontSize: '11px',
+                letterSpacing: '0.1em',
+                boxShadow: 'none',
+                transition: 'background 0.2s ease, border-color 0.2s ease, color 0.2s ease',
+              }}
+            >
+              {wCard < 4 ? 'NEXT CARD →' : 'EXPLORE MOMENTS →'}
+            </button>
+          </div>
+        </div>
 
-    {/* =========================================================
+        {/* 3D Peeling Stack */}
+        <div ref={wStackRef} className="w-stack">
+          {W5_DATA.map((w, i) => {
+            const k = W_CC[i];
+            const isDark = k[0] === '#1b1b1f';
+            return (
+              <div
+                key={i}
+                ref={(el) => { cardRefs.current[i] = el; }}
+                className="wc"
+                onClick={() => {
+                  tgtRef.current = 0.34 + (i / 4) * (0.50 - 0.34);
+                }}
+                style={{
+                  background: isDark
+                    ? '#1b1b1f'
+                    : k[0] === '#EE3B1F'
+                      ? '#EE3B1F'
+                      : '#EFEAE0',
+                  color: k[1],
+                  border: isDark
+                    ? '1px solid rgba(255, 255, 255, 0.16)'
+                    : '1px solid rgba(0, 0, 0, 0.12)',
+                  boxShadow: '0 20px 48px rgba(0, 0, 0, 0.65)',
+                }}
+              >
+                <i className="tp" />
+                <div className="im">
+                  <i className={`ti ${w.icon}`} />
+                </div>
+                <div className="cn">{w.title}</div>
+                <div className="cs">{w.sub}</div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* =========================================================
           Panel 3: MOMENTS (REACT BITS CIRCULAR CAROUSEL)
           ========================================================= */}
       <section ref={p4Ref} className="pn p4" style={{ zIndex: 4, display: 'none' }}>
@@ -1312,189 +1480,266 @@ export const App: React.FC = () => {
         )}
       </section>
 
-    {/* =========================================================
+      {/* =========================================================
           Panel 4: CONTACT (LAST SCREEN - STARTS AS MOMENTS REACHES MIDDLE)
           ========================================================= */}
-    <section ref={p5Ref} className="pn p5" style={{ zIndex: 5, display: 'none' }}>
-      {/* Ambient Top Tagline / Title */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 'clamp(50px, 10vh, 90px)',
-          left: 'clamp(24px, 5.5vw, 72px)',
-          right: 'clamp(24px, 5.5vw, 72px)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          zIndex: 10,
-        }}
-      >
-        <div>
-          <span
-            style={{
-              fontFamily: 'var(--bn, "Bebas Neue", "Anton", sans-serif)',
-              fontSize: 'clamp(54px, 8.5vw, 120px)',
-              lineHeight: 0.9,
-              color: '#EFEAE0',
-              letterSpacing: '0.02em',
-              display: 'block',
-              textTransform: 'uppercase',
-            }}
-          >
-            LET'S CONNECT
-          </span>
-          <span
-            style={{
-              fontFamily: 'var(--mo)',
-              fontSize: 'clamp(11px, 1.1vw, 14px)',
-              color: 'var(--rd)',
-              letterSpacing: '0.14em',
-              display: 'block',
-              marginTop: '8px',
-            }}
-          >
-            MUMBAI, INDIA • OPEN FOR AI &amp; FULL-STACK COLLABORATIONS
-          </span>
-        </div>
-
-        {/* Rotating "SAY HI" Red Circular Stamp */}
-        <svg
-          ref={cBdRef}
+      <section ref={p5Ref} className="pn p5" style={{ zIndex: 5, display: 'none' }}>
+        {/* Ambient Top Tagline / Title */}
+        <div
+          ref={cTitleRef}
           style={{
-            width: 'clamp(72px, 8vw, 100px)',
-            height: 'clamp(72px, 8vw, 100px)',
-            transformOrigin: 'center',
+            position: 'absolute',
+            top: 'clamp(50px, 10vh, 90px)',
+            left: 'clamp(24px, 5.5vw, 72px)',
+            right: 'clamp(24px, 5.5vw, 72px)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            zIndex: 10,
           }}
-          viewBox="0 0 100 100"
-          aria-hidden="true"
         >
-          <circle cx="50" cy="50" r="48" fill="#EE3B1F" />
-          <defs>
-            <path id="sayHiPath" d="M50,50 m-35,0 a35,35 0 1,1 70,0 a35,35 0 1,1 -70,0" />
-          </defs>
-          <text fontSize="9.5" fill="#0E0E10" fontFamily="monospace" letterSpacing="1.6">
-            <textPath href="#sayHiPath">SAY HI • SAY HI • SAY HI • </textPath>
-          </text>
-          <text x="50" y="58" textAnchor="middle" fontSize="22" fill="#0E0E10" fontFamily="Anton">
-            :)
-          </text>
-        </svg>
-      </div>
-
-      {/* Cream Ripped Bottom Sheet */}
-      <div ref={cSheetRef} className="contact-bottom-sheet">
-        <div className="contact-services-tag">
-          <span>FULL-STACK</span>
-          <em>|</em>
-          <span>AI &amp; AGENTS</span>
-          <em>|</em>
-          <span>SYSTEM DESIGN</span>
-          <em>|</em>
-          <span>OFFLINE FACE SDK</span>
-          <em>|</em>
-          <span>HACKATHON WINNER</span>
+          <div>
+            <span
+              style={{
+                fontFamily: 'var(--bn, "Bebas Neue", "Anton", sans-serif)',
+                fontSize: 'clamp(54px, 8.5vw, 120px)',
+                lineHeight: 0.9,
+                color: '#EFEAE0',
+                letterSpacing: '0.02em',
+                display: 'block',
+                textTransform: 'uppercase',
+              }}
+            >
+              LET'S CONNECT
+            </span>
+            <span
+              ref={cSubTextRef}
+              style={{
+                fontFamily: 'var(--mo)',
+                fontSize: 'clamp(11px, 1.1vw, 14px)',
+                color: 'var(--rd)',
+                letterSpacing: '0.14em',
+                display: 'block',
+                marginTop: '8px',
+              }}
+            >
+              MUMBAI, INDIA • OPEN FOR AI &amp; FULL-STACK COLLABORATIONS
+            </span>
+          </div>
         </div>
 
-        <div className="contact-footer-bar">
-          {/* Left: Direct Mail Link Button */}
-          <a
-            href="mailto:debashreemal08@gmail.com"
-            className="contact-me-btn"
-            title="Send direct email"
+        {/* SAY HELLO Flying Rocket Button - Wide seamless canvas so smoke expands freely, button placed on right */}
+        <div
+          ref={cSayHelloRef}
+          style={{
+            position: 'absolute',
+            right: 'clamp(8px, 2.5vw, 36px)',
+            bottom: 'calc(clamp(260px, 42vh, 440px) + 6px)',
+            width: 'clamp(440px, 54vw, 760px)',
+            height: 'clamp(280px, 36vh, 420px)',
+            zIndex: 15,
+            opacity: 0,
+            pointerEvents: 'auto',
+          }}
+        >
+          <FlyingButton
+            theme="dark"
+            size="medium"
+            altitude={210}
+            hoverTime={2.4}
+            jets={2}
+            thrusters
+            trigger="click"
+            carryCursor
+            smoke={1.2}
+            turbulence={1.2}
+            wobble={1}
+            ramp={false}
+            buttonAlign="right"
+            thrustColor="#EE3B1F"
+            smokeColor="#EFEAE0"
+            buttonColor="#18181b"
+            textColor="#EFEAE0"
+            onClick={() => {
+              window.location.href = 'mailto:debashreee87@gmail.com';
+            }}
           >
             SAY HELLO ↗
-          </a>
+          </FlyingButton>
+        </div>
 
-          {/* Center: Email Address */}
-          <a
-            href="mailto:debashreemal08@gmail.com"
-            className="contact-email-link"
-            title="Copy or send email"
-          >
-            debashreemal08@gmail.com
-          </a>
+        {/* Cream Ripped Bottom Sheet */}
+        <div ref={cSheetRef} className="contact-bottom-sheet">
+          <div className="contact-services-tag">
+            <span>FULL-STACK</span>
+            <em>|</em>
+            <span>AI &amp; AGENTS</span>
+            <em>|</em>
+            <span>SYSTEM DESIGN</span>
+            <em>|</em>
+            <span>OFFLINE FACE SDK</span>
+            <em>|</em>
+            <span>HACKATHON WINNER</span>
+          </div>
 
-          {/* Right: Social Circle Buttons */}
-          <div className="contact-social-wrap">
-            <div className="social-icons-row">
-              <a
-                href="https://www.linkedin.com/in/debashree-mal-118837269/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="social-circle-btn"
-                title="LinkedIn Profile"
-              >
-                <i className="ti ti-brand-linkedin" />
-              </a>
-              <a
-                href="https://github.com/debashree-08"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="social-circle-btn"
-                title="GitHub Profile"
-              >
-                <i className="ti ti-brand-github" />
-              </a>
-              <a
-                href="mailto:debashreemal08@gmail.com"
-                className="social-circle-btn"
-                title="Send Email"
-              >
-                <i className="ti ti-mail" />
-              </a>
-              <a
-                href="/resume.pdf"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="social-circle-btn"
-                title="Download Resume"
-              >
-                <i className="ti ti-download" />
-              </a>
+          <div className="contact-footer-bar">
+            {/* Left: Direct Mail Link Button */}
+            <a
+              href="mailto:debashreee87@gmail.com"
+              className="contact-me-btn"
+              title="Send direct email"
+            >
+              SAY HELLO ↗
+            </a>
+
+            {/* Center: Email Address */}
+            <a
+              href="mailto:debashreee87@gmail.com"
+              className="contact-email-link"
+              title="Copy or send email"
+            >
+              debashreee87@gmail.com
+            </a>
+
+            {/* Right: Social Circle Buttons */}
+            <div className="contact-social-wrap">
+              <div className="social-icons-row">
+                <a
+                  href="https://www.linkedin.com/in/debashree-mal-118837269/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="social-circle-btn"
+                  title="LinkedIn Profile"
+                >
+                  <i className="ti ti-brand-linkedin" />
+                </a>
+                <a
+                  href="https://github.com/debashree-08"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="social-circle-btn"
+                  title="GitHub Profile"
+                >
+                  <i className="ti ti-brand-github" />
+                </a>
+                <a
+                  href="mailto:debashreee87@gmail.com"
+                  className="social-circle-btn"
+                  title="Send Email"
+                >
+                  <i className="ti ti-mail" />
+                </a>
+                <a
+                  href="/resume.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="social-circle-btn"
+                  title="Download Resume"
+                >
+                  <i className="ti ti-download" />
+                </a>
+              </div>
+              <span className="contact-handle">@debashree_mal • CE '28</span>
             </div>
-            <span className="contact-handle">@debashree_mal • CE '28</span>
+          </div>
+        </div>
+
+        {/* Back to Top Floating Pill Button */}
+        <button
+          ref={cTopBtnRef}
+          onClick={() => goTo(0)}
+          className="back-to-top-pill"
+          title="Return to top"
+          style={{
+            position: 'absolute',
+            right: 'clamp(16px, 3.5vw, 40px)',
+            bottom: 'clamp(14px, 2.2vh, 26px)',
+            zIndex: 30,
+            opacity: 0,
+            pointerEvents: 'none',
+            transition: 'opacity 0.3s ease, transform 0.2s ease, background 0.2s ease',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            background: '#141417',
+            color: '#EFEAE0',
+            border: '1px solid rgba(255, 255, 255, 0.15)',
+            borderRadius: '999px',
+            padding: '9px 20px',
+            fontFamily: 'var(--mo)',
+            fontSize: '11px',
+            fontWeight: 600,
+            letterSpacing: '0.12em',
+            cursor: 'pointer',
+            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.45)',
+          }}
+        >
+          <i className="ti ti-arrow-up" style={{ fontSize: '13px', color: 'var(--rd)' }} />
+          <span>TOP</span>
+        </button>
+      </section>
+
+      {/* Morphing Orange Circle -> WINS Title */}
+      <div
+        ref={morphCircRef}
+        className="morph-circle"
+        style={{ display: 'none' }}
+      />
+
+      {/* Hero Flying Coin-to-Sticker Card (Transitions from Moments Zoom -> Contact Sticker) */}
+      <div
+        ref={coinCardRef}
+        className="coin-sticker-wrap"
+        onClick={() => {
+          if (coinCardRef.current?.dataset.stuck === 'true') {
+            goTo(3); // Jump back to moments on click
+          }
+        }}
+        title="Featured Moment • Click to explore archive"
+        style={{ display: 'none' }}
+      >
+        <div ref={coinFlipperRef} className="coin-flipper">
+          {/* FRONT FACE: The Moment Card */}
+          <div className="coin-face coin-front">
+            <div className="coin-card-header">
+              <span className="coin-badge">● 1ST PLACE</span>
+              <span className="coin-number">#01</span>
+            </div>
+            <div className="coin-img-wrap">
+              <img
+                src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&q=80&auto=format&fit=crop"
+                alt="Axion Hackathon"
+                className="coin-img"
+              />
+              <div className="coin-sticker-tape">STICKER</div>
+            </div>
+            <div className="coin-card-body">
+              <div className="coin-tag">AI PROJECT MANAGER</div>
+              <div className="coin-title">Axion Hackathon</div>
+            </div>
+            <div className="coin-card-footer">
+              <span className="coin-year">2025 • 3D ARCHIVE</span>
+              <i className="ti ti-arrow-up-right" style={{ color: 'var(--rd)', fontSize: '11px' }} />
+            </div>
+            <div className="coin-sheen" />
+          </div>
+
+          {/* BACK FACE: Collector's Reverse Obsidian Coin */}
+          <div className="coin-face coin-back">
+            <div className="coin-back-inner">
+              <div className="coin-back-ring">
+                <span className="coin-back-monogram">DM</span>
+              </div>
+              <span className="coin-back-label">VERIFIED ARCHIVE</span>
+              <span className="coin-back-sub">DEBASHREE MAL • 2025</span>
+              <span className="coin-back-stamp">★ COLLECTED ★</span>
+            </div>
+            <div className="coin-sheen" />
           </div>
         </div>
       </div>
-
-      {/* Back to Top Smooth Trigger Pill */}
-      <div
-        ref={cTopBtnRef}
-        onClick={() => goTo(0)}
-        style={{
-          position: 'absolute',
-          right: 'clamp(24px, 4vw, 48px)',
-          bottom: 'clamp(14px, 2.5vh, 24px)',
-          zIndex: 15,
-          cursor: 'pointer',
-          background: '#111',
-          color: 'var(--cr)',
-          padding: '7px 18px',
-          borderRadius: '999px',
-          font: '600 11px var(--mo)',
-          letterSpacing: '0.12em',
-          border: '1px solid rgba(255, 255, 255, 0.15)',
-          boxShadow: '0 4px 14px rgba(0, 0, 0, 0.4)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px',
-          transition: 'all 0.2s ease',
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'translateY(-2px)';
-          e.currentTarget.style.borderColor = 'var(--rd)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'translateY(0)';
-          e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.15)';
-        }}
-      >
-        <span>BACK TO TOP</span>
-        <span style={{ color: 'var(--rd)' }}>↑</span>
-      </div>
-    </section>
-  </div>
-);
+    </div>
+  );
 };
 
 export default App;

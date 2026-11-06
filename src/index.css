@@ -68,6 +68,7 @@ body {
     transform: translate(0, 0) rotate(0);
     opacity: 1;
   }
+
   100% {
     transform: translate(var(--bx), var(--by)) rotate(var(--br));
     opacity: 0;
@@ -120,17 +121,25 @@ body {
   display: flex;
   align-items: center;
   gap: clamp(16px, 2.4vw, 36px);
+  background: transparent;
+  border: none;
+  padding: 0;
+  box-shadow: none;
 }
 
 .nav span.l {
   cursor: pointer;
-  transition: opacity .2s, transform .2s;
+  transition: opacity .2s, transform .2s, color .2s;
   display: inline-block;
 }
 
 .nav span.l:hover {
-  text-decoration: underline;
-  opacity: 0.85;
+  opacity: 0.8;
+  transform: translateY(-1px);
+}
+
+.nav span.l.on {
+  color: var(--rd);
 }
 
 .stage[data-dk="1"] .nav {
@@ -148,6 +157,10 @@ body {
   flex-direction: column;
   gap: clamp(10px, 1.3vh, 16px);
   pointer-events: auto;
+  background: transparent;
+  border: none;
+  padding: 0;
+  box-shadow: none;
 }
 
 .dots i {
@@ -175,7 +188,11 @@ body {
 }
 
 /* Panel Transitions driven by RAF Scroll Engine */
-.p0, .p1, .p2, .p4, .p5 {
+.p0,
+.p1,
+.p2,
+.p4,
+.p5 {
   transition: none;
 }
 
@@ -219,7 +236,8 @@ body {
   justify-content: center;
   align-items: center;
   gap: clamp(16px, 2.5vw, 42px);
-  z-index: 2; /* Recessed behind robot if any slight overlap */
+  z-index: 2;
+  /* Recessed behind robot if any slight overlap */
   pointer-events: none;
   font-family: var(--bn, 'Bebas Neue', 'Anton', sans-serif);
   font-size: clamp(58px, 10vw, 160px);
@@ -241,7 +259,7 @@ body {
   color: var(--rd, #EE3B1F);
   letter-spacing: clamp(0.04em, 0.8vw, 0.08em);
   padding: 0;
-  filter: drop-shadow(0 0 35px rgba(238, 59, 31, 0.35)) drop-shadow(0 15px 35px rgba(0, 0, 0, 0.95));
+  filter: drop-shadow(0 15px 35px rgba(0, 0, 0, 0.95));
   white-space: nowrap;
 }
 
@@ -251,7 +269,8 @@ body {
   inset: 0;
   width: 100%;
   height: 100%;
-  z-index: 10; /* Strictly IN FRONT of typography */
+  z-index: 10;
+  /* Strictly IN FRONT of typography */
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -304,9 +323,11 @@ body {
   top: clamp(150px, 27vh, 300px);
   width: clamp(150px, 18vw, 270px);
   height: clamp(260px, 30vw, 440px);
-  background: radial-gradient(circle at 50% 25%, #E8F4FA 0%, #D4EBF7 100%);
+  background: radial-gradient(circle at 50% 25%, rgba(232, 244, 250, 0.9) 0%, rgba(212, 235, 247, 0.75) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-radius: clamp(100px, 15vw, 150px) clamp(100px, 15vw, 150px) 0 0;
-  border: clamp(3px, 0.4vw, 6px) solid #FFFFFF;
+  border: clamp(3px, 0.4vw, 6px) solid rgba(255, 255, 255, 0.9);
   border-bottom: none;
   color: #8c8c8c;
   font: 500 11px var(--mo);
@@ -316,19 +337,23 @@ body {
   flex-direction: column;
   gap: 8px;
   overflow: hidden;
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.35), inset 0 1px 2px rgba(255, 255, 255, 0.8);
   transform: translateY(320px);
   will-change: transform;
 }
 
 .pill {
   position: absolute;
-  background: #111;
+  background: rgba(18, 18, 22, 0.72);
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
   color: var(--cr);
   font: 500 clamp(10px, 1.2vw, 14px) var(--mo);
   letter-spacing: .08em;
   padding: clamp(8px, 1.1vh, 12px) clamp(14px, 1.6vw, 22px);
   border-radius: 99px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.15);
   transform: scale(0);
   white-space: nowrap;
   will-change: transform;
@@ -338,10 +363,13 @@ body {
   position: absolute;
   font: 400 clamp(14px, 1.6vw, 24px) var(--an);
   letter-spacing: .05em;
-  padding: clamp(6px, 0.9vh, 12px) clamp(14px, 1.6vw, 22px);
+  padding: clamp(8px, 1.1vh, 13px) clamp(16px, 1.8vw, 24px);
+  border-radius: 6px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   transform: scale(0);
   white-space: nowrap;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.25);
   will-change: transform, opacity;
 }
 
@@ -441,14 +469,19 @@ body {
   height: clamp(240px, 24vw, 330px);
   margin-left: calc(clamp(190px, 18vw, 260px) * -0.5);
   margin-top: calc(clamp(240px, 24vw, 330px) * -0.5);
-  border-radius: 8px;
-  padding: clamp(10px, 1.2vw, 16px);
+  border-radius: 12px;
+  padding: clamp(12px, 1.4vw, 18px);
   display: flex;
   flex-direction: column;
   will-change: transform, opacity;
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.65);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.65);
   cursor: pointer;
   user-select: none;
+  transform: translateZ(0);
+}
+
+.wc:hover {
+  box-shadow: 0 28px 65px rgba(0, 0, 0, 0.8);
 }
 
 .wc .tp {
@@ -458,10 +491,12 @@ body {
   margin-left: -28px;
   width: 56px;
   height: 16px;
-  background: rgba(222, 205, 150, 0.85);
-  backdrop-filter: blur(2px);
+  background: rgba(240, 230, 200, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   transform: rotate(-4deg);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 
 .wc .im {
@@ -519,6 +554,8 @@ body {
   position: absolute;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 .di {
@@ -609,8 +646,11 @@ body {
   right: 0;
   bottom: 0;
   height: clamp(260px, 42vh, 440px);
-  background: var(--cr);
-  box-shadow: 0 -20px 50px rgba(0, 0, 0, 0.7);
+  background: rgba(239, 234, 224, 0.92);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-top: 1px solid rgba(255, 255, 255, 0.75);
+  box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.9);
   will-change: transform;
   clip-path: none !important;
   display: flex;
@@ -720,22 +760,26 @@ body {
   width: clamp(34px, 3.2vw, 44px);
   height: clamp(34px, 3.2vw, 44px);
   border-radius: 50%;
-  border: 2px solid #111;
+  border: 1px solid rgba(17, 17, 17, 0.18);
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #111;
   font-size: clamp(16px, 1.5vw, 22px);
   text-decoration: none;
-  background: transparent;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .social-circle-btn:hover {
   background: #111;
   color: var(--cr);
+  border-color: #111;
   transform: translateY(-3px) scale(1.08);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
 }
 
 .contact-handle {
@@ -751,9 +795,9 @@ body {
   position: absolute;
   inset: 0;
   z-index: 60;
-  background: rgba(8, 8, 10, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(8, 8, 10, 0.68);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -766,6 +810,7 @@ body {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -774,12 +819,15 @@ body {
 .moments-modal-card-3d {
   width: clamp(310px, 30vw, 440px);
   min-height: clamp(400px, 50vh, 530px);
-  border-radius: 18px;
+  border-radius: 20px;
   padding: clamp(24px, 3vw, 36px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  box-shadow: 0 40px 90px rgba(0, 0, 0, 0.9), 0 0 50px rgba(238, 59, 31, 0.28);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 40px 90px rgba(0, 0, 0, 0.9), 0 0 50px rgba(238, 59, 31, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.3);
   cursor: pointer;
   transform-style: preserve-3d;
   animation: mmCardPop3D 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -792,6 +840,7 @@ body {
     transform: perspective(1200px) translateZ(-300px) rotateY(28deg) rotateX(-14deg) scale(0.6);
     opacity: 0;
   }
+
   100% {
     transform: perspective(1200px) translateZ(0px) rotateY(0deg) rotateX(0deg) scale(1);
     opacity: 1;
@@ -896,19 +945,25 @@ body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: #141416;
+  background: #131317;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding: 11px;
   box-sizing: border-box;
   transform-style: preserve-3d;
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.65);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .portrait-card-3d:hover {
-  border-color: rgba(255, 255, 255, 0.45) !important;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95), 0 0 25px rgba(255, 255, 255, 0.12) !important;
+  background: #1b1b22 !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.95), 0 0 25px rgba(255, 255, 255, 0.15) !important;
   outline: none !important;
 }
 
@@ -939,13 +994,11 @@ body {
 .portrait-vignette {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(10, 10, 12, 0.72) 0%,
-    rgba(10, 10, 12, 0.12) 35%,
-    rgba(10, 10, 12, 0.42) 60%,
-    rgba(10, 10, 12, 0.96) 100%
-  );
+  background: linear-gradient(to bottom,
+      rgba(10, 10, 12, 0.72) 0%,
+      rgba(10, 10, 12, 0.08) 35%,
+      rgba(10, 10, 12, 0.38) 60%,
+      rgba(10, 10, 12, 0.94) 100%);
   pointer-events: none;
 }
 
@@ -958,19 +1011,18 @@ body {
 }
 
 .portrait-badge {
-  font: 600 8px var(--mo);
+  font: 600 8.5px var(--mo);
   letter-spacing: 0.1em;
-  padding: 3px 7px;
-  background: rgba(0, 0, 0, 0.72);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 3.5px 9px;
+  background: rgba(14, 14, 18, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 999px;
   color: var(--cr);
   display: flex;
   align-items: center;
   gap: 4px;
   text-transform: uppercase;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
 }
 
 .portrait-badge-dot {
@@ -982,7 +1034,7 @@ body {
 }
 
 .portrait-card-idx {
-  font: 700 9px var(--mo);
+  font: 700 9.5px var(--mo);
   letter-spacing: 0.08em;
   color: var(--cr);
   opacity: 0.85;
@@ -998,7 +1050,7 @@ body {
 }
 
 .portrait-card-tag {
-  font: 600 8px var(--mo);
+  font: 600 8.5px var(--mo);
   letter-spacing: 0.1em;
   color: var(--rd);
   text-transform: uppercase;
@@ -1006,7 +1058,7 @@ body {
 
 .portrait-card-title {
   margin: 0;
-  font: 700 12px/1.2 var(--in);
+  font: 700 13px/1.22 var(--in);
   color: #FFFFFF;
   letter-spacing: 0.01em;
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
@@ -1019,7 +1071,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font: 600 8px var(--mo);
+  font: 600 8.5px var(--mo);
   letter-spacing: 0.08em;
   color: rgba(255, 255, 255, 0.8);
   margin-top: 1px;
@@ -1041,4 +1093,243 @@ body {
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+/* =========================================================
+   ABOUT-TO-WINS ORANGE CIRCLE -> WINS MORPH TRANSITION
+   ========================================================= */
+.morph-circle {
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: var(--rd);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 15;
+  will-change: transform, width, height, border-radius, opacity;
+  box-shadow: 0 10px 40px rgba(238, 59, 31, 0.35);
+}
+
+/* =========================================================
+   MOMENTS-TO-CONTACT HERO COIN-TO-STICKER TRANSITION
+   ========================================================= */
+.dt-empty-slot {
+  border: 1.5px dashed rgba(255, 255, 255, 0.22) !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.7) !important;
+  border-radius: 8px;
+}
+
+.coin-sticker-wrap {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 25;
+  will-change: transform, opacity;
+  perspective: 1200px;
+  transform-origin: center center;
+  user-select: none;
+}
+
+.coin-sticker-wrap[data-stuck="true"] {
+  cursor: pointer;
+}
+
+.coin-sticker-wrap[data-stuck="true"]:hover .coin-flipper {
+  transform: rotate(-2deg) scale(1.05) translateY(-6px) !important;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.coin-flipper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  will-change: transform;
+  border-radius: 14px;
+}
+
+.coin-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
+  box-shadow: 0 0 0 3px #FAF7F2, 0 16px 36px rgba(0, 0, 0, 0.65);
+}
+
+/* Front Face: The Moment Card */
+.coin-front {
+  background: #141418;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  padding: 10px 10px 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.coin-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.coin-badge {
+  background: rgba(238, 59, 31, 0.16);
+  color: var(--rd);
+  border: 1px solid rgba(238, 59, 31, 0.4);
+  font: 700 8.5px var(--mo);
+  padding: 2px 7px;
+  border-radius: 999px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.coin-number {
+  font: 700 9px var(--mo);
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.1em;
+}
+
+.coin-img-wrap {
+  position: relative;
+  width: 100%;
+  height: 52%;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 6px 0;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+}
+
+.coin-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.coin-sticker-tape {
+  position: absolute;
+  top: 4px;
+  right: -16px;
+  background: rgba(250, 247, 242, 0.95);
+  color: #111;
+  font: 800 7px var(--mo);
+  letter-spacing: 0.12em;
+  padding: 2px 20px;
+  transform: rotate(32deg);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+}
+
+.coin-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.coin-tag {
+  font: 700 8.5px var(--mo);
+  color: var(--rd);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.coin-title {
+  font: 700 12.5px var(--bn, sans-serif);
+  color: #FFFFFF;
+  letter-spacing: 0.03em;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.coin-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font: 600 8px var(--mo);
+  color: rgba(255, 255, 255, 0.55);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 5px;
+  margin-top: 2px;
+}
+
+/* Back Face: Collector's Reverse Coin */
+.coin-back {
+  background: radial-gradient(circle at center, #1c1c24 0%, #0d0d10 100%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transform: rotateY(180deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 12px;
+}
+
+.coin-back-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.coin-back-ring {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  border: 2px dashed rgba(238, 59, 31, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(238, 59, 31, 0.06);
+  box-shadow: inset 0 0 16px rgba(238, 59, 31, 0.15), 0 0 12px rgba(238, 59, 31, 0.15);
+  margin-bottom: 12px;
+}
+
+.coin-back-monogram {
+  font: 700 24px var(--bn, sans-serif);
+  color: #FAF7F2;
+  letter-spacing: 0.1em;
+}
+
+.coin-back-label {
+  font: 700 9.5px var(--mo);
+  color: var(--rd);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.coin-back-sub {
+  font: 600 8px var(--mo);
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.08em;
+  margin-top: 3px;
+}
+
+.coin-back-stamp {
+  margin-top: 10px;
+  font: 700 7.5px var(--mo);
+  color: #FAF7F2;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 2px 8px;
+  border-radius: 999px;
+  letter-spacing: 0.12em;
+}
+
+.coin-sheen {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0) 48%, rgba(255, 255, 255, 0.06) 100%);
+  border-radius: inherit;
 }
