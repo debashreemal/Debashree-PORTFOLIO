@@ -228,7 +228,6 @@ export const App: React.FC = () => {
   const aRRef = useRef<HTMLDivElement>(null);
   const aBarRef = useRef<HTMLDivElement>(null);
   const aCircRef = useRef<HTMLDivElement>(null);
-  const morphCircRef = useRef<HTMLDivElement>(null);
   const aPhRef = useRef<HTMLDivElement>(null);
   const tg1Ref = useRef<HTMLDivElement>(null);
   const tg2Ref = useRef<HTMLDivElement>(null);
@@ -545,15 +544,11 @@ export const App: React.FC = () => {
             aRRef.current.style.transform = `translateY(${(p - 0.2) * 160}px)`;
           }
 
-          // Red circle in About
+          // Red circle expands and floats upward, echoing into the red glow of WINS
           if (aCircRef.current) {
-            if (p >= 0.20) {
-              aCircRef.current.style.opacity = '0';
-            } else {
-              const circScale = Math.max(0, eb(sg(p, 0.1, 0.175)));
-              aCircRef.current.style.transform = `translateY(${(p - 0.2) * 120}px) scale(${circScale})`;
-              aCircRef.current.style.opacity = '1';
-            }
+            const circScale = Math.max(0, eb(sg(p, 0.1, 0.175))) * (1 + ax * 0.4);
+            aCircRef.current.style.transform = `translateY(${(p - 0.2) * 120 - ax * 180}px) scale(${circScale})`;
+            aCircRef.current.style.opacity = `${cl(1 - ax * 0.7)}`;
           }
 
           // Photo cutout slides down gently with perspective depth
@@ -591,85 +586,19 @@ export const App: React.FC = () => {
       }
 
       // =========================================================
-      // ABOUT-TO-WINS: ORANGE CIRCLE -> "WINS" TITLE MORPH
-      // =========================================================
-      const morphActive = p >= 0.20 && p <= 0.33;
-      if (morphCircRef.current) {
-        morphCircRef.current.style.display = morphActive ? 'block' : 'none';
-        if (morphActive) {
-          const vw = window.innerWidth;
-          const vh = window.innerHeight;
-
-          // 1. About Circle Start Position (behind portrait)
-          const circSize = Math.max(260, Math.min(480, vw * 0.32));
-          const aboutRight = Math.max(40, Math.min(130, vw * 0.08));
-          const aboutTop = Math.max(80, Math.min(190, vh * 0.16));
-          const startX = vw - aboutRight - circSize;
-          const startY = aboutTop;
-
-          // 2. Wins Title Target Position
-          const winsLeft = Math.max(24, Math.min(68, vw * 0.055));
-          const winsTop = Math.max(40, Math.min(80, vh * 0.08));
-          const winsFontSize = Math.max(68, Math.min(140, vw * 0.095));
-          const winsW = winsFontSize * 2.3;
-          const winsH = winsFontSize * 0.95;
-          const targetX = winsLeft;
-          const targetY = winsTop;
-
-          // Normalized flight progress: 0 at p=0.20, 1 at p=0.28
-          const tFlight = Math.min(1, Math.max(0, (p - 0.20) / 0.08));
-          const flightEase = io(tFlight);
-
-          // Downward dipping arc across the viewport
-          const curX = startX + (targetX - startX) * flightEase;
-          const arcY = Math.sin(tFlight * Math.PI) * Math.min(140, vh * 0.18);
-          const curY = startY + (targetY - startY) * flightEase + arcY;
-
-          // Morphing from circle into horizontal word bounding capsule
-          const curW = circSize + (winsW - circSize) * flightEase;
-          const curH = circSize + (winsH - circSize) * flightEase;
-          const rEase = io(Math.min(1, Math.max(0, (tFlight - 0.65) / 0.35)));
-          const curR = 50 * (1 - rEase);
-
-          // As letters emerge, morph circle background dissolves into the letter glyphs
-          const dissolve = io(Math.min(1, Math.max(0, (p - 0.26) / 0.04)));
-          const morphBgOpacity = 1 - dissolve * 0.98;
-
-          morphCircRef.current.style.width = `${curW.toFixed(1)}px`;
-          morphCircRef.current.style.height = `${curH.toFixed(1)}px`;
-          morphCircRef.current.style.borderRadius = `${curR.toFixed(1)}%`;
-          morphCircRef.current.style.transform = `translate3d(${curX.toFixed(1)}px, ${curY.toFixed(1)}px, 0)`;
-          morphCircRef.current.style.opacity = `${morphBgOpacity}`;
-        }
-      }
-
-      // =========================================================
       // PANEL 2: WINS (0.22 < p < 0.53) - Clean, Distinct, No Overlap
       // =========================================================
       const winsVisible = p > 0.22 && p < 0.53;
       if (p2Ref.current) {
         p2Ref.current.style.display = winsVisible ? 'block' : 'none';
         if (winsVisible) {
-          // WINS title letters: bloom outward directly from the center of the arriving morph circle!
+          // WINS title letter stagger reveal with spring easing & skew
           const exitWins = sg(p, 0.47, 0.52);
-          const letterBloom = io(Math.min(1, Math.max(0, (p - 0.26) / 0.04)));
-          const letterVectors = [-54, -18, 18, 54]; // Spread outward horizontally from circle center
           wLettersRef.current.forEach((s, i) => {
             if (s) {
-              if (p < 0.26) {
-                s.style.opacity = '0';
-                s.style.transform = `scale(0.2)`;
-              } else if (p <= 0.31) {
-                // Smooth liquid expansion out of the circle
-                const offX = (letterVectors[i] || 0) * (1 - letterBloom);
-                const sc = 0.45 + 0.55 * letterBloom;
-                s.style.transform = `translateX(${offX.toFixed(1)}px) scale(${sc.toFixed(3)})`;
-                s.style.opacity = `${letterBloom}`;
-              } else {
-                // Fully formed stationary title in Wins
-                s.style.transform = `translateY(${-80 * exitWins}px) skewX(${-sk * 1.1}deg)`;
-                s.style.opacity = `${1 - exitWins}`;
-              }
+              const u = sg(p, 0.26 + i * 0.014, 0.35 + i * 0.014);
+              s.style.transform = `translateX(${-240 * (1 - eo(u))}px) translateY(${-80 * exitWins}px) skewX(${-sk * 1.1}deg)`;
+              s.style.opacity = `${cl(u * 4) * (1 - exitWins)}`;
             }
           });
 
@@ -1678,13 +1607,6 @@ export const App: React.FC = () => {
           <span>TOP</span>
         </button>
       </section>
-
-      {/* Morphing Orange Circle -> WINS Title */}
-      <div
-        ref={morphCircRef}
-        className="morph-circle"
-        style={{ display: 'none' }}
-      />
 
       {/* Hero Flying Coin-to-Sticker Card (Transitions from Moments Zoom -> Contact Sticker) */}
       <div

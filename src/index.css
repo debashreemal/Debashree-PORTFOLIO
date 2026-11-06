@@ -1096,21 +1096,6 @@ body {
 }
 
 /* =========================================================
-   ABOUT-TO-WINS ORANGE CIRCLE -> WINS MORPH TRANSITION
-   ========================================================= */
-.morph-circle {
-  position: fixed;
-  top: 0;
-  left: 0;
-  background: var(--rd);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 15;
-  will-change: transform, width, height, border-radius, opacity;
-  box-shadow: 0 10px 40px rgba(238, 59, 31, 0.35);
-}
-
-/* =========================================================
    MOMENTS-TO-CONTACT HERO COIN-TO-STICKER TRANSITION
    ========================================================= */
 .dt-empty-slot {
