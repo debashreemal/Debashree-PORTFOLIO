@@ -1,69 +1,77 @@
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, CSSProperties } from 'react';
+'use client';
+
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+
 import './CircularCarousel.css';
 
-export interface CarouselItem {
-  src: string;
-  alt?: string;
-  title?: string;
-  subtitle?: string;
-}
+const photo = id => `https://images.unsplash.com/${id}?w=900&q=80&auto=format&fit=max&sat=-100`;
 
-const photo = (id: string) => `https://images.unsplash.com/${id}?w=900&q=80&auto=format&fit=max&sat=-100`;
-
-export const DEFAULT_CAROUSEL_ITEMS: CarouselItem[] = [
+const DEFAULT_ITEMS = [
   {
-    src: photo('photo-1517245386807-bb43f82c33c4'),
-    alt: 'Axion Hackathon First Place Build',
-    title: 'AXION HACKATHON',
-    subtitle: '1ST PLACE • FLOWMIND AI'
+    src: photo('photo-1506744038136-46273834b3fb'),
+    alt: 'Mist drifting through a mountain valley',
+    title: 'Valley',
+    subtitle: 'Landscape'
   },
   {
-    src: photo('photo-1526374965328-7f61d4dc18c5'),
-    alt: 'NHAI Hackathon 7.0 Offline Face SDK',
-    title: 'NHAI HACKATHON 7.0',
-    subtitle: 'OFFLINE FACE RECOGNITION SDK'
+    src: photo('photo-1524504388940-b1c1722653e1'),
+    alt: 'A woman with long hair in soft studio light',
+    title: 'Portrait',
+    subtitle: 'Studio'
   },
   {
-    src: photo('photo-1531403009284-440f080d1e12'),
-    alt: 'HackHazards 2026 AI Teammates',
-    title: 'HACKHAZARDS 2026',
-    subtitle: 'FLOWMIND ARCHITECTURE'
+    src: photo('photo-1486406146926-c627a92ad1ab'),
+    alt: 'Glass towers seen from street level',
+    title: 'Towers',
+    subtitle: 'Architecture'
   },
   {
-    src: photo('photo-1504384308090-c894fdcc538d'),
-    alt: 'Smart India Hackathon Airfare Price Index',
-    title: 'SMART INDIA HACKATHON',
-    subtitle: 'SIH 2026 • MOSPI AIRFARE INDEX'
+    src: photo('photo-1502680390469-be75c86b636f'),
+    alt: 'A surfer carving inside a breaking wave',
+    title: 'Swell',
+    subtitle: 'Ocean'
   },
   {
-    src: photo('photo-1522071820081-009f0129c71c'),
-    alt: 'Paytm Build for India Autonomous AI',
-    title: 'PAYTM BUILD FOR INDIA',
-    subtitle: 'SULAJH AI • TEAMMATES'
+    src: photo('photo-1487958449943-2429e8be8625'),
+    alt: 'An angular white building against the sky',
+    title: 'Facade',
+    subtitle: 'Architecture'
   },
   {
-    src: photo('photo-1551288049-bebda4e38f71'),
-    alt: 'AI for Bharat Underserved Markets',
-    title: 'AI FOR BHARAT',
-    subtitle: 'REGIONAL & OFFLINE SYSTEMS'
+    src: photo('photo-1509631179647-0177331693ae'),
+    alt: 'A model in striped trousers leaning on a wall',
+    title: 'Pose',
+    subtitle: 'Editorial'
   },
   {
-    src: photo('photo-1515378791036-0648a3ef77b2'),
-    alt: 'Computer Engineering Class of 2028',
-    title: 'MUMBAI TECH COMMUNITY',
-    subtitle: 'CE UNDERGRAD CLASS OF 2028'
+    src: photo('photo-1519681393784-d120267933ba'),
+    alt: 'The Milky Way above snowy peaks',
+    title: 'Night',
+    subtitle: 'Sky'
   },
   {
-    src: photo('photo-1556761175-5973dc0f32e7'),
-    alt: 'Full-Stack & Autonomous Agent Systems',
-    title: 'SYSTEMS & AGENT ARCHITECTURE',
-    subtitle: 'FULL-STACK SCALABLE DEPLOYS'
+    src: photo('photo-1485968579580-b6d095142e6e'),
+    alt: 'A woman in a long coat on a city street',
+    title: 'Street',
+    subtitle: 'Editorial'
+  },
+  {
+    src: photo('photo-1493246507139-91e8fad9978e'),
+    alt: 'Mountains mirrored in a still lake',
+    title: 'Mirror',
+    subtitle: 'Landscape'
+  },
+  {
+    src: photo('photo-1511818966892-d7d671e672a2'),
+    alt: 'A glass skyscraper under a cloudy sky',
+    title: 'Glass',
+    subtitle: 'Architecture'
   }
 ];
 
 const PRESETS = {
   cylinder: {
-    axis: 'y' as const,
+    axis: 'y',
     tilt: -5,
     perspective: 2500,
     curve: 1,
@@ -74,7 +82,7 @@ const PRESETS = {
     window: 0
   },
   orbit: {
-    axis: 'y' as const,
+    axis: 'y',
     tilt: -16,
     perspective: 1500,
     curve: 0,
@@ -85,7 +93,7 @@ const PRESETS = {
     window: 0
   },
   wheel: {
-    axis: 'x' as const,
+    axis: 'x',
     tilt: 0,
     perspective: 1800,
     curve: 0,
@@ -96,7 +104,7 @@ const PRESETS = {
     window: 1.7
   },
   panorama: {
-    axis: 'y' as const,
+    axis: 'y',
     tilt: 0,
     perspective: 0,
     curve: 1,
@@ -119,26 +127,26 @@ const SWAP_LENGTH = 700;
 const SWAP_SPREAD = 420;
 const TO_RAD = Math.PI / 180;
 
-const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
-const wrap = (degrees: number) => ((((degrees + 180) % 360) + 360) % 360) - 180;
-const easeOut = (t: number) => 1 - Math.pow(1 - t, 4);
-const easeOutQuint = (t: number) => 1 - Math.pow(1 - t, 5);
+const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+const wrap = degrees => ((((degrees + 180) % 360) + 360) % 360) - 180;
+const easeOut = t => 1 - Math.pow(1 - t, 4);
+const easeOutQuint = t => 1 - Math.pow(1 - t, 5);
 
-const rotateX = (p: [number, number, number], degrees: number): [number, number, number] => {
+const rotateX = (p, degrees) => {
   const r = degrees * TO_RAD;
   const c = Math.cos(r);
   const s = Math.sin(r);
   return [p[0], p[1] * c - p[2] * s, p[1] * s + p[2] * c];
 };
 
-const rotateY = (p: [number, number, number], degrees: number): [number, number, number] => {
+const rotateY = (p, degrees) => {
   const r = degrees * TO_RAD;
   const c = Math.cos(r);
   const s = Math.sin(r);
   return [p[0] * c + p[2] * s, p[1], -p[0] * s + p[2] * c];
 };
 
-const Digits: React.FC<{ value: number }> = ({ value }) => (
+const Digits = ({ value }) => (
   <span className="circular-carousel__digits">
     {String(value)
       .padStart(2, '0')
@@ -146,7 +154,7 @@ const Digits: React.FC<{ value: number }> = ({ value }) => (
       .map((digit, index) => (
         <span key={index} className="circular-carousel__digit">
           <span className="circular-carousel__reel" style={{ transform: `translateY(${-Number(digit) * 10}%)` }}>
-            {'0123456789'.split('').map((n) => (
+            {'0123456789'.split('').map(n => (
               <span key={n}>{n}</span>
             ))}
           </span>
@@ -155,50 +163,31 @@ const Digits: React.FC<{ value: number }> = ({ value }) => (
   </span>
 );
 
-export interface CircularCarouselProps {
-  items?: CarouselItem[];
-  preset?: 'cylinder' | 'orbit' | 'wheel' | 'panorama';
-  intro?: 'assemble' | 'rise' | 'spin' | 'none';
-  cardWidth?: number;
-  aspectRatio?: number;
-  gap?: number;
-  curve?: number;
-  tilt?: number;
-  perspective?: number;
-  autoplay?: 'drift' | 'step' | 'off';
-  speed?: number;
-  interval?: number;
-  direction?: 'left' | 'right';
-  draggable?: boolean;
-  momentum?: number;
-  snap?: boolean;
-  pauseOnHover?: boolean;
-  focusOnClick?: boolean;
-  parallax?: number;
-  stretch?: number;
-  depthFade?: number;
-  fadeColor?: string;
-  innerShade?: number;
-  cornerRadius?: number;
-  captions?: boolean;
-  onChange?: (index: number) => void;
-  onItemClick?: (item: CarouselItem, index: number) => void;
-  className?: string;
-  style?: CSSProperties;
-}
+const usePrefersReducedMotion = () => {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    const query = window.matchMedia?.('(prefers-reduced-motion: reduce)');
+    if (!query) return undefined;
+    const update = () => setReduced(query.matches);
+    update();
+    query.addEventListener?.('change', update);
+    return () => query.removeEventListener?.('change', update);
+  }, []);
+  return reduced;
+};
 
-export const CircularCarousel: React.FC<CircularCarouselProps> = ({
-  items = DEFAULT_CAROUSEL_ITEMS,
+const CircularCarousel = ({
+  items = DEFAULT_ITEMS,
   preset = 'cylinder',
   intro = 'rise',
-  cardWidth = 240,
-  aspectRatio = 0.75,
-  gap = 34,
+  cardWidth = 220,
+  aspectRatio = 1,
+  gap = 25,
   curve,
   tilt,
   perspective,
   autoplay = 'drift',
-  speed = 10,
+  speed = 14,
   interval = 3,
   direction = 'left',
   draggable = true,
@@ -206,27 +195,28 @@ export const CircularCarousel: React.FC<CircularCarouselProps> = ({
   snap = true,
   pauseOnHover = true,
   focusOnClick = true,
-  parallax = 0.34,
-  stretch = 0.45,
+  parallax = 0.3,
+  stretch = 0.5,
   depthFade = 0.55,
-  fadeColor = '#0B0B0B',
-  innerShade = 0.5,
-  cornerRadius = 14,
-  captions = true,
+  fadeColor = '#000000',
+  innerShade = 0.6,
+  cornerRadius = 12,
+  captions = false,
   onChange,
   onItemClick,
   className = '',
   style
 }) => {
-  const incoming = items && items.length ? items : DEFAULT_CAROUSEL_ITEMS;
+  const incoming = items && items.length ? items : DEFAULT_ITEMS;
   const [list, setList] = useState(incoming);
-  const [leaving, setLeaving] = useState<{ id: number; items: CarouselItem[]; delays: number[] } | null>(null);
+  const [leaving, setLeaving] = useState(null);
   const count = list.length;
   const shape = PRESETS[preset] ? preset : 'cylinder';
   const layout = PRESETS[shape];
   const axis = layout.axis;
   const tiltValue = tilt ?? layout.tilt;
   const curveValue = layout.billboard ? 0 : clamp(curve ?? layout.curve, 0, 1);
+  const reduced = usePrefersReducedMotion();
 
   const cardW = Math.max(40, cardWidth);
   const cardH = cardW / clamp(aspectRatio, 0.2, 5);
@@ -262,13 +252,13 @@ export const CircularCarousel: React.FC<CircularCarouselProps> = ({
     });
   }, [along, axis, curveValue, layout.inward, radius]);
 
-  const rootRef = useRef<HTMLDivElement>(null);
-  const stageRef = useRef<HTMLDivElement>(null);
-  const cameraRef = useRef<HTMLDivElement>(null);
-  const ringRef = useRef<HTMLDivElement>(null);
-  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const wakeRef = useRef<() => void>(() => {});
-  const measureRef = useRef<() => void>(() => {});
+  const rootRef = useRef(null);
+  const stageRef = useRef(null);
+  const cameraRef = useRef(null);
+  const ringRef = useRef(null);
+  const cardRefs = useRef([]);
+  const wakeRef = useRef(() => {});
+  const measureRef = useRef(() => {});
   const activeRef = useRef(0);
   const [active, setActive] = useState(0);
   const [ready, setReady] = useState(false);
@@ -279,20 +269,20 @@ export const CircularCarousel: React.FC<CircularCarouselProps> = ({
   const stateRef = useRef({
     angle: 0,
     velocity: 0,
-    target: null as number | null,
+    target: null,
     dir: 0,
-    press: null as { id: number; x: number; y: number; angle: number; moved: boolean; origin: number; samples: { time: number; angle: number }[] } | null,
+    press: null,
     drag: false,
     hover: false,
     pointer: { inside: false, x: 0, y: 0 },
     yaw: 0,
     pitch: 0,
-    intro: null as { type: string; start: number } | null,
+    intro: null,
     introDone: false,
     holdUntil: 0,
     stepAt: 0,
     suppressClick: false,
-    wheelTimer: 0 as any,
+    wheelTimer: 0,
     fit: 1,
     shift: 0,
     drop: 0,
@@ -309,18 +299,19 @@ export const CircularCarousel: React.FC<CircularCarouselProps> = ({
     perspective: layout.inward ? radius : (perspective ?? layout.perspective),
     cardW,
     cardH,
-    intro: intro in INTRO_LENGTH ? intro : 'rise',
-    autoplay,
+    intro: reduced ? 'none' : intro in INTRO_LENGTH ? intro : 'rise',
+    autoplay: reduced ? 'off' : autoplay,
     speed,
     interval: Math.max(0.5, interval),
     draggable,
     momentum: clamp(momentum, 0, 1),
     snap,
     pauseOnHover,
-    parallax: clamp(parallax, 0, 1),
-    stretch: clamp(stretch, 0, 1),
+    parallax: reduced ? 0 : clamp(parallax, 0, 1),
+    stretch: reduced ? 0 : clamp(stretch, 0, 1),
     depthFade: clamp(depthFade, 0, 1),
-    captions
+    captions,
+    reduced
   };
   const settingsRef = useRef(settings);
   settingsRef.current = settings;
@@ -340,7 +331,7 @@ export const CircularCarousel: React.FC<CircularCarouselProps> = ({
   incomingRef.current = incoming;
   const listRef = useRef(list);
   listRef.current = list;
-  const sourcesKey = incoming.map((item) => item.src).join('|');
+  const sourcesKey = incoming.map(item => item.src).join('|');
 
   useEffect(() => {
     let cancelled = false;
@@ -351,28 +342,28 @@ export const CircularCarousel: React.FC<CircularCarouselProps> = ({
       setLeaving(null);
       setList(next);
     }
-    const sources = next.slice(0, 16).map((item) => item.src);
-    const load = (src: string) =>
-      new Promise<void>((resolve) => {
+    const sources = next.slice(0, 16).map(item => item.src);
+    const load = src =>
+      new Promise(resolve => {
         const image = new Image();
         image.decoding = 'async';
         image.onload = () => (image.decode ? image.decode().then(resolve, resolve) : resolve());
-        image.onerror = () => resolve();
+        image.onerror = resolve;
         image.src = src;
       });
-    const timeout = new Promise<void>((resolve) => setTimeout(resolve, 2400));
+    const timeout = new Promise(resolve => setTimeout(resolve, 2400));
     Promise.race([Promise.all(sources.map(load)), timeout]).then(() => {
       if (cancelled) return;
       const state = stateRef.current;
       if (smooth) {
         const previous = listRef.current;
         const s = settingsRef.current;
-        if (previous !== next) {
-          setLeaving({
-            id: Date.now(),
+        if (!s.reduced && previous !== next) {
+          setLeaving(current => ({
+            id: (current?.id || 0) + 1,
             items: previous,
             delays: previous.map((_, index) => (Math.abs(wrap(index * s.step + state.angle)) / 180) * SWAP_SPREAD)
-          });
+          }));
         }
         setList(next);
         wakeRef.current();
@@ -404,7 +395,7 @@ export const CircularCarousel: React.FC<CircularCarouselProps> = ({
     let raf = 0;
     let visible = true;
 
-    const nearest = (angle: number) => Math.round(angle / settingsRef.current.step) * settingsRef.current.step;
+    const nearest = angle => Math.round(angle / settingsRef.current.step) * settingsRef.current.step;
 
     const measure = () => {
       const s = settingsRef.current;
@@ -424,7 +415,7 @@ export const CircularCarousel: React.FC<CircularCarouselProps> = ({
         minY = -s.cardH / 2;
         maxY = s.cardH / 2;
       } else {
-        const corners: [number, number][] = [
+        const corners = [
           [-s.cardW / 2, -s.cardH / 2],
           [s.cardW / 2, -s.cardH / 2],
           [-s.cardW / 2, s.cardH / 2],
@@ -433,7 +424,7 @@ export const CircularCarousel: React.FC<CircularCarouselProps> = ({
         const limit = s.layout.window ? s.layout.window * s.step : 180;
         for (let a = -limit; a <= limit; a += limit / 24) {
           for (const [cx, cy] of corners) {
-            let p: [number, number, number];
+            let p;
             if (s.axis === 'x') {
               p = rotateY(rotateX([cx, cy, s.radius], -a), s.tilt);
             } else if (s.layout.billboard) {
@@ -463,7 +454,7 @@ export const CircularCarousel: React.FC<CircularCarouselProps> = ({
     };
     measureRef.current = measure;
 
-    const introCard = (elapsed: number, landing: number) => {
+    const introCard = (elapsed, landing) => {
       if (!state.intro) return { radius: 1, lift: 0 };
       const type = state.intro.type;
       const reach = Math.abs(wrap(landing + state.angle));
@@ -484,13 +475,13 @@ export const CircularCarousel: React.FC<CircularCarouselProps> = ({
       return { radius: 1, lift: 0 };
     };
 
-    const advance = (s: typeof settings, dt: number, now: number) => {
+    const advance = (s, dt, now) => {
       if (!state.introDone && readyRef.current) {
         if (!state.intro) {
           if (s.intro === 'none') state.introDone = true;
           else state.intro = { type: s.intro, start: now };
         }
-        if (state.intro && now - state.intro.start >= (INTRO_LENGTH as any)[state.intro.type]) {
+        if (state.intro && now - state.intro.start >= INTRO_LENGTH[state.intro.type]) {
           state.intro = null;
           state.introDone = true;
         }
@@ -551,7 +542,7 @@ export const CircularCarousel: React.FC<CircularCarouselProps> = ({
       return busy;
     };
 
-    const render = (s: typeof settings, now: number) => {
+    const render = (s, now) => {
       const elapsed = state.intro ? now - state.intro.start : 0;
       const swell = 1 + s.stretch * 0.12 * Math.min(1, Math.abs(state.velocity) / 420);
       let spinOffset = 0;
@@ -582,7 +573,7 @@ export const CircularCarousel: React.FC<CircularCarouselProps> = ({
         const base = index * s.step;
         const mod = introCard(elapsed, base);
         const r = R * mod.radius;
-        let transform: string;
+        let transform;
         if (s.axis === 'x') {
           transform = `rotateX(${-base}deg) translateZ(${r}px)`;
         } else if (s.layout.inward) {
@@ -609,7 +600,7 @@ export const CircularCarousel: React.FC<CircularCarouselProps> = ({
       }
     };
 
-    const frame = (now: number) => {
+    const frame = now => {
       raf = 0;
       const s = settingsRef.current;
       const dt = state.last ? Math.min((now - state.last) / 1000, 0.05) : 1 / 60;
@@ -650,7 +641,7 @@ export const CircularCarousel: React.FC<CircularCarouselProps> = ({
     });
     io.observe(root);
 
-    const onWheel = (event: WheelEvent) => {
+    const onWheel = event => {
       const s = settingsRef.current;
       if (!s.draggable) return;
       const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : 0;
@@ -694,7 +685,7 @@ export const CircularCarousel: React.FC<CircularCarouselProps> = ({
     wakeRef.current();
   });
 
-  const focusIndex = useCallback((index: number) => {
+  const focusIndex = useCallback(index => {
     const state = stateRef.current;
     const s = settingsRef.current;
     let target = -index * s.step;
@@ -704,7 +695,7 @@ export const CircularCarousel: React.FC<CircularCarouselProps> = ({
     wakeRef.current();
   }, []);
 
-  const stepBy = useCallback((delta: number) => {
+  const stepBy = useCallback(delta => {
     const state = stateRef.current;
     const s = settingsRef.current;
     const base = state.target ?? Math.round(state.angle / s.step) * s.step;
@@ -713,15 +704,14 @@ export const CircularCarousel: React.FC<CircularCarouselProps> = ({
     wakeRef.current();
   }, []);
 
-  const updatePointer = (event: React.PointerEvent) => {
-    if (!rootRef.current) return;
+  const updatePointer = event => {
     const rect = rootRef.current.getBoundingClientRect();
     const pointer = stateRef.current.pointer;
     pointer.x = clamp(((event.clientX - rect.left) / rect.width) * 2 - 1, -1, 1);
     pointer.y = clamp(((event.clientY - rect.top) / rect.height) * 2 - 1, -1, 1);
   };
 
-  const handlePointerDown = (event: React.PointerEvent) => {
+  const handlePointerDown = event => {
     const state = stateRef.current;
     state.suppressClick = false;
     if (!draggable || event.button !== 0) return;
@@ -736,7 +726,7 @@ export const CircularCarousel: React.FC<CircularCarouselProps> = ({
     };
   };
 
-  const handlePointerMove = (event: React.PointerEvent) => {
+  const handlePointerMove = event => {
     const state = stateRef.current;
     if (event.pointerType === 'mouse') {
       state.pointer.inside = true;
@@ -763,7 +753,7 @@ export const CircularCarousel: React.FC<CircularCarouselProps> = ({
       state.velocity = 0;
       setDragging(true);
       try {
-        rootRef.current?.setPointerCapture(event.pointerId);
+        rootRef.current.setPointerCapture(event.pointerId);
       } catch {}
     }
     const perPixel = 180 / (Math.PI * s.radius * state.fit);
@@ -774,7 +764,7 @@ export const CircularCarousel: React.FC<CircularCarouselProps> = ({
     wakeRef.current();
   };
 
-  const releasePointer = (event: React.PointerEvent) => {
+  const releasePointer = event => {
     const state = stateRef.current;
     const press = state.press;
     if (!press || press.id !== event.pointerId) return;
@@ -798,13 +788,13 @@ export const CircularCarousel: React.FC<CircularCarouselProps> = ({
     wakeRef.current();
   };
 
-  const handlePointerEnter = (event: React.PointerEvent) => {
+  const handlePointerEnter = event => {
     if (event.pointerType !== 'mouse') return;
     stateRef.current.hover = true;
     wakeRef.current();
   };
 
-  const handlePointerLeave = (event: React.PointerEvent) => {
+  const handlePointerLeave = event => {
     const state = stateRef.current;
     if (event.pointerType === 'mouse') {
       state.hover = false;
@@ -813,20 +803,20 @@ export const CircularCarousel: React.FC<CircularCarouselProps> = ({
     wakeRef.current();
   };
 
-  const handleClick = (event: React.MouseEvent) => {
+  const handleClick = event => {
     const state = stateRef.current;
     if (state.suppressClick) {
       state.suppressClick = false;
       return;
     }
-    const card = (event.target as HTMLElement).closest?.('[data-cc-index]');
+    const card = event.target.closest?.('[data-cc-index]');
     if (!card) return;
     const index = Number(card.getAttribute('data-cc-index'));
     if (focusOnClick) focusIndex(index);
     onItemClick?.(list[index], index);
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent) => {
+  const handleKeyDown = event => {
     const forward = axis === 'x' ? 'ArrowDown' : 'ArrowRight';
     const backward = axis === 'x' ? 'ArrowUp' : 'ArrowLeft';
     if (event.key === forward) stepBy(1);
@@ -841,7 +831,7 @@ export const CircularCarousel: React.FC<CircularCarouselProps> = ({
   const current = list[active] || list[0];
   const label = current ? current.title || current.alt || `Image ${active + 1}` : '';
 
-  const renderTile = (item: CarouselItem, tile: any, back: boolean, index: number) => {
+  const renderTile = (item, tile, back, index) => {
     const strip = back ? tile.total - 1 - tile.index : tile.index;
     const first = strip === 0;
     const last = strip === tile.total - 1;
@@ -852,11 +842,11 @@ export const CircularCarousel: React.FC<CircularCarouselProps> = ({
         : `${first ? r : 0} ${last ? r : 0} ${last ? r : 0} ${first ? r : 0}`;
     const offset = back ? along - tile.end : tile.start;
     const size = tile.size;
-    const box: CSSProperties =
+    const box =
       axis === 'x'
         ? { left: -cardW / 2, top: -size / 2, width: cardW, height: size }
         : { left: -size / 2, top: -cardH / 2, width: size, height: cardH };
-    const photoStyle: CSSProperties =
+    const photoStyle =
       axis === 'x'
         ? { left: 0, top: -offset, width: cardW, height: cardH }
         : { left: -offset, top: 0, width: cardW, height: cardH };
@@ -908,7 +898,7 @@ export const CircularCarousel: React.FC<CircularCarouselProps> = ({
         '--cc-fade': fadeColor,
         '--cc-radius': `${Math.max(0, cornerRadius)}px`,
         '--cc-inner': (1 - clamp(innerShade, 0, 1)).toFixed(3)
-      } as any}
+      }}
       role="region"
       aria-roledescription="carousel"
       aria-label="Image carousel"
@@ -934,7 +924,7 @@ export const CircularCarousel: React.FC<CircularCarouselProps> = ({
               {list.map((item, index) => (
                 <div
                   key={index}
-                  ref={(element) => {
+                  ref={element => {
                     cardRefs.current[index] = element;
                   }}
                   className="circular-carousel__card"
@@ -943,8 +933,8 @@ export const CircularCarousel: React.FC<CircularCarouselProps> = ({
                   aria-roledescription="slide"
                   aria-label={`${item.title || item.alt || `Image ${index + 1}`}, ${index + 1} of ${count}`}
                 >
-                  {tiles.map((tile) => renderTile(item, tile, false, index))}
-                  {layout.backfaces && tiles.map((tile) => renderTile(item, tile, true, index))}
+                  {tiles.map(tile => renderTile(item, tile, false, index))}
+                  {layout.backfaces && tiles.map(tile => renderTile(item, tile, true, index))}
                 </div>
               ))}
             </div>
