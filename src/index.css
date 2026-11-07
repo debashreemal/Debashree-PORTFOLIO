@@ -452,76 +452,577 @@ body {
   animation: sw 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.w-stack {
+/* =========================================================
+   PANEL 2: 3D INTERACTIVE BOOK / JOURNAL (WINS)
+   ========================================================= */
+.book-3d-stage {
   position: absolute;
-  left: 64%;
-  top: 50%;
-  width: 0;
-  height: 0;
-  perspective: 900px;
-  transform-style: preserve-3d;
-  z-index: 10;
-}
-
-.wc {
-  position: absolute;
-  width: clamp(190px, 18vw, 260px);
-  height: clamp(240px, 24vw, 330px);
-  margin-left: calc(clamp(190px, 18vw, 260px) * -0.5);
-  margin-top: calc(clamp(240px, 24vw, 330px) * -0.5);
-  border-radius: 12px;
-  padding: clamp(12px, 1.4vw, 18px);
-  display: flex;
-  flex-direction: column;
-  will-change: transform, opacity;
-  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.65);
-  cursor: pointer;
-  user-select: none;
-  transform: translateZ(0);
-}
-
-.wc:hover {
-  box-shadow: 0 28px 65px rgba(0, 0, 0, 0.8);
-}
-
-.wc .tp {
-  position: absolute;
-  top: -10px;
-  left: 50%;
-  margin-left: -28px;
-  width: 56px;
-  height: 16px;
-  background: rgba(240, 230, 200, 0.55);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  transform: rotate(-4deg);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.35);
-}
-
-.wc .im {
-  flex: 1;
-  border: 1.5px dashed currentColor;
-  border-radius: 4px;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  perspective: 1600px;
+  perspective-origin: 50% 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: clamp(26px, 2.8vw, 42px);
-  opacity: 0.8;
+  pointer-events: none;
+  z-index: 10;
 }
 
-.wc .cn {
-  font: 400 clamp(16px, 1.6vw, 22px) var(--an);
-  letter-spacing: 0.03em;
+/* 3D Book Assemble Wrapper - Well-balanced refined dimensions */
+.book-wrap {
+  position: relative;
+  width: clamp(280px, 26vw, 390px);
+  height: clamp(380px, 34vw, 500px);
+  transform-style: preserve-3d;
+  will-change: transform;
+  pointer-events: auto;
+}
+
+/* Soft Ambient Floor Drop Shadow */
+.book-floor-shadow {
+  position: absolute;
+  left: 50%;
+  bottom: -45px;
+  transform: translateX(-50%) rotateX(85deg);
+  width: 130%;
+  height: 90px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.35) 45%, transparent 75%);
+  filter: blur(16px);
+  pointer-events: none;
+  z-index: 1;
+  will-change: transform, opacity;
+}
+
+/* Left Spine - authentic bound edge */
+.book-spine {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 28px;
+  height: 100%;
+  transform-origin: left center;
+  transform: rotateY(-90deg) translateX(-28px);
+  background: linear-gradient(to right, #D2C8B5 0%, #EFEAE0 50%, #C4B9A4 100%);
+  border-radius: 4px 0 0 4px;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2), inset 2px 0 4px rgba(255, 255, 255, 0.6);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  padding: 40px 0;
+}
+
+.book-spine-rib {
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(to right, rgba(238, 59, 31, 0.25), rgba(238, 59, 31, 0.85) 50%, rgba(238, 59, 31, 0.25));
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+/* Stacked Paper Edge block - Seamless without protruding lines */
+.book-pages-block {
+  display: none;
+}
+
+/* Realistic Back Hardback Cover */
+.book-back-cover {
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+  border-radius: 4px 18px 18px 4px;
+  background: linear-gradient(145deg, #EFEAE0 0%, #DFD8CA 100%);
+  box-shadow:
+    2px 1px 0 #D8D0C0,
+    4px 2px 0 #C8BEAC,
+    6px 4px 0 #B8AD98,
+    0 25px 60px rgba(0, 0, 0, 0.65);
+  z-index: 5;
+}
+
+/* Front Hardback Cover */
+.book-cover {
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  border-radius: 4px 18px 18px 4px;
+  will-change: transform;
+  cursor: pointer;
+  z-index: 50;
+}
+
+.book-cover-front {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 4px 18px 18px 4px;
+  background: linear-gradient(145deg, #FAF6EE 0%, #EFEAE0 50%, #E3DCCE 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.9),
+    inset -3px 0 12px rgba(0, 0, 0, 0.08),
+    2px 1px 0 #DDD5C4,
+    4px 2px 0 #CCC3B0,
+    6px 3px 0 #B8AD98,
+    0 20px 50px rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(20px, 2.2vw, 32px);
+  overflow: hidden;
+}
+
+/* Left spine overlay on cover front - seamless gradient, no harsh border line */
+.book-cover-spine-crease {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 34px;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.1) 45%, rgba(255, 255, 255, 0.4) 80%, transparent 100%);
+  pointer-events: none;
+}
+
+.book-cover-top {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-left: 6px;
+}
+
+.book-cover-meta {
+  font-family: var(--mo);
+  font-size: clamp(9px, 0.85vw, 11px);
+  letter-spacing: 0.18em;
+  color: #2D2D2D;
+  font-weight: 600;
   text-transform: uppercase;
-  margin-top: 10px;
 }
 
-.wc .cs {
-  font: 500 clamp(9px, 0.9vw, 12px) var(--mo);
+.book-cover-sub {
+  font-family: var(--mo);
+  font-size: clamp(10px, 0.95vw, 12px);
+  letter-spacing: 0.14em;
+  color: #EE3B1F;
+  font-weight: 700;
+}
+
+.book-cover-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin: auto 0;
+  position: relative;
+}
+
+.book-cover-title-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(4px, 0.8vw, 10px);
+  font-family: var(--an);
+  font-size: clamp(68px, 8vw, 110px);
+  line-height: 0.88;
+  color: #EE3B1F;
+  letter-spacing: 0.04em;
+  user-select: none;
+}
+
+.book-cover-letter {
+  display: inline-block;
+  will-change: transform, opacity;
+  text-shadow:
+    2px 2px 0 rgba(120, 22, 6, 0.5),
+    4px 4px 0 rgba(120, 22, 6, 0.28),
+    6px 6px 0 rgba(120, 22, 6, 0.14);
+}
+
+.book-shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.35) 50%, transparent 65%);
+  opacity: 0;
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.book-cover-top,
+.book-cover-bottom {
+  will-change: opacity;
+}
+
+.book-cover-bottom {
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  padding-top: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--mo);
+  font-size: clamp(9px, 0.8vw, 11px);
   letter-spacing: 0.12em;
-  opacity: 0.75;
-  margin-top: 3px;
+  color: #333333;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+/* Inside Cover (Back Face) */
+.book-cover-back {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 18px 4px 4px 18px;
+  background: #EAE4D5;
+  border: none;
+  box-shadow: inset -24px 0 32px -12px rgba(0, 0, 0, 0.22), inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(22px, 2.5vw, 32px);
+  color: #1A1A1A;
+}
+
+.book-endpaper-plate {
+  border: 1.5px dashed rgba(0, 0, 0, 0.25);
+  border-radius: 8px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.book-endpaper-title {
+  font-family: var(--an);
+  font-size: 20px;
+  letter-spacing: 0.05em;
+  color: #111;
+  margin-bottom: 6px;
+}
+
+.book-endpaper-desc {
+  font-size: 11px;
+  line-height: 1.5;
+  color: #444;
+}
+
+/* 3D Page Leaves */
+.book-leaf {
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  will-change: transform;
+  border-radius: 4px 16px 16px 4px;
+  cursor: pointer;
+}
+
+/* Front Face of each Page (The Win Journal Spread) */
+.page-front {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 4px 14px 14px 4px;
+  background: #FAF8F2;
+  padding: clamp(14px, 1.8vw, 24px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: none;
+  box-shadow:
+    inset 20px 0 28px -10px rgba(0, 0, 0, 0.12),
+    1px 0 0 rgba(255, 255, 255, 0.8),
+    2px 1px 0 #E5DDCB,
+    3px 2px 0 #D9D0BE,
+    4px 3px 0 #CCC2AE,
+    0 12px 30px rgba(0, 0, 0, 0.28);
+  overflow: hidden;
+  color: #111111;
+  user-select: none;
+  transform: translateZ(1px);
+}
+
+/* Paper Spine Crease Shadow - Soft and seamless without harsh line */
+.page-spine-shadow {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 24px;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.08), transparent);
+  pointer-events: none;
+}
+
+/* Washi Tape Header on Photos */
+.book-tape {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-2.5deg);
+  width: 68px;
+  height: 18px;
+  background: rgba(235, 222, 195, 0.75);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  z-index: 5;
+}
+
+/* Top metadata row */
+.page-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-left: 8px;
+}
+
+.page-stamp-pill {
+  font-family: var(--mo);
+  font-size: clamp(9px, 0.85vw, 11px);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #EE3B1F;
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(238, 59, 31, 0.35);
+  text-transform: uppercase;
+}
+
+.page-stamp-cat {
+  font-family: var(--mo);
+  font-size: clamp(9px, 0.85vw, 11px);
+  letter-spacing: 0.1em;
+  color: #555555;
+  font-weight: 500;
+}
+
+/* Polaroid Photo Card */
+.page-photo-card {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  margin: 4px 0 4px;
+  background: #FFFFFF;
+  padding: 5px 5px 10px 5px;
+  border-radius: 4px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14), 0 1px 3px rgba(0, 0, 0, 0.08);
+  transform: rotate(-0.5deg);
+}
+
+.page-photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 2px;
+  filter: contrast(1.05) saturate(1.08);
+}
+
+/* Project Content Section */
+.page-body {
+  padding-left: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.page-title {
+  font-family: var(--an);
+  font-size: clamp(17px, 1.8vw, 24px);
+  line-height: 0.98;
+  letter-spacing: 0.02em;
+  color: #111111;
+  text-transform: uppercase;
+}
+
+.page-tag {
+  font-family: var(--mo);
+  font-size: clamp(9px, 0.9vw, 11.5px);
+  letter-spacing: 0.12em;
+  color: #EE3B1F;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.page-desc {
+  font-size: clamp(10.5px, 1.05vw, 13px);
+  line-height: 1.45;
+  color: #383838;
+  margin-top: 2px;
+}
+
+/* Page Bottom Stack & Stamp */
+.page-bottom-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  padding-top: 8px;
+  padding-left: 8px;
+}
+
+.page-stack-pills {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.page-stack-pill {
+  font-family: var(--mo);
+  font-size: clamp(8px, 0.75vw, 10px);
+  letter-spacing: 0.08em;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.06);
+  color: #222222;
+  font-weight: 500;
+}
+
+.page-num-stamp {
+  font-family: var(--mo);
+  font-size: clamp(9px, 0.85vw, 11px);
+  letter-spacing: 0.14em;
+  color: #888888;
+  font-weight: 600;
+}
+
+/* Back Face of each Page (Vintage Dev Log / Blueprint Sketch) */
+.page-back {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg) translateZ(1px);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 14px 4px 4px 14px;
+  background: #F4EFE4;
+  padding: clamp(14px, 1.8vw, 24px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: none;
+  box-shadow:
+    inset -20px 0 28px -10px rgba(0, 0, 0, 0.12),
+    -1px 0 0 rgba(255, 255, 255, 0.8),
+    -2px 1px 0 #E5DDCB,
+    -3px 2px 0 #D9D0BE,
+    -4px 3px 0 #CCC2AE,
+    0 12px 30px rgba(0, 0, 0, 0.28);
+  overflow: hidden;
+  color: #111111;
+  user-select: none;
+}
+
+.page-back-crease {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 24px;
+  background: linear-gradient(to left, rgba(0, 0, 0, 0.08), transparent);
+  pointer-events: none;
+}
+
+.page-back-blueprint {
+  border: 1px dashed rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.page-back-stamp {
+  font-family: var(--mo);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: #EE3B1F;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.page-back-quote {
+  font-style: italic;
+  font-size: clamp(10.5px, 1.05vw, 12.5px);
+  line-height: 1.5;
+  color: #333;
+}
+
+.page-back-meta {
+  font-family: var(--mo);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  color: #666;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Floating Bottom Controls - Ultra-Premium, Minimalist, No Borders */
+.book-controls {
+  position: absolute;
+  bottom: clamp(24px, 5vh, 48px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: auto;
+  z-index: 30;
+  user-select: none;
+  will-change: transform, opacity;
+}
+
+.book-nav-bar {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+.book-nav-btn {
+  background: transparent;
+  color: rgba(239, 234, 224, 0.7);
+  border: none;
+  padding: 8px 12px;
+  border-radius: 0;
+  cursor: pointer;
+  font-family: var(--mo);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  font-weight: 500;
+  box-shadow: none;
+  outline: none;
+  transition: color 0.25s ease, opacity 0.25s ease, transform 0.25s ease;
+}
+
+.book-nav-btn:hover:not(:disabled) {
+  color: #EE3B1F;
+  background: transparent;
+  border: none;
+  transform: translateY(-1px);
+}
+
+.book-nav-btn:disabled {
+  opacity: 0.18;
+  cursor: not-allowed;
+}
+
+.book-page-pill {
+  padding: 0;
+  font-family: var(--mo);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  color: rgba(239, 234, 224, 0.4);
+  font-weight: 500;
+  border: none;
 }
 
 /* =========================================================
@@ -994,87 +1495,73 @@ body {
 .portrait-vignette {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom,
-      rgba(10, 10, 12, 0.72) 0%,
-      rgba(10, 10, 12, 0.08) 35%,
-      rgba(10, 10, 12, 0.38) 60%,
-      rgba(10, 10, 12, 0.94) 100%);
+  background: linear-gradient(
+    to bottom,
+    rgba(10, 10, 14, 0.8) 0%,
+    rgba(10, 10, 14, 0.3) 25%,
+    rgba(10, 10, 14, 0.05) 50%,
+    rgba(10, 10, 14, 0.35) 75%,
+    rgba(10, 10, 14, 0.85) 100%
+  );
   pointer-events: none;
 }
 
-.portrait-card-top {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.portrait-badge {
-  font: 600 8.5px var(--mo);
-  letter-spacing: 0.1em;
-  padding: 3.5px 9px;
-  background: rgba(14, 14, 18, 0.88);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 999px;
-  color: var(--cr);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  text-transform: uppercase;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
-}
-
-.portrait-badge-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  display: inline-block;
-  box-shadow: 0 0 6px currentColor;
-}
-
-.portrait-card-idx {
-  font: 700 9.5px var(--mo);
-  letter-spacing: 0.08em;
-  color: var(--cr);
-  opacity: 0.85;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
-}
-
-.portrait-card-bottom {
+/* Top-Left: Title & Subtitle (matching reference layout & typography) */
+.portrait-card-header {
   position: relative;
   z-index: 2;
   display: flex;
   flex-direction: column;
-  gap: 3px;
-}
-
-.portrait-card-tag {
-  font: 600 8.5px var(--mo);
-  letter-spacing: 0.1em;
-  color: var(--rd);
-  text-transform: uppercase;
+  align-items: flex-start;
+  text-align: left;
+  max-width: 100%;
 }
 
 .portrait-card-title {
   margin: 0;
-  font: 700 13px/1.22 var(--in);
+  font: 700 12px/1.2 var(--in, sans-serif);
   color: #FFFFFF;
-  letter-spacing: 0.01em;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+  letter-spacing: -0.01em;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 100%;
 }
 
-.portrait-card-meta {
+.portrait-card-sub {
+  font: 400 9px/1.2 var(--in, sans-serif);
+  color: rgba(255, 255, 255, 0.72);
+  margin-top: 2.5px;
+  letter-spacing: 0.01em;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* Bottom-Left: See more » */
+.portrait-card-footer {
+  position: relative;
+  z-index: 2;
   display: flex;
-  justify-content: space-between;
+  align-items: flex-end;
+  justify-content: flex-start;
+}
+
+.portrait-card-seemore {
+  font: 500 9px/1.2 var(--in, sans-serif);
+  color: rgba(255, 255, 255, 0.75);
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+  display: inline-flex;
   align-items: center;
-  font: 600 8.5px var(--mo);
-  letter-spacing: 0.08em;
-  color: rgba(255, 255, 255, 0.8);
-  margin-top: 1px;
+  transition: color 0.2s ease;
+}
+
+.portrait-card-3d:hover .portrait-card-seemore {
+  color: #FFFFFF;
 }
 
 .mm-card-img-wrap {

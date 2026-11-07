@@ -26,22 +26,76 @@ function eb(u: number) {
 function clp(x: number, a: number) {
   return Math.max(-a, Math.min(a, x));
 }
+function lp(a: number, b: number, t: number) {
+  return a + (b - a) * t;
+}
 
 const W5_DATA = [
-  { title: 'Axion Hackathon', sub: '1ST PLACE', desc: 'FlowMind, an AI project manager, took first place.', icon: 'ti-trophy' },
-  { title: 'NHAI Hackathon 7.0', sub: 'OFFLINE FACE SDK', desc: 'NHAIFaceID, built with Piyush Yenorkar.', icon: 'ti-scan' },
-  { title: "HackHazards '26", sub: 'FLOWMIND', desc: 'FlowMind at the centre of the build.', icon: 'ti-flame' },
-  { title: 'Smart India Hackathon', sub: 'SIH 2026', desc: 'Airfare Price Index for MoSPI.', icon: 'ti-award' },
-  { title: 'Paytm Build for India', sub: 'AI TEAMMATES', desc: 'Sulajh AI: autonomous AI teammates.', icon: 'ti-rocket' },
-];
-
-const W_ROTS = [-3, 5, -6, 4, -5];
-const W_CC = [
-  ['#EFEAE0', '#111'],
-  ['#EE3B1F', '#111'],
-  ['#1b1b1f', '#EFEAE0'],
-  ['#EFEAE0', '#111'],
-  ['#EE3B1F', '#111'],
+  {
+    title: 'Axion Hackathon',
+    sub: '1ST PLACE',
+    category: '1ST PLACE • 2025',
+    tag: 'AI Project Manager',
+    desc: 'FlowMind, an autonomous multi-agent project manager, outcompeted 120+ teams with end-to-end task graph routing.',
+    icon: 'ti-trophy',
+    img: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&q=80&auto=format&fit=crop',
+    metric: '120+ Teams',
+    stack: ['LangGraph', 'Python', 'FastAPI'],
+    quote: 'Recognized for automated workflow intelligence & deterministic task execution.',
+    year: '2025',
+  },
+  {
+    title: 'NHAI Hackathon 7.0',
+    sub: 'OFFLINE FACE SDK',
+    category: 'OFFLINE FACE SDK • 2025',
+    tag: 'Computer Vision',
+    desc: 'Engineered NHAIFaceID with Piyush Yenorkar — an offline edge facial recognition SDK for remote highway toll inspection.',
+    icon: 'ti-scan',
+    img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80&auto=format&fit=crop',
+    metric: '<18ms Latency',
+    stack: ['WebAssembly', 'C++', 'OpenCV'],
+    quote: 'Complete on-device biometrics running locally at edge toll booths with zero cloud reliance.',
+    year: '2025',
+  },
+  {
+    title: "HackHazards '26",
+    sub: 'FLOWMIND',
+    category: 'GRAND FINALE • 2026',
+    tag: 'Autonomous AI',
+    desc: 'FlowMind placed at the centre of build: a live multi-agent execution framework with zero-latency task routing.',
+    icon: 'ti-flame',
+    img: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&q=80&auto=format&fit=crop',
+    metric: 'Swarm Engine',
+    stack: ['LangGraph', 'Multi-Agent', 'Next.js'],
+    quote: 'Self-orchestrating task dependency graphs with real-time exception recovery.',
+    year: '2026',
+  },
+  {
+    title: 'Smart India Hackathon',
+    sub: 'SIH 2026',
+    category: 'SIH 2026 FINALIST • 2026',
+    tag: 'MoSPI Ministry',
+    desc: 'Developed national Airfare Price Index forecasting algorithm using real-time flight telemetry for Ministry of Statistics.',
+    icon: 'ti-award',
+    img: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=800&q=80&auto=format&fit=crop',
+    metric: 'Ministry Finalist',
+    stack: ['Telemetry', 'Python', 'MoSPI API'],
+    quote: 'National-scale inflation monitoring model for domestic aviation ticket fares.',
+    year: '2026',
+  },
+  {
+    title: 'Paytm Build for India',
+    sub: 'AI TEAMMATES',
+    category: 'AI TEAMMATES • 2025',
+    tag: 'Sulajh AI',
+    desc: 'Sulajh AI: autonomous AI teammates simulating merchant onboarding workflows, automated KYC exception resolution.',
+    icon: 'ti-rocket',
+    img: 'https://images.unsplash.com/photo-1556742049-0a67e5572293?w=800&q=80&auto=format&fit=crop',
+    metric: 'India Scale',
+    stack: ['LLM Agents', 'FastAPI', 'FinTech SDK'],
+    quote: 'Scaling merchant acquisition through interactive autonomous agent simulation.',
+    year: '2025',
+  },
 ];
 
 const MOMENTS_ITEMS = [
@@ -187,8 +241,8 @@ const MOMENTS_ITEMS = [
   },
 ];
 
-const MILESTONES = [0, 0.22, 0.40, 0.66, 1.0];
-const THRESHOLDS = [0, 0.16, 0.32, 0.54, 0.84];
+const MILESTONES = [0, 0.22, 0.36, 0.66, 1.0];
+const THRESHOLDS = [0, 0.16, 0.30, 0.54, 0.84];
 const SECTIONS = ['HOME', 'ABOUT', 'WINS', 'MOMENTS', 'CONTACT'];
 
 export const App: React.FC = () => {
@@ -234,12 +288,19 @@ export const App: React.FC = () => {
   const aRevealsRef = useRef<(HTMLSpanElement | null)[]>([]);
   const pillsRef = useRef<(HTMLDivElement | null)[]>([]);
 
-  // Wins Refs
-  const wLettersRef = useRef<(HTMLSpanElement | null)[]>([]);
-  const wStackRef = useRef<HTMLDivElement>(null);
-  const wInfoRef = useRef<HTMLDivElement>(null);
-  const wBarRef = useRef<HTMLElement>(null);
-  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  // 3D Book Wins Refs
+  const bookStageRef = useRef<HTMLDivElement>(null);
+  const bookWrapRef = useRef<HTMLDivElement>(null);
+  const bookCoverRef = useRef<HTMLDivElement>(null);
+  const bookCoverTopRef = useRef<HTMLDivElement>(null);
+  const bookCoverBottomRef = useRef<HTMLDivElement>(null);
+  const bookTitleWrapRef = useRef<HTMLDivElement>(null);
+  const bookLetterRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const bookShineRef = useRef<HTMLDivElement>(null);
+  const bookLeafRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const bookShadowRef = useRef<HTMLDivElement>(null);
+  const bookCounterRef = useRef<HTMLSpanElement>(null);
+  const bookControlsRef = useRef<HTMLDivElement>(null);
 
   // Moments Refs
   const domewRef = useRef<HTMLDivElement>(null);
@@ -302,6 +363,59 @@ export const App: React.FC = () => {
   const goTo = useCallback((n: number) => {
     const targetIdx = Math.max(0, Math.min(4, n));
     tgtRef.current = MILESTONES[targetIdx];
+  }, []);
+
+  // 3D Book Page Turning Callbacks (exact, obstacle-free page targets)
+  const turnNext = useCallback(() => {
+    if (tgtRef.current < 0.27) {
+      tgtRef.current = 0.36;
+    } else if (tgtRef.current < 0.35) {
+      tgtRef.current = 0.36;
+    } else {
+      const curTurn = sg(tgtRef.current, 0.36, 0.48) * 4;
+      const curPage = Math.min(4, Math.round(curTurn));
+      if (curPage < 4) {
+        tgtRef.current = 0.36 + (curPage + 1) * 0.03;
+      } else {
+        goTo(3);
+      }
+    }
+  }, [goTo]);
+
+  const turnPrev = useCallback(() => {
+    if (tgtRef.current <= 0.365) {
+      tgtRef.current = 0.245;
+    } else if (tgtRef.current > 0.48) {
+      tgtRef.current = 0.48;
+    } else {
+      const curTurn = sg(tgtRef.current, 0.36, 0.48) * 4;
+      const curPage = Math.min(4, Math.round(curTurn));
+      if (curPage > 0) {
+        tgtRef.current = 0.36 + (curPage - 1) * 0.03;
+      } else {
+        tgtRef.current = 0.245;
+      }
+    }
+  }, []);
+
+  const handleLeafClick = useCallback((idx: number) => {
+    const curTurn = sg(tgtRef.current, 0.36, 0.48) * 4;
+    const curPage = Math.min(4, Math.round(curTurn));
+    if (idx < curPage) {
+      tgtRef.current = 0.36 + idx * 0.03;
+    } else if (idx === curPage && curPage < 4) {
+      tgtRef.current = 0.36 + (curPage + 1) * 0.03;
+    } else if (idx > curPage) {
+      tgtRef.current = 0.36 + idx * 0.03;
+    }
+  }, []);
+
+  const handleCoverClick = useCallback(() => {
+    if (tgtRef.current < 0.28) {
+      tgtRef.current = 0.36;
+    } else {
+      tgtRef.current = 0.245;
+    }
   }, []);
 
   // Window resize & mouse tilt
@@ -504,179 +618,321 @@ export const App: React.FC = () => {
       }
 
       // =========================================================
-      // PANEL 1: ABOUT (0.04 < p < 0.28) - Smooth Vertical Translation
+      // PANEL 1: ABOUT (0.04 < p < 0.285) - Dynamic Exit & Fold into Book
       // =========================================================
-      const aboutVisible = p > 0.04 && p < 0.28;
+      const aboutVisible = p > 0.04 && p < 0.285;
       if (p1Ref.current) {
         p1Ref.current.style.display = aboutVisible ? 'block' : 'none';
+        p1Ref.current.style.zIndex = p > 0.20 ? '4' : '2';
+        p1Ref.current.style.pointerEvents = p > 0.20 ? 'none' : 'auto';
+
         if (aboutVisible) {
           const ab = io(sg(p, 0.05, 0.15));
-          const ax = io(sg(p, 0.21, 0.27));
-          // Clean upward glide completely clearing viewport
-          p1Ref.current.style.transform = `translateY(${100 * (1 - ab) - 110 * ax}%)`;
-          p1Ref.current.style.transformOrigin = 'center top';
+          if (p < 0.20) {
+            p1Ref.current.style.transform = `translateY(${100 * (1 - ab)}%)`;
+          } else {
+            p1Ref.current.style.transform = 'none';
+          }
 
-          const exitFade = 1 - ax * 1.5;
-
-          // Cascading reveals for typography lines
+          // Cascading reveals for typography lines (Entrance & Exit)
           const rvStarts = [0.105, 0.115, 0.14, 0.15, 0.16, 0.17];
           const rvEnds = [0.155, 0.165, 0.185, 0.195, 0.20, 0.205];
+          const textDeltas = [0, 0.004, 0.008, 0.012, 0.016, 0.02];
           aRevealsRef.current.forEach((el, i) => {
             if (el) {
-              const u = io(sg(p, rvStarts[i] || 0.12, rvEnds[i] || 0.18));
-              el.style.transform = `translateY(${112 * (1 - u)}%)`;
+              if (p < 0.20) {
+                const u = io(sg(p, rvStarts[i] || 0.12, rvEnds[i] || 0.18));
+                el.style.transform = `translateY(${112 * (1 - u)}%)`;
+              } else {
+                const d = textDeltas[i] || 0;
+                const uExit = io(sg(p, 0.205 + d, 0.245 + d));
+                el.style.transform = `translateY(${118 * uExit}%)`;
+              }
             }
           });
 
           // Red underline bar scale
           if (aBarRef.current) {
-            aBarRef.current.style.transform = `scaleX(${eo(sg(p, 0.14, 0.185)) * cl(exitFade)})`;
+            if (p < 0.20) {
+              aBarRef.current.style.transform = `scaleX(${eo(sg(p, 0.14, 0.185))})`;
+            } else {
+              aBarRef.current.style.transform = `scaleX(${1 - eo(sg(p, 0.205, 0.24))})`;
+            }
           }
 
-          // Left text group parallax & dynamic skew
-          if (aLRef.current) {
-            aLRef.current.style.transform = `translateY(${-(p - 0.2) * 300 - ax * 120}px) skewY(${sk * 0.5 - ax * 3}deg)`;
-            aLRef.current.style.opacity = `${cl(exitFade)}`;
+          // Cream sheet dissolves as the book cover develops underneath
+          if (sheetRef.current) {
+            if (p < 0.21) {
+              sheetRef.current.style.opacity = '1';
+            } else {
+              sheetRef.current.style.opacity = `${cl(1 - sg(p, 0.215, 0.245))}`;
+            }
           }
 
-          // Right photo group parallax
-          if (aRRef.current) {
-            aRRef.current.style.transform = `translateY(${(p - 0.2) * 160}px)`;
-          }
-
-          // Red circle expands and floats upward, echoing into the red glow of WINS
-          if (aCircRef.current) {
-            const circScale = Math.max(0, eb(sg(p, 0.1, 0.175))) * (1 + ax * 0.4);
-            aCircRef.current.style.transform = `translateY(${(p - 0.2) * 120 - ax * 180}px) scale(${circScale})`;
-            aCircRef.current.style.opacity = `${cl(1 - ax * 0.7)}`;
-          }
-
-          // Photo cutout slides down gently with perspective depth
+          // Portrait Arch exits straight down with gentle rotation
           if (aPhRef.current) {
-            const phOff = (1 - eo(sg(p, 0.12, 0.195))) * 320 - (p - 0.2) * 220;
-            aPhRef.current.style.transform = `translateY(${phOff + ax * 100}px) scale(${1 - ax * 0.1})`;
-            aPhRef.current.style.opacity = `${cl(1 - ax * 1.5)}`;
+            if (p < 0.20) {
+              const phOff = (1 - eo(sg(p, 0.12, 0.195))) * 320;
+              aPhRef.current.style.transform = `translateY(${phOff}px) scale(1)`;
+              aPhRef.current.style.opacity = '1';
+            } else {
+              const up = io(sg(p, 0.21, 0.25));
+              aPhRef.current.style.transform = `translateY(${windowHeight * 0.7 * up}px) rotate(${8 * up}deg)`;
+              aPhRef.current.style.opacity = `${cl(1 - sg(p, 0.23, 0.255))}`;
+            }
           }
 
-          // Floating tags elastic entrance and exit fling
+          // Tags fling apart and rotate outward
           if (tg1Ref.current) {
-            const u1 = sg(p, 0.165, 0.2);
-            tg1Ref.current.style.transform = `rotate(${-8 + 25 * (1 - eo(u1)) - ax * 15}deg) scale(${1 + 1.6 * (1 - eb(u1)) - ax * 0.3}) translateY(${-ax * 120}px)`;
-            tg1Ref.current.style.opacity = `${cl(u1 * 5) * cl(exitFade)}`;
+            if (p < 0.20) {
+              const u1 = sg(p, 0.165, 0.2);
+              tg1Ref.current.style.transform = `rotate(${-8 + 25 * (1 - eo(u1))}deg) scale(${1 + 1.6 * (1 - eb(u1))})`;
+              tg1Ref.current.style.opacity = `${cl(u1 * 5)}`;
+            } else {
+              const ut = io(sg(p, 0.205, 0.245));
+              tg1Ref.current.style.transform = `translate(${-windowWidth * 0.2 * ut}px, ${-windowHeight * 0.4 * ut}px) rotate(${-8 - 40 * ut}deg)`;
+              tg1Ref.current.style.opacity = `${cl(1 - sg(p, 0.22, 0.245))}`;
+            }
           }
           if (tg2Ref.current) {
-            tg2Ref.current.style.transform = `translateX(${(1 - eo(sg(p, 0.175, 0.215))) * 300 + ax * 180}px) rotate(${6 + ax * 12}deg)`;
-            tg2Ref.current.style.opacity = `${cl(exitFade)}`;
+            if (p < 0.20) {
+              tg2Ref.current.style.transform = `translateX(${(1 - eo(sg(p, 0.175, 0.215))) * 300}px) rotate(6deg)`;
+              tg2Ref.current.style.opacity = '1';
+            } else {
+              const ut = io(sg(p, 0.205, 0.245));
+              tg2Ref.current.style.transform = `translate(${windowWidth * 0.3 * ut}px, ${windowHeight * 0.1 * ut}px) rotate(${6 + 30 * ut}deg)`;
+              tg2Ref.current.style.opacity = `${cl(1 - sg(p, 0.22, 0.245))}`;
+            }
           }
 
-          // Pill badges: pill 0 ("1ST / AXION HACKATHON") smart morph trajectory towards Wins Card 1!
+          // Pills fade out
           pillsRef.current.forEach((pl, k) => {
             if (pl) {
-              if (k === 0 && ax > 0.02) {
-                pl.style.transform = `translate3d(${ax * 160}px, ${-ax * 80}px, ${ax * 40}px) scale(${1 + ax * 0.15}) rotate(${ax * 6}deg)`;
-                pl.style.boxShadow = `0 10px 28px rgba(238, 59, 31, ${ax * 0.55})`;
-                pl.style.opacity = `${cl(1 - (ax - 0.65) / 0.35)}`;
+              if (p < 0.20) {
+                pl.style.transform = `scale(${Math.max(0, eb(sg(p, 0.18 + k * 0.01, 0.205 + k * 0.01)))})`;
+                pl.style.opacity = '1';
               } else {
-                pl.style.transform = `scale(${Math.max(0, eb(sg(p, 0.18 + k * 0.01, 0.205 + k * 0.01))) * cl(exitFade)})`;
-                pl.style.opacity = `${cl(exitFade)}`;
+                pl.style.opacity = `${cl(1 - sg(p, 0.205, 0.235))}`;
               }
             }
           });
+
+          // Red circle flies to the cover center along an arc and shrinks to an 18px dot
+          if (aCircRef.current) {
+            const isMobile = windowWidth < 760;
+            const D = isMobile ? Math.min(windowWidth * 0.62, windowHeight * 0.3) : Math.min(windowWidth * 0.31, windowHeight * 0.66);
+            const cx0 = isMobile ? windowWidth * 0.5 : windowWidth * 0.76;
+            const cy0 = isMobile ? windowHeight * 0.7 : windowHeight * 0.48;
+
+            if (p < 0.21) {
+              const circScale = Math.max(0, eb(sg(p, 0.1, 0.175)));
+              aCircRef.current.style.transform = `scale(${circScale})`;
+              aCircRef.current.style.opacity = '1';
+            } else {
+              const uc = io(sg(p, 0.215, 0.265));
+              const s = lp(1, 18 / Math.max(1, D), uc);
+              const targetX = (windowWidth / 2) - cx0;
+              const targetY = (windowHeight / 2) - cy0;
+              const arcY = Math.sin(uc * Math.PI) * 60;
+              aCircRef.current.style.transform = `translate3d(${targetX * uc}px, ${targetY * uc - arcY}px, 0) scale(${s})`;
+              aCircRef.current.style.opacity = `${cl(1 - sg(p, 0.262, 0.278))}`;
+            }
+          }
         }
       }
 
       // =========================================================
-      // PANEL 2: WINS (0.22 < p < 0.53) - Clean, Distinct, No Overlap
+      // PANEL 2: 3D INTERACTIVE BOOK / JOURNAL (0.21 < p < 0.53)
       // =========================================================
-      const winsVisible = p > 0.22 && p < 0.53;
+      const winsVisible = p > 0.21 && p < 0.53;
       if (p2Ref.current) {
         p2Ref.current.style.display = winsVisible ? 'block' : 'none';
+        p2Ref.current.style.zIndex = '3';
         if (winsVisible) {
-          // WINS title letter stagger reveal with spring easing & skew
-          const exitWins = sg(p, 0.47, 0.52);
-          wLettersRef.current.forEach((s, i) => {
-            if (s) {
-              const u = sg(p, 0.26 + i * 0.014, 0.35 + i * 0.014);
-              s.style.transform = `translateX(${-240 * (1 - eo(u))}px) translateY(${-80 * exitWins}px) skewX(${-sk * 1.1}deg)`;
-              s.style.opacity = `${cl(u * 4) * (1 - exitWins)}`;
-            }
+          // -----------------------------------------------------
+          // Step 1: Book emerges & cover forms in 3D
+          // p: 0.215 -> 0.265
+          // -----------------------------------------------------
+          const bindT = sg(p, 0.215, 0.265);
+          const bindEase = io(bindT);
+
+          // -----------------------------------------------------
+          // Step 2: Book tilts on bottom edge & fans open (Img 2)
+          // p: 0.29 -> 0.325
+          // -----------------------------------------------------
+          const tiltT = sg(p, 0.29, 0.325);
+          const tiltEase = io(tiltT);
+
+          // -----------------------------------------------------
+          // Step 3: Book opens wide into journal spread (Img 3)
+          // p: 0.325 -> 0.36
+          // -----------------------------------------------------
+          const spreadT = sg(p, 0.325, 0.36);
+          const spreadEase = io(spreadT);
+
+          // -----------------------------------------------------
+          // Step 4: Incremental page flips (Img 4 & onwards)
+          // p: 0.36 -> 0.48 (4 page turns: Leaves 0, 1, 2, 3)
+          // -----------------------------------------------------
+          const turnProgress = sg(p, 0.36, 0.48) * 4;
+          const actPage = Math.min(4, Math.round(turnProgress));
+          if (actPage !== lastActRef.current) {
+            lastActRef.current = actPage;
+            setWCard(actPage);
+          }
+
+          // -----------------------------------------------------
+          // Step 5: Smooth exit into Moments
+          // p: 0.48 -> 0.53
+          // -----------------------------------------------------
+          const exitT = sg(p, 0.48, 0.525);
+          const exitEase = io(exitT);
+
+          // Calculate Book Wrap coordinates & 3D orientation
+          // Centered open spread: spine lands at the exact middle of screen (x = 0)
+          const bookWidth = Math.min(390, Math.max(280, windowWidth * 0.26));
+          const openShiftX = (bookWidth * 0.5) * spreadEase;
+          const wrapX = openShiftX;
+          const wrapY = (28 * (1 - bindEase)) - (18 * tiltEase * (1 - spreadEase)) + (130 * exitEase);
+          const wrapZ = (-50 * (1 - bindEase)) - (320 * exitEase);
+
+          // 3D perspective tilt developing from the fold
+          const r = io(sg(p, 0.25, 0.29));
+          const pop = Math.sin(sg(p, 0.25, 0.29) * Math.PI) * 0.04;
+          let rotX = (-14 * r) + (18 * tiltEase * (1 - spreadEase)) + (3 * spreadEase) + (12 * exitEase) - my * 6;
+          let rotY = (-28 * r) + (-9 * tiltEase * (1 - spreadEase)) + mx * 8;
+          const rotZ = (-2 * r) + (sk * 0.4);
+          const wrapScale = (0.92 + 0.08 * bindEase + 0.04 * spreadEase + pop) * (1 - 0.22 * exitEase);
+          const wrapOpacity = bindEase * (1 - exitEase);
+
+          if (bookWrapRef.current) {
+            bookWrapRef.current.style.transform = `translate3d(${wrapX.toFixed(1)}px, ${wrapY.toFixed(1)}px, ${wrapZ.toFixed(1)}px) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg) rotateZ(${rotZ.toFixed(2)}deg) scale(${wrapScale.toFixed(3)})`;
+            bookWrapRef.current.style.opacity = `${wrapOpacity.toFixed(3)}`;
+          }
+
+          // WINS letters tumble out of the red dot onto the cover
+          bookLetterRefs.current.forEach((l, i) => {
+            if (!l) return;
+            const w = eo(sg(p, 0.26 + i * 0.007, 0.288 + i * 0.007));
+            l.style.transform = `translateX(${(1.5 - i) * bookWidth * 0.2 * (1 - w)}px) scale(${0.06 + 0.94 * w}) rotate(${(i % 2 ? 1 : -1) * 40 * (1 - w)}deg)`;
+            l.style.opacity = `${cl(w * 3)}`;
           });
 
-          // Stack container entry on perspective arc and smooth cinematic recession into horizon
-          const stackIn = io(sg(p, 0.25, 0.36));
-          const ex = io(sg(p, 0.46, 0.52));
-          if (wStackRef.current) {
-            wStackRef.current.style.transform = `translate3d(0, ${360 * (1 - stackIn) - (p - 0.40) * 70 + 140 * ex}px, ${-320 * ex}px) rotateX(${15 * (1 - stackIn) + 12 * ex}deg) scale(${(0.9 + 0.1 * stackIn) * (1 - 0.22 * ex)})`;
-            wStackRef.current.style.opacity = `${stackIn * (1 - ex)}`;
+          // Cover metadata header & footer fade in
+          const metaOp = sg(p, 0.265, 0.292);
+          if (bookCoverTopRef.current) bookCoverTopRef.current.style.opacity = `${metaOp}`;
+          if (bookCoverBottomRef.current) bookCoverBottomRef.current.style.opacity = `${metaOp}`;
+
+          // Specular light sheen sweep across cover
+          if (bookShineRef.current) {
+            const uShine = sg(p, 0.27, 0.31);
+            bookShineRef.current.style.opacity = `${Math.sin(uShine * Math.PI) * 0.85}`;
+            bookShineRef.current.style.transform = `translateX(${lp(-60, 60, uShine)}%)`;
           }
 
-          // Info block parallax and fade
-          if (wInfoRef.current) {
-            wInfoRef.current.style.transform = `translateY(${-(p - 0.40) * 60 + 50 * (1 - stackIn)}px) skewY(${sk * 0.5}deg)`;
-            wInfoRef.current.style.opacity = `${sg(p, 0.28, 0.34) * (1 - ex)}`;
+          // Cover rotation:
+          // Closed (0deg) -> Tilting (-72deg) -> Wide open (-172deg)
+          let coverRotY = 0;
+          if (tiltT > 0 && spreadT === 0) {
+            coverRotY = -72 * tiltEase;
+          } else if (spreadT > 0) {
+            coverRotY = -72 - 100 * spreadEase;
           }
 
-          // Scroll-driven card peeling progress (generous span from 0.33 to 0.46)
-          const wp = sg(p, 0.33, 0.46) * 4;
-          const act = Math.max(0, Math.min(4, Math.round(wp)));
-          if (act !== lastActRef.current) {
-            lastActRef.current = act;
-            setWCard(act);
+          if (bookCoverRef.current) {
+            bookCoverRef.current.style.transform = `rotateY(${coverRotY.toFixed(1)}deg)`;
+            bookCoverRef.current.style.zIndex = spreadEase > 0.85 ? '15' : '50';
           }
 
-          // Fill red progress bar
-          if (wBarRef.current) {
-            wBarRef.current.style.width = `${(wp / 4) * 100}%`;
-          }
+          // Dynamic Pages fan and turn physics (Thick 6px cardstock depth, velvety obstacle-free flips)
+          const PAGE_THICKNESS = 6;
+          bookLeafRefs.current.forEach((leaf, i) => {
+            if (!leaf) return;
 
-          // Buttery 3D Card Stacking physics (hardware-accelerated, zero raster filter lag)
-          cardRefs.current.forEach((c, i) => {
-            if (!c) return;
-            const r = i - wp;
-            let x = 0, y = 0, z = 0, rx = 0, ry = 0, rz = 0, sc = 1, op = 1, dim = 0;
-            let zi = 50 - i;
+            let leafRotY = 0;
+            let leafLiftZ = 0;
+            let leafZIndex = 40 - i;
 
-            if (r < 0) {
-              // Active card being dealt / peeled away smoothly
-              const q = cl(-r);
-              const e = io(q);
-              x = -240 * e;
-              y = -220 * e + 50 * e * e;
-              z = 70 * e * (1 - e); // lifts forward before sailing away
-              rx = -16 * e;
-              ry = 22 * e;
-              rz = W_ROTS[i] - 12 * e;
-              sc = 1 - 0.06 * e;
-              op = 1 - Math.pow(e, 2.2);
-              dim = 0;
-              zi = 60 + (4 - i); // Keeps peeling card in front of the resting deck
+            if (p < 0.29) {
+              // Closed inside book: stacked neatly with substantial 6px cardstock thickness
+              leafRotY = 0;
+              leafLiftZ = -i * PAGE_THICKNESS;
+              leafZIndex = 40 - i;
+            } else if (p < 0.325) {
+              // Accordion fanning in 3D (Img 2) - strictly monotonic negative angles (no crossing!)
+              const fanAngles = [-50, -38, -26, -14, -2];
+              leafRotY = fanAngles[i] * tiltEase;
+              leafLiftZ = -i * PAGE_THICKNESS;
+              leafZIndex = 40 - i;
+            } else if (p < 0.36) {
+              // Transition from accordion to wide open spread (Img 3)
+              // Pages settle flat at 0deg on the right stack
+              const fanStart = [-50, -38, -26, -14, -2];
+              leafRotY = fanStart[i] * (1 - spreadEase);
+              leafLiftZ = -i * PAGE_THICKNESS;
+              leafZIndex = 40 - i;
             } else {
-              // Cards resting in deck stack behind in strict sequential order
-              const d = Math.min(r, 4);
-              x = d * 22;
-              y = -d * 14;
-              z = -d * 38;
-              sc = 1 - 0.045 * d;
-              rz = W_ROTS[i] * (0.35 + 0.65 * cl(d));
-              dim = 0.12 * Math.min(d, 3);
-              op = d > 3.4 ? cl((4 - d) / 0.6) : 1;
-              zi = 50 - i; // Card 0 has 50, Card 1 has 49, Card 2 has 48, Card 3 has 47, Card 4 has 46
+              // STEP 4: VELVETY SMOOTH, OBSTACLE-FREE PAGE TURNS
+              if (i < 4 && turnProgress > i && turnProgress < i + 1) {
+                // Leaf i is CURRENTLY TURNING (from 0deg to -172deg)
+                const t = turnProgress - i;
+                // Velvety sine-eased rotation (smooth acceleration & deceleration, zero stickiness)
+                const ease = 0.5 - 0.5 * Math.cos(t * Math.PI);
+                leafRotY = -172 * ease;
 
-              // Top card interactive elevation & subtle cursor tilt
-              if (r < 1) {
-                const frontFactor = 1 - r;
-                ry += mx * 9 * frontFactor;
-                rx += -my * 7 * frontFactor;
-                y += -8 * frontFactor;
+                // Spine anchor glides seamlessly from right stack (-i * THICKNESS) to left stack (-(3 - i) * THICKNESS)
+                const startZ = -i * PAGE_THICKNESS;
+                const endZ = -(3 - i) * PAGE_THICKNESS;
+                // Slight natural in-flight cardstock lift (max 4px at apex) to clear resting pages
+                const archZ = Math.sin(t * Math.PI) * 4;
+                leafLiftZ = startZ + (endZ - startZ) * ease + archZ;
+                leafZIndex = 60; // In flight: floats cleanly above all resting pages
+              } else if (turnProgress >= i + 1) {
+                // Leaf i has ALREADY FLIPPED to left stack!
+                // Resting flat at -172deg
+                leafRotY = -172;
+                // Left stack depth: earlier pages sit underneath later pages
+                leafLiftZ = -(3 - i) * PAGE_THICKNESS;
+                leafZIndex = 20 + i;
+              } else {
+                // Leaf i is WAITING on right stack (unflipped)
+                // Resting flat at 0deg
+                leafRotY = 0;
+                // Right stack depth: page 0 is on top, later pages sit underneath
+                leafLiftZ = -i * PAGE_THICKNESS;
+                leafZIndex = 40 - i;
               }
             }
 
-            rz += sk * 0.5;
-            c.style.zIndex = `${zi}`;
-            c.style.transform = `translate3d(${x}px, ${y}px, ${z}px) rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(${rz}deg) scale(${sc})`;
-            c.style.opacity = `${Math.max(0, op - dim * 0.22) * (1 - ex)}`;
-            c.style.visibility = op < 0.02 || r > 4.2 || ex >= 0.99 ? 'hidden' : 'visible';
+            leaf.style.transform = `translate3d(0, 0, ${leafLiftZ.toFixed(1)}px) rotateY(${leafRotY.toFixed(1)}deg)`;
+            leaf.style.zIndex = `${leafZIndex}`;
           });
+
+          // Dynamic Floor Shadow
+          if (bookShadowRef.current) {
+            const shadowLeft = 50 - 50 * spreadEase;
+            const shadowScaleX = 1 + 0.3 * tiltEase + 0.7 * spreadEase;
+            const shadowScaleY = 1 + 0.2 * tiltEase;
+            const shadowOpacity = (0.75 * bindEase) * (1 - exitEase);
+            bookShadowRef.current.style.left = `${shadowLeft.toFixed(1)}%`;
+            bookShadowRef.current.style.transform = `translateX(-50%) rotateX(85deg) scale(${shadowScaleX.toFixed(2)}, ${shadowScaleY.toFixed(2)})`;
+            bookShadowRef.current.style.opacity = `${shadowOpacity.toFixed(2)}`;
+          }
+
+          // Minimal Bottom Controls parallax & fade (no top header)
+          if (bookControlsRef.current) {
+            bookControlsRef.current.style.transform = `translateX(-50%) translateY(${(20 * (1 - bindEase) + 50 * exitEase).toFixed(1)}px)`;
+            bookControlsRef.current.style.opacity = `${(bindEase * (1 - exitEase)).toFixed(2)}`;
+          }
+
+          // Counter Text in Bottom Pill
+          if (bookCounterRef.current) {
+            if (p < 0.28) {
+              bookCounterRef.current.textContent = 'COVER';
+            } else {
+              bookCounterRef.current.textContent = `0${actPage + 1} / 05`;
+            }
+          }
         }
       }
 
@@ -694,172 +950,172 @@ export const App: React.FC = () => {
           p4Ref.current.style.opacity = `${momIn * (1 - momFly)}`;
           p4Ref.current.style.filter = 'none'; // Zero blur! Crystal sharp zoom
 
-            // Close active pop-out card if scrolling towards transition
-            if (p > 0.73 && activeCardRef.current !== null) {
-              setActiveCard(null);
-            }
+          // Close active pop-out card if scrolling towards transition
+          if (p > 0.73 && activeCardRef.current !== null) {
+            setActiveCard(null);
+          }
 
-            // 3D Panoramic Fly-in & Clean Forward Zoom: Inside-the-Globe View
-            const en = io(sg(p, 0.54, 0.64));
-            const sr = sg(p, 0.58, 0.74);
+          // 3D Panoramic Fly-in & Clean Forward Zoom: Inside-the-Globe View
+          const en = io(sg(p, 0.54, 0.64));
+          const sr = sg(p, 0.58, 0.74);
 
-            // Resting zoom keeps cards large and immersive; transition flies forward into blank space
-            const baseZoom = 480 * K;
-            const transitionZoom = momFly * 850 * K;
-            const dz = -160 * (1 - en) + baseZoom + transitionZoom;
+          // Resting zoom keeps cards large and immersive; transition flies forward into blank space
+          const baseZoom = 480 * K;
+          const transitionZoom = momFly * 850 * K;
+          const dz = -160 * (1 - en) + baseZoom + transitionZoom;
 
-            if (!domeState.current.drag && activeCardRef.current === null) {
-              domeState.current.ry += domeState.current.vy * 0.94;
-              domeState.current.vy *= 0.94;
-            }
+          if (!domeState.current.drag && activeCardRef.current === null) {
+            domeState.current.ry += domeState.current.vy * 0.94;
+            domeState.current.vy *= 0.94;
+          }
 
-            // Panoramic 360 rotation around inside cyclorama
-            const ry = -tt * 0.7 + sr * 50 + mx * 8 + domeState.current.ry;
-            const rx = 0 + 4 * io(sr) - my * 5 + domeState.current.rx;
+          // Panoramic 360 rotation around inside cyclorama
+          const ry = -tt * 0.7 + sr * 50 + mx * 8 + domeState.current.ry;
+          const rx = 0 + 4 * io(sr) - my * 5 + domeState.current.rx;
 
-            // Entire inside 3D cyclorama rotates as a single hardware-accelerated 4x4 matrix
-            if (domeRef.current) {
-              domeRef.current.style.transform = `translateZ(${dz}px) rotateX(${rx}deg) rotateY(${ry}deg)`;
-            }
+          // Entire inside 3D cyclorama rotates as a single hardware-accelerated 4x4 matrix
+          if (domeRef.current) {
+            domeRef.current.style.transform = `translateZ(${dz}px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+          }
 
-            // MOMENTS heading: fades in cleanly, exits cleanly before transition
-            if (mtlRef.current) {
-              const mo2 = sg(p, 0.55, 0.62) * (1 - io(sg(p, 0.71, 0.78)));
-              mtlRef.current.style.opacity = `${mo2}`;
-              mtlRef.current.style.transform = `translateX(${-(p - 0.66) * 45}px) skewY(${sk * 0.3}deg) scale(1)`;
-            }
+          // MOMENTS heading: fades in cleanly, exits cleanly before transition
+          if (mtlRef.current) {
+            const mo2 = sg(p, 0.55, 0.62) * (1 - io(sg(p, 0.71, 0.78)));
+            mtlRef.current.style.opacity = `${mo2}`;
+            mtlRef.current.style.transform = `translateX(${-(p - 0.66) * 45}px) skewY(${sk * 0.3}deg) scale(1)`;
           }
         }
+      }
 
-        // =========================================================
-        // PANEL 4: CONTACT (LAST SCREEN - Emerges from Blank Space with Choreographed Movement)
-        // =========================================================
-        const contactVisible = p > 0.84;
-        if (p5Ref.current) {
-          p5Ref.current.style.display = contactVisible ? 'block' : 'none';
-          if (contactVisible) {
-            // Contact emerges smoothly AFTER the globe has passed into blank space
-            const contactIn = io(sg(p, 0.86, 0.98));
-            p5Ref.current.style.opacity = `${contactIn}`;
+      // =========================================================
+      // PANEL 4: CONTACT (LAST SCREEN - Emerges from Blank Space with Choreographed Movement)
+      // =========================================================
+      const contactVisible = p > 0.84;
+      if (p5Ref.current) {
+        p5Ref.current.style.display = contactVisible ? 'block' : 'none';
+        if (contactVisible) {
+          // Contact emerges smoothly AFTER the globe has passed into blank space
+          const contactIn = io(sg(p, 0.86, 0.98));
+          p5Ref.current.style.opacity = `${contactIn}`;
 
-            // Top Title smoothly descends and settles with scale
-            if (cTitleRef.current) {
-              cTitleRef.current.style.transform = `translate3d(0, ${(1 - contactIn) * -50}px, 0) scale(${0.92 + 0.08 * contactIn})`;
-              cTitleRef.current.style.opacity = `${contactIn}`;
-            }
+          // Top Title smoothly descends and settles with scale
+          if (cTitleRef.current) {
+            cTitleRef.current.style.transform = `translate3d(0, ${(1 - contactIn) * -50}px, 0) scale(${0.92 + 0.08 * contactIn})`;
+            cTitleRef.current.style.opacity = `${contactIn}`;
+          }
 
-            // Subtitle staggers in smoothly
-            if (cSubTextRef.current) {
-              const subIn = io(sg(p, 0.89, 0.99));
-              cSubTextRef.current.style.transform = `translate3d(0, ${(1 - subIn) * 20}px, 0)`;
-              cSubTextRef.current.style.opacity = `${subIn}`;
-            }
+          // Subtitle staggers in smoothly
+          if (cSubTextRef.current) {
+            const subIn = io(sg(p, 0.89, 0.99));
+            cSubTextRef.current.style.transform = `translate3d(0, ${(1 - subIn) * 20}px, 0)`;
+            cSubTextRef.current.style.opacity = `${subIn}`;
+          }
 
-            // Say Hello Rocket Button container glides in smoothly
-            if (cSayHelloRef.current) {
-              const bIn = io(sg(p, 0.88, 0.98));
-              cSayHelloRef.current.style.transform = `translate3d(0, ${(1 - bIn) * 35}px, 0)`;
-              cSayHelloRef.current.style.opacity = `${bIn}`;
-            }
+          // Say Hello Rocket Button container glides in smoothly
+          if (cSayHelloRef.current) {
+            const bIn = io(sg(p, 0.88, 0.98));
+            cSayHelloRef.current.style.transform = `translate3d(0, ${(1 - bIn) * 35}px, 0)`;
+            cSayHelloRef.current.style.opacity = `${bIn}`;
+          }
 
-            // Cream contact sheet glides up with luxury paper elevation
-            if (cSheetRef.current) {
-              cSheetRef.current.style.transform = `translateY(${100 * (1 - contactIn)}%)`;
-            }
+          // Cream contact sheet glides up with luxury paper elevation
+          if (cSheetRef.current) {
+            cSheetRef.current.style.transform = `translateY(${100 * (1 - contactIn)}%)`;
+          }
 
-            // Back to top floating pill
-            if (cTopBtnRef.current) {
-              const tpIn = sg(p, 0.92, 0.99);
-              cTopBtnRef.current.style.opacity = `${tpIn}`;
-              cTopBtnRef.current.style.pointerEvents = tpIn > 0.5 ? 'auto' : 'none';
-            }
+          // Back to top floating pill
+          if (cTopBtnRef.current) {
+            const tpIn = sg(p, 0.92, 0.99);
+            cTopBtnRef.current.style.opacity = `${tpIn}`;
+            cTopBtnRef.current.style.pointerEvents = tpIn > 0.5 ? 'auto' : 'none';
           }
         }
+      }
 
-        // =========================================================
-        // MOMENTS-TO-CONTACT HERO COIN-TO-STICKER TRANSITION
-        // =========================================================
-        // 1. The exact zoomed card slot in the dome becomes blank
-        const heroTileIdx = 56;
-        const heroTileInner = tileInnersRef.current[heroTileIdx];
-        if (heroTileInner) {
-          if (p >= 0.73) {
-            heroTileInner.style.opacity = '0';
-            heroTileInner.parentElement?.classList.add('dt-empty-slot');
-          } else {
-            heroTileInner.style.opacity = '1';
-            heroTileInner.parentElement?.classList.remove('dt-empty-slot');
+      // =========================================================
+      // MOMENTS-TO-CONTACT HERO COIN-TO-STICKER TRANSITION
+      // =========================================================
+      // 1. The exact zoomed card slot in the dome becomes blank
+      const heroTileIdx = 56;
+      const heroTileInner = tileInnersRef.current[heroTileIdx];
+      if (heroTileInner) {
+        if (p >= 0.73) {
+          heroTileInner.style.opacity = '0';
+          heroTileInner.parentElement?.classList.add('dt-empty-slot');
+        } else {
+          heroTileInner.style.opacity = '1';
+          heroTileInner.parentElement?.classList.remove('dt-empty-slot');
+        }
+      }
+
+      // 2. Detached Hero Card: comes out from that exact spot, flips smoothly once in mid-air,
+      // and places as a sticker below "LET'S CONNECT"
+      const coinVisible = p > 0.73 && p <= 1.0;
+      if (coinCardRef.current) {
+        coinCardRef.current.style.display = coinVisible ? 'block' : 'none';
+        if (coinVisible) {
+          const vw = window.innerWidth;
+          const vh = window.innerHeight;
+
+          // Card dimensions (responsive sticker size)
+          const cardW = Math.max(136, Math.min(176, vw * 0.135));
+          const cardH = cardW * 1.40;
+
+          // Start Position: exactly where the card was zoomed in the center
+          const startX = vw * 0.5 - cardW * 0.5;
+          const startY = vh * 0.5 - cardH * 0.5;
+
+          // Destination Position: Left side directly below "LET'S CONNECT"
+          const destX = Math.max(24, Math.min(72, vw * 0.055));
+          const titleTop = Math.max(50, Math.min(90, vh * 0.10));
+          const titleH = Math.max(80, Math.min(150, vw * 0.115));
+          const destY = titleTop + titleH + 18;
+
+          // Normalized progress: 0 at p=0.74, 1 at p=0.90
+          const rawT = Math.min(1, Math.max(0, (p - 0.74) / 0.16));
+
+          // Entrance / lift-off from the dome socket
+          const liftOff = Math.min(1, Math.max(0, (p - 0.73) / 0.02));
+
+          // Smooth coordinated flight path
+          const flightEase = io(rawT);
+          const curX = startX + (destX - startX) * flightEase;
+
+          // Gentle, elegant arc (lifts out and glides down smoothly)
+          const arcY = Math.sin(rawT * Math.PI) * -32;
+          const curY = startY + (destY - startY) * flightEase + arcY;
+
+          // Gentle scale: starts at socket size (0.88), expands to 1.12 in flight, settles to 1.0
+          const curScale = 0.88 + Math.sin(rawT * Math.PI) * 0.24 + 0.12 * rawT;
+
+          // Clean, controlled single 360-deg flip (NO chaotic multi-spin or wobble)
+          // 0 deg (front) -> 180 deg (collector back) -> 360 deg (front settles into sticker)
+          const spinDeg = io(rawT) * 360;
+
+          // Subtle tactile sticker tilt on landing: settles smoothly into -4.2 deg
+          const stickerTilt = -4.2 * io(Math.min(1, Math.max(0, (rawT - 0.70) / 0.30)));
+
+          // State attributes
+          const isStuck = rawT >= 0.95;
+          coinCardRef.current.dataset.stuck = isStuck ? 'true' : 'false';
+          coinCardRef.current.style.pointerEvents = isStuck ? 'auto' : 'none';
+          coinCardRef.current.style.opacity = `${liftOff}`;
+          coinCardRef.current.style.width = `${cardW}px`;
+          coinCardRef.current.style.height = `${cardH}px`;
+          coinCardRef.current.style.transform = `translate3d(${curX.toFixed(1)}px, ${curY.toFixed(1)}px, 0) scale(${curScale.toFixed(3)}) rotate(${stickerTilt.toFixed(2)}deg)`;
+
+          if (coinFlipperRef.current) {
+            coinFlipperRef.current.style.transform = `rotateY(${spinDeg.toFixed(1)}deg)`;
           }
         }
-
-        // 2. Detached Hero Card: comes out from that exact spot, flips smoothly once in mid-air,
-        // and places as a sticker below "LET'S CONNECT"
-        const coinVisible = p > 0.73 && p <= 1.0;
-        if (coinCardRef.current) {
-          coinCardRef.current.style.display = coinVisible ? 'block' : 'none';
-          if (coinVisible) {
-            const vw = window.innerWidth;
-            const vh = window.innerHeight;
-
-            // Card dimensions (responsive sticker size)
-            const cardW = Math.max(136, Math.min(176, vw * 0.135));
-            const cardH = cardW * 1.40;
-
-            // Start Position: exactly where the card was zoomed in the center
-            const startX = vw * 0.5 - cardW * 0.5;
-            const startY = vh * 0.5 - cardH * 0.5;
-
-            // Destination Position: Left side directly below "LET'S CONNECT"
-            const destX = Math.max(24, Math.min(72, vw * 0.055));
-            const titleTop = Math.max(50, Math.min(90, vh * 0.10));
-            const titleH = Math.max(80, Math.min(150, vw * 0.115));
-            const destY = titleTop + titleH + 18;
-
-            // Normalized progress: 0 at p=0.74, 1 at p=0.90
-            const rawT = Math.min(1, Math.max(0, (p - 0.74) / 0.16));
-
-            // Entrance / lift-off from the dome socket
-            const liftOff = Math.min(1, Math.max(0, (p - 0.73) / 0.02));
-
-            // Smooth coordinated flight path
-            const flightEase = io(rawT);
-            const curX = startX + (destX - startX) * flightEase;
-
-            // Gentle, elegant arc (lifts out and glides down smoothly)
-            const arcY = Math.sin(rawT * Math.PI) * -32;
-            const curY = startY + (destY - startY) * flightEase + arcY;
-
-            // Gentle scale: starts at socket size (0.88), expands to 1.12 in flight, settles to 1.0
-            const curScale = 0.88 + Math.sin(rawT * Math.PI) * 0.24 + 0.12 * rawT;
-
-            // Clean, controlled single 360-deg flip (NO chaotic multi-spin or wobble)
-            // 0 deg (front) -> 180 deg (collector back) -> 360 deg (front settles into sticker)
-            const spinDeg = io(rawT) * 360;
-
-            // Subtle tactile sticker tilt on landing: settles smoothly into -4.2 deg
-            const stickerTilt = -4.2 * io(Math.min(1, Math.max(0, (rawT - 0.70) / 0.30)));
-
-            // State attributes
-            const isStuck = rawT >= 0.95;
-            coinCardRef.current.dataset.stuck = isStuck ? 'true' : 'false';
-            coinCardRef.current.style.pointerEvents = isStuck ? 'auto' : 'none';
-            coinCardRef.current.style.opacity = `${liftOff}`;
-            coinCardRef.current.style.width = `${cardW}px`;
-            coinCardRef.current.style.height = `${cardH}px`;
-            coinCardRef.current.style.transform = `translate3d(${curX.toFixed(1)}px, ${curY.toFixed(1)}px, 0) scale(${curScale.toFixed(3)}) rotate(${stickerTilt.toFixed(2)}deg)`;
-
-            if (coinFlipperRef.current) {
-              coinFlipperRef.current.style.transform = `rotateY(${spinDeg.toFixed(1)}deg)`;
-            }
-          }
-        }
-
-        animId = requestAnimationFrame(frame);
-      };
+      }
 
       animId = requestAnimationFrame(frame);
-      return () => cancelAnimationFrame(animId);
-    }, []);
+    };
+
+    animId = requestAnimationFrame(frame);
+    return () => cancelAnimationFrame(animId);
+  }, []);
 
   // Toggle card inspection: 1st click pops card out in 3D, 2nd click docks it back!
   const handleCardClick = useCallback((idx: number) => {
@@ -932,25 +1188,15 @@ export const App: React.FC = () => {
                 <div className="portrait-vignette" />
               </div>
 
-              {/* Top Category Badge */}
-              <div className="portrait-card-top">
-                <span className="portrait-badge">
-                  <span className="portrait-badge-dot" style={{ background: item.color }} />
-                  {item.category}
-                </span>
-                <span className="portrait-card-idx">
-                  #{('0' + ((currentIdx % 14) + 1)).slice(-2)}
-                </span>
+              {/* Top-Left: Title & Subtitle */}
+              <div className="portrait-card-header">
+                <h4 className="portrait-card-title">{item.title}</h4>
+                <span className="portrait-card-sub">{item.tag}</span>
               </div>
 
-              {/* Bottom Content Info */}
-              <div className="portrait-card-bottom">
-                <span className="portrait-card-tag">{item.tag}</span>
-                <h4 className="portrait-card-title">{item.title}</h4>
-                <div className="portrait-card-meta">
-                  <span>{item.date} • 3D VIEW</span>
-                  <i className="ti ti-arrow-up-right" style={{ opacity: 0.8 }} />
-                </div>
+              {/* Bottom-Left: See more » */}
+              <div className="portrait-card-footer">
+                <span className="portrait-card-seemore">See more »</span>
               </div>
             </div>
           </div>
@@ -1203,117 +1449,175 @@ export const App: React.FC = () => {
       </section>
 
       {/* =========================================================
-          Panel 2: WINS (3D CARD STACK - FROM v9 & v10)
+          Panel 2: WINS (AUTHENTIC 3D BOOK / JOURNAL)
           ========================================================= */}
       <section ref={p2Ref} className="pn p2" style={{ zIndex: 3, display: 'none' }}>
-        <div className="wt">
-          {'WINS'.split('').map((char, i) => (
-            <span
-              key={i}
-              ref={(el) => { wLettersRef.current[i] = el; }}
-              className="l"
-            >
-              {char}
-            </span>
-          ))}
-        </div>
+        <div ref={bookStageRef} className="book-3d-stage">
+          {/* 3D Book Wrap */}
+          <div ref={bookWrapRef} className="book-wrap">
+            {/* Dynamic Floor Shadow */}
+            <div ref={bookShadowRef} className="book-floor-shadow" />
 
-        {/* Left Info Block */}
-        <div ref={wInfoRef} className="w-info">
-          <div className="wn key-swap" key={`wn-${wCard}`}>{W5_DATA[wCard].title}</div>
-          <div className="ws key-swap" key={`ws-${wCard}`}>{W5_DATA[wCard].sub}</div>
-          <div className="wd key-swap" key={`wd-${wCard}`}>{W5_DATA[wCard].desc}</div>
+            {/* Bound Spine Edge on Left */}
+            <div className="book-spine">
+              <div className="book-spine-rib" />
+              <div className="book-spine-rib" />
+              <div className="book-spine-rib" />
+            </div>
 
-          {/* Minimal Card Nav Controls */}
-          <div style={{ display: 'flex', gap: '8px', marginTop: '22px' }}>
-            <button
-              type="button"
-              onClick={() => {
-                if (wCard > 0) {
-                  tgtRef.current = Math.max(0.34, tgtRef.current - 0.04);
-                } else {
-                  goTo(1);
-                }
-              }}
-              style={{
-                background: 'rgba(255, 255, 255, 0.06)',
-                color: wCard === 0 ? 'rgba(255, 255, 255, 0.25)' : '#EFEAE0',
-                border: '1px solid rgba(255, 255, 255, 0.15)',
-                padding: '6px 14px',
-                borderRadius: '999px',
-                cursor: wCard === 0 ? 'not-allowed' : 'pointer',
-                fontFamily: 'var(--mo)',
-                fontSize: '11px',
-                letterSpacing: '0.1em',
-                boxShadow: 'none',
-                transition: 'background 0.2s ease, border-color 0.2s ease, color 0.2s ease',
-              }}
-            >
-              PREV
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                if (wCard < 4) {
-                  tgtRef.current = Math.min(0.50, tgtRef.current + 0.04);
-                } else {
-                  goTo(3);
-                }
-              }}
-              style={{
-                background: 'rgba(255, 255, 255, 0.06)',
-                color: '#EFEAE0',
-                border: '1px solid rgba(255, 255, 255, 0.15)',
-                padding: '6px 16px',
-                borderRadius: '999px',
-                cursor: 'pointer',
-                fontFamily: 'var(--mo)',
-                fontSize: '11px',
-                letterSpacing: '0.1em',
-                boxShadow: 'none',
-                transition: 'background 0.2s ease, border-color 0.2s ease, color 0.2s ease',
-              }}
-            >
-              {wCard < 4 ? 'NEXT CARD →' : 'EXPLORE MOMENTS →'}
-            </button>
-          </div>
-        </div>
+            {/* Back Hardback Cover */}
+            <div className="book-back-cover" />
 
-        {/* 3D Peeling Stack */}
-        <div ref={wStackRef} className="w-stack">
-          {W5_DATA.map((w, i) => {
-            const k = W_CC[i];
-            const isDark = k[0] === '#1b1b1f';
-            return (
+            {/* 5 Page Leaves (Rendered in natural order, z-indexes and transforms handled in RAF) */}
+            {W5_DATA.map((win, i) => (
               <div
-                key={i}
-                ref={(el) => { cardRefs.current[i] = el; }}
-                className="wc"
-                onClick={() => {
-                  tgtRef.current = 0.34 + (i / 4) * (0.50 - 0.34);
-                }}
-                style={{
-                  background: isDark
-                    ? '#1b1b1f'
-                    : k[0] === '#EE3B1F'
-                      ? '#EE3B1F'
-                      : '#EFEAE0',
-                  color: k[1],
-                  border: isDark
-                    ? '1px solid rgba(255, 255, 255, 0.16)'
-                    : '1px solid rgba(0, 0, 0, 0.12)',
-                  boxShadow: '0 20px 48px rgba(0, 0, 0, 0.65)',
-                }}
+                key={win.title}
+                ref={(el) => { bookLeafRefs.current[i] = el; }}
+                className="book-leaf"
+                onClick={() => handleLeafClick(i)}
               >
-                <i className="tp" />
-                <div className="im">
-                  <i className={`ti ${w.icon}`} />
+                {/* Front Side: Win Scrapbook Journal Spread */}
+                <div className="page-front">
+                  <div className="page-spine-shadow" />
+
+                  {/* Top Metadata Row */}
+                  <div className="page-top-row">
+                    <span className="page-stamp-pill">{win.sub}</span>
+                    <span className="page-stamp-cat">{win.category}</span>
+                  </div>
+
+                  {/* Photo with Washi Tape */}
+                  <div className="page-photo-card">
+                    <div className="book-tape" />
+                    <img
+                      src={win.img}
+                      alt={win.title}
+                      className="page-photo-img"
+                      loading="lazy"
+                    />
+                  </div>
+
+                  {/* Main Project Story */}
+                  <div className="page-body">
+                    <div className="page-tag">{win.tag}</div>
+                    <h3 className="page-title">{win.title}</h3>
+                    <p className="page-desc">{win.desc}</p>
+                  </div>
+
+                  {/* Bottom Stack & Index Stamp */}
+                  <div className="page-bottom-row">
+                    <div className="page-stack-pills">
+                      {win.stack.map((st) => (
+                        <span key={st} className="page-stack-pill">{st}</span>
+                      ))}
+                    </div>
+                    <span className="page-num-stamp">PAGE 0{i + 1}</span>
+                  </div>
                 </div>
-                <div className="cn">{w.title}</div>
-                <div className="cs">{w.sub}</div>
+
+                {/* Back Side: Vintage Dev Log & Blueprint Sketch */}
+                <div className="page-back">
+                  <div className="page-back-crease" />
+
+                  <div className="page-back-blueprint">
+                    <div className="page-back-stamp">ARCHIVE #0{i + 1} • FIELD LOG</div>
+                    <div className="page-back-quote">"{win.quote}"</div>
+                  </div>
+
+                  <div className="page-body">
+                    <div className="page-tag" style={{ color: '#555' }}>SYSTEM TELEMETRY</div>
+                    <div className="page-desc" style={{ color: '#444' }}>
+                      Designed for sub-millisecond dispatching, high-load inference, and resilient offline execution.
+                    </div>
+                  </div>
+
+                  <div className="page-back-meta">
+                    <span>STATUS: VERIFIED</span>
+                    <span>METRIC: {win.metric}</span>
+                  </div>
+                </div>
               </div>
-            );
-          })}
+            ))}
+
+            {/* Front Hardback Cover */}
+            <div
+              ref={bookCoverRef}
+              className="book-cover"
+              onClick={() => handleCoverClick()}
+            >
+              {/* Front Face: Leather / Linen "WINS" Hardcover */}
+              <div className="book-cover-front">
+                <div className="book-cover-spine-crease" />
+
+                <div ref={bookCoverTopRef} className="book-cover-top">
+                  <span className="book-cover-meta">DEBASHREE MAL • CE '28</span>
+                  <span className="book-cover-sub">NATIONAL BUILD ARCHIVE</span>
+                </div>
+
+                <div className="book-cover-center">
+                  <div ref={bookTitleWrapRef} className="book-cover-title-wrap">
+                    {['W', 'I', 'N', 'S'].map((ch, i) => (
+                      <span
+                        key={ch + i}
+                        ref={(el) => { bookLetterRefs.current[i] = el; }}
+                        className="book-cover-letter"
+                      >
+                        {ch}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div ref={bookCoverBottomRef} className="book-cover-bottom">
+                  <span>5 AWARDS & HACKATHONS</span>
+                  <span>OPEN JOURNAL →</span>
+                </div>
+
+                {/* Specular sheen gliding across the cover */}
+                <div ref={bookShineRef} className="book-shine" />
+              </div>
+
+              {/* Back Face of Cover: Cream Archival Endpaper */}
+              <div className="book-cover-back">
+                <div className="book-endpaper-plate">
+                  <h4 className="book-endpaper-title">ARCHIVE OF WINS</h4>
+                  <p className="book-endpaper-desc">
+                    A curated collection of national hackathon victories, offline computer vision SDKs, and autonomous agent systems engineered across India.
+                  </p>
+                </div>
+                <div className="book-cover-bottom" style={{ color: '#444', borderTopColor: 'rgba(0,0,0,0.12)' }}>
+                  <span>EXHIBIT 2025–2026</span>
+                  <span>MUMBAI, INDIA</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Floating Controls */}
+          <div ref={bookControlsRef} className="book-controls">
+            <div className="book-nav-bar">
+              <button
+                type="button"
+                className="book-nav-btn"
+                onClick={() => turnPrev()}
+                disabled={wCard === 0 && tgtRef.current <= 0.28}
+              >
+                ‹ PREV
+              </button>
+              <div className="book-page-pill">
+                <span ref={bookCounterRef}>
+                  {tgtRef.current < 0.28 ? 'COVER' : `0${wCard + 1} / 05`}
+                </span>
+              </div>
+              <button
+                type="button"
+                className="book-nav-btn"
+                onClick={() => turnNext()}
+              >
+                {wCard < 4 ? 'NEXT ›' : 'MOMENTS →'}
+              </button>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -1622,26 +1926,26 @@ export const App: React.FC = () => {
       >
         <div ref={coinFlipperRef} className="coin-flipper">
           {/* FRONT FACE: The Moment Card */}
-          <div className="coin-face coin-front">
-            <div className="coin-card-header">
-              <span className="coin-badge">● 1ST PLACE</span>
-              <span className="coin-number">#01</span>
-            </div>
-            <div className="coin-img-wrap">
+          <div className="coin-face coin-front portrait-card-3d" style={{ padding: '12px 10px' }}>
+            <div className="portrait-img-box">
               <img
                 src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&q=80&auto=format&fit=crop"
                 alt="Axion Hackathon"
-                className="coin-img"
+                className="portrait-img"
               />
+              <div className="portrait-vignette" />
               <div className="coin-sticker-tape">STICKER</div>
             </div>
-            <div className="coin-card-body">
-              <div className="coin-tag">AI PROJECT MANAGER</div>
-              <div className="coin-title">Axion Hackathon</div>
+
+            {/* Top-Left: Title & Subtitle */}
+            <div className="portrait-card-header">
+              <h4 className="portrait-card-title">Axion Hackathon</h4>
+              <span className="portrait-card-sub">AI Project Manager</span>
             </div>
-            <div className="coin-card-footer">
-              <span className="coin-year">2025 • 3D ARCHIVE</span>
-              <i className="ti ti-arrow-up-right" style={{ color: 'var(--rd)', fontSize: '11px' }} />
+
+            {/* Bottom-Left: See more » */}
+            <div className="portrait-card-footer">
+              <span className="portrait-card-seemore">See more »</span>
             </div>
             <div className="coin-sheen" />
           </div>
