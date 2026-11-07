@@ -567,14 +567,15 @@ body {
   top: calc(var(--h) / -2);
   width: var(--w);
   height: var(--h);
-  background: #d9d1bf;
+  background: #D5CEBE;
   transform: translateZ(calc(var(--t) / -2)) rotateY(180deg);
-  border-radius: 3px 10px 10px 3px;
+  border-radius: 4px 18px 18px 4px;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   opacity: 0;
   will-change: opacity;
   z-index: 5;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
 }
 
 /* Front Hardback Cover - Swings open around its spine */
@@ -589,6 +590,7 @@ body {
   will-change: transform;
   cursor: pointer;
   z-index: 50;
+  border-radius: 4px 18px 18px 4px;
 }
 
 /* The Front Face: Cream sheet that folds from full-screen into the book cover */
@@ -604,6 +606,7 @@ body {
   flex-direction: column;
   justify-content: space-between;
   padding: 0;
+  border-radius: 4px 18px 18px 4px;
 }
 
 /* Left spine overlay on cover front */
@@ -703,10 +706,10 @@ body {
   transform: rotateY(180deg) translateZ(1px);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  border-radius: 4px 14px 14px 4px;
+  border-radius: 18px 4px 4px 18px;
   background: #EAE4D5;
   border: none;
-  box-shadow: inset -24px 0 32px -12px rgba(0, 0, 0, 0.22);
+  box-shadow: inset -24px 0 32px -12px rgba(0, 0, 0, 0.18);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -745,8 +748,10 @@ body {
   transform-origin: left center;
   transform-style: preserve-3d;
   will-change: transform;
-  border-radius: 4px 16px 16px 4px;
+  border-radius: 4px 18px 18px 4px;
+  background: #FAF8F2;
   cursor: pointer;
+  -webkit-font-smoothing: subpixel-antialiased;
 }
 
 /* Front Face of each Page (The Win Journal Spread) */
@@ -755,7 +760,7 @@ body {
   inset: 0;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  border-radius: 4px 14px 14px 4px;
+  border-radius: 4px 18px 18px 4px;
   background: #FAF8F2;
   padding: clamp(14px, 1.8vw, 24px);
   display: flex;
@@ -763,16 +768,13 @@ body {
   justify-content: space-between;
   border: none;
   box-shadow:
-    inset 20px 0 28px -10px rgba(0, 0, 0, 0.12),
-    1px 0 0 rgba(255, 255, 255, 0.8),
-    2px 1px 0 #E5DDCB,
-    3px 2px 0 #D9D0BE,
-    4px 3px 0 #CCC2AE,
-    0 12px 30px rgba(0, 0, 0, 0.28);
+    inset 22px 0 30px -10px rgba(0, 0, 0, 0.10),
+    0 4px 14px rgba(0, 0, 0, 0.06),
+    0 12px 28px rgba(0, 0, 0, 0.15);
   overflow: hidden;
   color: #111111;
   user-select: none;
-  transform: translateZ(2px);
+  transform: translateZ(0.5px);
 }
 
 /* Paper Spine Crease Shadow - Soft and seamless without harsh line */
@@ -923,10 +925,10 @@ body {
 .page-back {
   position: absolute;
   inset: 0;
-  transform: rotateY(180deg) translateZ(2px);
+  transform: rotateY(180deg) translateZ(0.5px);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  border-radius: 14px 4px 4px 14px;
+  border-radius: 18px 4px 4px 18px;
   background: #F4EFE4;
   padding: clamp(14px, 1.8vw, 24px);
   display: flex;
@@ -934,12 +936,9 @@ body {
   justify-content: space-between;
   border: none;
   box-shadow:
-    inset -20px 0 28px -10px rgba(0, 0, 0, 0.12),
-    -1px 0 0 rgba(255, 255, 255, 0.8),
-    -2px 1px 0 #E5DDCB,
-    -3px 2px 0 #D9D0BE,
-    -4px 3px 0 #CCC2AE,
-    0 12px 30px rgba(0, 0, 0, 0.28);
+    inset -22px 0 30px -10px rgba(0, 0, 0, 0.10),
+    0 4px 14px rgba(0, 0, 0, 0.06),
+    0 12px 28px rgba(0, 0, 0, 0.15);
   overflow: hidden;
   color: #111111;
   user-select: none;

@@ -241,8 +241,8 @@ const MOMENTS_ITEMS = [
   },
 ];
 
-const MILESTONES = [0, 0.20, 0.42, 0.70, 1.0];
-const THRESHOLDS = [0, 0.12, 0.33, 0.58, 0.86];
+const MILESTONES = [0, 0.18, 0.42, 0.72, 1.0];
+const THRESHOLDS = [0, 0.10, 0.25, 0.60, 0.86];
 const SECTIONS = ['HOME', 'ABOUT', 'WINS', 'MOMENTS', 'CONTACT'];
 
 export const App: React.FC = () => {
@@ -308,6 +308,8 @@ export const App: React.FC = () => {
   const bookShadowRef = useRef<HTMLDivElement>(null);
   const bookCounterRef = useRef<HTMLSpanElement>(null);
   const bookControlsRef = useRef<HTMLDivElement>(null);
+  const bookNextBtnRef = useRef<HTMLButtonElement>(null);
+  const bookPrevBtnRef = useRef<HTMLButtonElement>(null);
 
   // Moments Refs
   const domewRef = useRef<HTMLDivElement>(null);
@@ -348,10 +350,6 @@ export const App: React.FC = () => {
   const [cur, setCur] = useState(0);
   const curSectionRef = useRef(0);
 
-  // Wins active card state
-  const [wCard, setWCard] = useState(0);
-  const lastActRef = useRef(0);
-
   // Continuous progress physics refs from v10
   const tgtRef = useRef(0);
   const curProgressRef = useRef(0);
@@ -375,15 +373,20 @@ export const App: React.FC = () => {
   // 3D Book Page Turning Callbacks (exact, obstacle-free page targets)
   const turnNext = useCallback(() => {
     if (tgtRef.current < 0.38) {
-      tgtRef.current = 0.42;
-    } else if (tgtRef.current < 0.41) {
+      tgtRef.current = 0.42; // Open to Page 1
+    } else if (tgtRef.current < 0.42) {
       tgtRef.current = 0.42;
     } else {
-      const curTurn = sg(tgtRef.current, 0.42, 0.56) * 4;
-      const curPage = Math.min(4, Math.floor(curTurn + 0.1));
+      const curTurn = sg(tgtRef.current, 0.42, 0.55) * 5;
+      const curPage = Math.min(5, Math.floor(curTurn + 0.1));
       if (curPage < 4) {
-        tgtRef.current = 0.42 + (curPage + 1) * (0.14 / 4);
+        // Go to next page (1, 2, 3, 4)
+        tgtRef.current = 0.42 + (curPage + 1) * (0.13 / 5);
+      } else if (curPage === 4) {
+        // At Page 5: CLOSE THE BOOK!
+        tgtRef.current = 0.57;
       } else {
+        // From closed book: GO TO MOMENTS!
         goTo(3);
       }
     }
@@ -392,13 +395,14 @@ export const App: React.FC = () => {
   const turnPrev = useCallback(() => {
     if (tgtRef.current <= 0.425) {
       tgtRef.current = 0.36; // Return to 3D accordion fan state
-    } else if (tgtRef.current > 0.56) {
-      tgtRef.current = 0.56;
+    } else if (tgtRef.current >= 0.56) {
+      // Re-open from closed book back to Page 5
+      tgtRef.current = 0.42 + 4 * (0.13 / 5);
     } else {
-      const curTurn = sg(tgtRef.current, 0.42, 0.56) * 4;
-      const curPage = Math.min(4, Math.floor(curTurn + 0.1));
+      const curTurn = sg(tgtRef.current, 0.42, 0.55) * 5;
+      const curPage = Math.min(5, Math.floor(curTurn + 0.1));
       if (curPage > 0) {
-        tgtRef.current = 0.42 + (curPage - 1) * (0.14 / 4);
+        tgtRef.current = 0.42 + (curPage - 1) * (0.13 / 5);
       } else {
         tgtRef.current = 0.36;
       }
@@ -410,19 +414,24 @@ export const App: React.FC = () => {
       tgtRef.current = 0.42;
       return;
     }
-    const curTurn = sg(tgtRef.current, 0.42, 0.56) * 4;
-    const curPage = Math.min(4, Math.floor(curTurn + 0.1));
+    const curTurn = sg(tgtRef.current, 0.42, 0.55) * 5;
+    const curPage = Math.min(5, Math.floor(curTurn + 0.1));
     if (idx < curPage) {
-      tgtRef.current = 0.42 + idx * (0.14 / 4);
+      tgtRef.current = 0.42 + idx * (0.13 / 5);
     } else if (idx === curPage && curPage < 4) {
-      tgtRef.current = 0.42 + (curPage + 1) * (0.14 / 4);
+      tgtRef.current = 0.42 + (curPage + 1) * (0.13 / 5);
+    } else if (idx === 4 && curPage === 4) {
+      // Clicking the last page closes the book!
+      tgtRef.current = 0.57;
     } else if (idx > curPage) {
-      tgtRef.current = 0.42 + idx * (0.14 / 4);
+      tgtRef.current = 0.42 + idx * (0.13 / 5);
     }
   }, []);
 
   const handleCoverClick = useCallback(() => {
     if (tgtRef.current < 0.38) {
+      tgtRef.current = 0.42;
+    } else if (tgtRef.current >= 0.56) {
       tgtRef.current = 0.42;
     } else {
       tgtRef.current = 0.36;
@@ -645,16 +654,16 @@ export const App: React.FC = () => {
       document.documentElement.style.setProperty('--t', `${T}px`);
 
       // =========================================================
-      // PANEL 1: ABOUT ME (0.04 < p < 0.34)
+      // PANEL 1: ABOUT ME (0.04 < p < 0.32)
       // =========================================================
-      const aboutVisible = p > 0.04 && p < 0.34;
+      const aboutVisible = p > 0.04 && p < 0.32;
       if (p1Ref.current) {
         p1Ref.current.style.display = aboutVisible ? 'block' : 'none';
-        p1Ref.current.style.zIndex = p > 0.26 ? '2' : '4';
-        p1Ref.current.style.pointerEvents = (p > 0.16 && p < 0.22) ? 'auto' : 'none';
+        p1Ref.current.style.zIndex = p > 0.225 ? '2' : '4';
+        p1Ref.current.style.pointerEvents = (p > 0.14 && p < 0.21) ? 'auto' : 'none';
 
         if (aboutVisible) {
-          const ab = io(sg(p, 0.05, 0.16));
+          const ab = io(sg(p, 0.04, 0.15));
           if (p < 0.18) {
             p1Ref.current.style.transform = `translateY(${100 * (1 - ab)}%)`;
           } else {
@@ -663,10 +672,10 @@ export const App: React.FC = () => {
 
           // Cream sheet: covers About Me during entrance over Hero, then seamlessly hands off to book cover underneath
           if (sheetRef.current) {
-            if (p < 0.22) {
+            if (p < 0.21) {
               sheetRef.current.style.opacity = '1';
             } else {
-              sheetRef.current.style.opacity = `${cl(1 - sg(p, 0.22, 0.245))}`;
+              sheetRef.current.style.opacity = `${cl(1 - sg(p, 0.21, 0.235))}`;
             }
           }
 
@@ -694,97 +703,96 @@ export const App: React.FC = () => {
             tg2Ref.current.style.top = `${cy0 - D * 0.03}px`;
           }
 
-          // TRANSITION TIMELINE (p: 0.18 -> 0.30)
           // 1. Cascading reveals & exit for typography lines
           const textDeltas = [0, 0.012, 0.024, 0.036, 0.048, 0.06];
           aRevealsRef.current.forEach((el, i) => {
             if (!el) return;
-            if (p < 0.22) {
-              const u = io(sg(p, 0.09 + i * 0.012, 0.16 + i * 0.012));
+            if (p < 0.20) {
+              const u = io(sg(p, 0.08 + i * 0.012, 0.15 + i * 0.012));
               el.style.transform = `translateY(${112 * (1 - u)}%)`;
             } else {
               const d = textDeltas[i] || 0;
-              const uExit = io(sg(p, 0.22 + d * 0.6, 0.26 + d * 0.6));
+              const uExit = io(sg(p, 0.20 + d * 0.5, 0.24 + d * 0.5));
               el.style.transform = `translateY(${118 * uExit}%)`;
             }
           });
 
           // Red underline bar
           if (aBarRef.current) {
-            if (p < 0.22) {
-              aBarRef.current.style.transform = `scaleX(${eo(sg(p, 0.12, 0.17))})`;
+            if (p < 0.20) {
+              aBarRef.current.style.transform = `scaleX(${eo(sg(p, 0.10, 0.15))})`;
             } else {
-              aBarRef.current.style.transform = `scaleX(${1 - eo(sg(p, 0.22, 0.25))})`;
+              aBarRef.current.style.transform = `scaleX(${1 - eo(sg(p, 0.20, 0.23))})`;
             }
           }
 
           // Portrait Arch exits straight down with gentle rotation
           if (aPhRef.current) {
-            if (p < 0.22) {
-              const phOff = (1 - eo(sg(p, 0.10, 0.17))) * 320;
+            if (p < 0.20) {
+              const phOff = (1 - eo(sg(p, 0.09, 0.15))) * 320;
               aPhRef.current.style.transform = `translateY(${phOff}px) rotate(0deg)`;
               aPhRef.current.style.opacity = '1';
             } else {
-              const up = io(sg(p, 0.22, 0.265));
+              const up = io(sg(p, 0.20, 0.245));
               aPhRef.current.style.transform = `translateY(${vh * 0.7 * up}px) rotate(${8 * up}deg)`;
-              aPhRef.current.style.opacity = `${cl(1 - sg(p, 0.245, 0.27))}`;
+              aPhRef.current.style.opacity = `${cl(1 - sg(p, 0.225, 0.245))}`;
             }
           }
 
           // Tags fling apart and rotate outward
           if (tg1Ref.current) {
-            if (p < 0.22) {
-              const u1 = sg(p, 0.14, 0.18);
+            if (p < 0.20) {
+              const u1 = sg(p, 0.12, 0.16);
               tg1Ref.current.style.transform = `rotate(${-8 + 25 * (1 - eo(u1))}deg) scale(${1 + 1.6 * (1 - eb(u1))})`;
               tg1Ref.current.style.opacity = `${cl(u1 * 5)}`;
             } else {
-              const ut = io(sg(p, 0.22, 0.26));
+              const ut = io(sg(p, 0.20, 0.235));
               tg1Ref.current.style.transform = `translate(${-vw * 0.2 * ut}px, ${-vh * 0.4 * ut}px) rotate(${-8 - 40 * ut}deg)`;
-              tg1Ref.current.style.opacity = `${cl(1 - sg(p, 0.24, 0.265))}`;
+              tg1Ref.current.style.opacity = `${cl(1 - sg(p, 0.215, 0.24))}`;
             }
           }
           if (tg2Ref.current) {
-            if (p < 0.22) {
-              tg2Ref.current.style.transform = `translateX(${(1 - eo(sg(p, 0.15, 0.18))) * 300}px) rotate(6deg)`;
+            if (p < 0.20) {
+              tg2Ref.current.style.transform = `translateX(${(1 - eo(sg(p, 0.13, 0.165))) * 300}px) rotate(6deg)`;
               tg2Ref.current.style.opacity = '1';
             } else {
-              const ut = io(sg(p, 0.22, 0.26));
+              const ut = io(sg(p, 0.20, 0.235));
               tg2Ref.current.style.transform = `translate(${vw * 0.3 * ut}px, ${vh * 0.1 * ut}px) rotate(${6 + 30 * ut}deg)`;
-              tg2Ref.current.style.opacity = `${cl(1 - sg(p, 0.24, 0.265))}`;
+              tg2Ref.current.style.opacity = `${cl(1 - sg(p, 0.215, 0.24))}`;
             }
           }
 
           // Pills fade out
           pillsRef.current.forEach((pl, k) => {
             if (pl) {
-              if (p < 0.22) {
-                pl.style.transform = `scale(${Math.max(0, eb(sg(p, 0.14 + k * 0.012, 0.18 + k * 0.012)))})`;
+              if (p < 0.20) {
+                pl.style.transform = `scale(${Math.max(0, eb(sg(p, 0.12 + k * 0.012, 0.16 + k * 0.012)))})`;
                 pl.style.opacity = '1';
               } else {
-                pl.style.opacity = `${cl(1 - sg(p, 0.22, 0.245))}`;
+                pl.style.opacity = `${cl(1 - sg(p, 0.20, 0.23))}`;
               }
             }
           });
 
           // Scroll Hint fades out as transition begins
           if (hintRef.current) {
-            hintRef.current.style.opacity = `${cl(1 - sg(p, 0.22, 0.245))}`;
+            hintRef.current.style.opacity = `${cl(1 - sg(p, 0.20, 0.23))}`;
           }
 
           // Red circle flies to cover center along an arc and shrinks to 18px dot
           if (aCircRef.current) {
-            if (p < 0.22) {
-              const circScale = Math.max(0, eb(sg(p, 0.08, 0.16)));
+            if (p < 0.20) {
+              const circScale = Math.max(0, eb(sg(p, 0.07, 0.15)));
               aCircRef.current.style.transform = `scale(${circScale})`;
               aCircRef.current.style.opacity = '1';
             } else {
-              const uc = io(sg(p, 0.225, 0.29));
+              const uc = io(sg(p, 0.21, 0.27));
               const s = lp(1, 18 / Math.max(1, D), uc);
               const targetX = (vw / 2) - cx0;
               const targetY = (vh / 2) - cy0;
               const arcY = Math.sin(uc * Math.PI) * 60;
               aCircRef.current.style.transform = `translate3d(${targetX * uc}px, ${targetY * uc - arcY}px, 0) scale(${s})`;
-              aCircRef.current.style.opacity = `${cl(1 - sg(p, 0.285, 0.30))}`;
+              aCircRef.current.style.opacity = `${cl(1 - sg(p, 0.265, 0.285))}`;
             }
           }
         }
@@ -792,19 +800,19 @@ export const App: React.FC = () => {
 
       // =========================================================
       // PANEL 2: WINS (3D BOOK - EXACT MATCH TO about-to-wins-final.html)
-      // (0.215 < p < 0.62)
+      // (0.205 < p < 0.62)
       // =========================================================
-      const winsVisible = p > 0.215 && p < 0.62;
+      const winsVisible = p > 0.205 && p < 0.62;
       if (p2Ref.current) {
         p2Ref.current.style.display = winsVisible ? 'block' : 'none';
-        p2Ref.current.style.zIndex = p > 0.26 ? '4' : '2';
+        p2Ref.current.style.zIndex = p > 0.225 ? '4' : '2';
 
         if (winsVisible) {
           // -----------------------------------------------------
           // Step 1: Cream About sheet folds into cover (full viewport -> book)
-          // p: 0.225 -> 0.29
+          // p: 0.21 -> 0.27
           // -----------------------------------------------------
-          const u = io(sg(p, 0.225, 0.29));
+          const u = io(sg(p, 0.21, 0.27));
           const sx = lp((vw / bw) * 1.04, 1, u);
           const sy = lp((vh / bh) * 1.04, 1, u);
 
@@ -815,29 +823,24 @@ export const App: React.FC = () => {
           }
 
           // -----------------------------------------------------
-          // Step 2: 3D Depth edges fade in
-          // p: 0.28 -> 0.305
+          // Step 2: WINS letters tumble out from the red dot
+          // p: 0.26 -> 0.295
           // -----------------------------------------------------
-          const edgeOp = sg(p, 0.28, 0.305);
-          const edgeEls = [bookBackRef.current, bookSpineRef.current, bookForeRef.current, bookTopEdgeRef.current, bookBotEdgeRef.current];
-          edgeEls.forEach((el) => {
-            if (el) el.style.opacity = `${edgeOp}`;
-          });
-
-          // -----------------------------------------------------
-          // Step 3: WINS letters tumble out from the red dot
-          // p: 0.285 -> 0.325
-          // -----------------------------------------------------
-          const metaOp = sg(p, 0.29, 0.33);
+          const metaOp = sg(p, 0.265, 0.30);
           if (bookCoverTopRef.current) bookCoverTopRef.current.style.opacity = `${metaOp}`;
           if (bookCoverBottomRef.current) bookCoverBottomRef.current.style.opacity = `${metaOp}`;
 
           bookLetterRefs.current.forEach((l, i) => {
             if (!l) return;
-            const w = eo(sg(p, 0.285 + i * 0.007, 0.325 + i * 0.007));
+            const w = eo(sg(p, 0.26 + i * 0.007, 0.295 + i * 0.007));
             l.style.transform = `translateX(${(1.5 - i) * bw * 0.22 * (1 - w)}px) scale(${0.06 + 0.94 * w}) rotate(${(i % 2 ? 1 : -1) * 40 * (1 - w)}deg)`;
             l.style.opacity = `${cl(w * 3)}`;
           });
+
+          // -----------------------------------------------------
+          // Step 3: 3D Depth edges fade in
+          // p: 0.27 -> 0.30
+          // -----------------------------------------------------
 
           // -----------------------------------------------------
           // Step 4: 3D Perspective Tilt, Pop & Ground Shadow
@@ -866,26 +869,58 @@ export const App: React.FC = () => {
 
           // -----------------------------------------------------
           // Step 7: Transition from Fan to Centered Flat Spread
-          // p: 0.38 -> 0.42 (Milestone 2: WINS)
+          // p: 0.38 -> 0.42 (Milestone 2: WINS Open Spread)
           // -----------------------------------------------------
           const spreadT = sg(p, 0.38, 0.42);
           const spreadEase = io(spreadT);
 
           // -----------------------------------------------------
-          // Step 8: Smooth Exit into Moments
-          // p: 0.56 -> 0.62
+          // Step 8: Interactive 5 Page Turns
+          // p: 0.42 -> 0.55 (5 pages: Leaves 0, 1, 2, 3, 4)
           // -----------------------------------------------------
-          const exitT = sg(p, 0.56, 0.62);
+          const turnProgress = sg(p, 0.42, 0.55) * 5;
+
+          // -----------------------------------------------------
+          // Step 9: Book Closes After Last Page!
+          // p: 0.55 -> 0.59 (Front cover & all pages swing shut)
+          // -----------------------------------------------------
+          const closeT = sg(p, 0.55, 0.59);
+          const closeEase = io(closeT);
+
+          // -----------------------------------------------------
+          // Step 10: Smooth Exit into Moments
+          // p: 0.59 -> 0.65 (Closed book glides back in 3D distance)
+          // -----------------------------------------------------
+          const exitT = sg(p, 0.59, 0.65);
           const exitEase = io(exitT);
 
-          // Calculate Book Wrap coordinates & 3D orientation
-          const wrapX = (bw * 0.15) * tiltEase * (1 - spreadEase) + (bw * 0.5) * spreadEase;
-          const wrapY = fl + (140 * exitEase);
-          const wrapZ = -400 * exitEase;
+          // Smooth 3D Depth Edges: Hide all rigid boxes when book opens, reappear when closed!
+          const closedEdges = [bookForeRef.current, bookTopEdgeRef.current, bookBotEdgeRef.current, bookBackRef.current];
+          const closedEdgeOp = (sg(p, 0.27, 0.30) * (1 - tiltEase)) + (closeEase * (1 - exitEase));
+          closedEdges.forEach((el) => {
+            if (el) el.style.opacity = `${closedEdgeOp.toFixed(3)}`;
+          });
 
-          const rotX = (-14 * r * (1 - tiltEase)) + (18 * tiltEase * (1 - spreadEase)) + (5 * spreadEase) + (12 * exitEase) - my * (spreadEase > 0.5 ? 4 : 5);
-          const rotY = (-30 * r * (1 - tiltEase)) + (-14 * tiltEase * (1 - spreadEase)) + mx * (spreadEase > 0.5 ? 6 : 10);
-          const wrapScale = (1 + 0.1 * r + pop + 0.05 * tiltEase + 0.04 * spreadEase) * (1 - 0.22 * exitEase);
+          if (bookSpineRef.current) {
+            bookSpineRef.current.style.opacity = `${((sg(p, 0.27, 0.30) * (1 - spreadEase * 0.7)) * (1 - exitEase)).toFixed(3)}`;
+          }
+
+          // Calculate Book Wrap coordinates & 3D orientation
+          let targetWrapX = 0;
+          if (spreadT > 0 && closeT === 0) {
+            targetWrapX = (bw * 0.5) * spreadEase;
+          } else if (closeT > 0) {
+            targetWrapX = (bw * 0.5) * (1 - closeEase);
+          } else if (tiltT > 0) {
+            targetWrapX = (bw * 0.15) * tiltEase;
+          }
+          const wrapX = targetWrapX;
+          const wrapY = fl + (140 * exitEase);
+          const wrapZ = -450 * exitEase;
+
+          const rotX = (-14 * r * (1 - tiltEase)) + (18 * tiltEase * (1 - spreadEase)) + (5 * spreadEase * (1 - closeEase)) + (-14 * r * closeEase) + (12 * exitEase) - my * (spreadEase > 0.5 && closeEase === 0 ? 4 : 5);
+          const rotY = (-30 * r * (1 - tiltEase)) + (-14 * tiltEase * (1 - spreadEase)) + (-30 * r * closeEase) + mx * (spreadEase > 0.5 && closeEase === 0 ? 6 : 10);
+          const wrapScale = (1 + 0.1 * r + pop + 0.05 * tiltEase + 0.04 * spreadEase - 0.04 * closeEase) * (1 - 0.22 * exitEase);
           const wrapOpacity = 1 - exitEase;
 
           if (bookWrapRef.current) {
@@ -893,22 +928,24 @@ export const App: React.FC = () => {
             bookWrapRef.current.style.opacity = `${wrapOpacity.toFixed(3)}`;
           }
 
-          // Cover rotation: Closed (0deg) -> Accordion Fan (-74deg) -> Wide Open Flat (-172deg)
+          // Cover rotation: Closed (0deg) -> Accordion Fan (-74deg) -> Wide Open Flat (-172deg) -> Closes Shut (0deg)
           let coverRotY = 0;
           if (tiltT > 0 && spreadT === 0) {
             coverRotY = -74 * tiltEase;
-          } else if (spreadT > 0) {
+          } else if (spreadT > 0 && closeT === 0) {
             coverRotY = -74 - 98 * spreadEase;
+          } else if (closeT > 0) {
+            coverRotY = -172 * (1 - closeEase);
           }
           if (bookCoverRef.current) {
             bookCoverRef.current.style.transform = `rotateY(${coverRotY.toFixed(1)}deg)`;
-            bookCoverRef.current.style.zIndex = spreadEase > 0.85 ? '15' : '50';
+            bookCoverRef.current.style.zIndex = (spreadEase > 0.85 && closeEase === 0) ? '15' : '50';
           }
 
           // Dynamic Floor Shadow
           if (bookShadowRef.current) {
-            const shadowLeft = 50 - 50 * spreadEase;
-            const shadowScaleX = 1 + 0.35 * tiltEase + 0.35 * spreadEase;
+            const shadowLeft = 50 - 50 * (spreadEase * (1 - closeEase));
+            const shadowScaleX = 1 + 0.35 * tiltEase + 0.35 * spreadEase - 0.35 * closeEase;
             const shadowOpacity = (sg(p, 0.28, 0.34) * 0.8) * (1 - exitEase);
             bookShadowRef.current.style.left = `${shadowLeft.toFixed(1)}%`;
             bookShadowRef.current.style.transform = `translateX(-50%) rotateX(85deg) scale(${shadowScaleX.toFixed(2)}, 1)`;
@@ -916,18 +953,10 @@ export const App: React.FC = () => {
           }
 
           // -----------------------------------------------------
-          // Step 9: 5 Leaves: Accordion Fan Reveal -> Settle Flat -> Interactive Page Turns
-          // p: 0.42 -> 0.56 (4 page turns: Leaves 0, 1, 2, 3)
+          // Step 11: 5 Leaves (Thick, Smooth, Zero-Blinking Turns & Complete Close)
           // -----------------------------------------------------
           const fanAngles = [-54, -40, -28, -16, -4];
-          const leafSpacing = 6; // Distinct, rich thickness (6px per page)
-
-          const turnProgress = sg(p, 0.42, 0.56) * 4;
-          const actPage = Math.min(4, Math.floor(turnProgress + 0.1));
-          if (actPage !== lastActRef.current) {
-            lastActRef.current = actPage;
-            setWCard(actPage);
-          }
+          const leafSpacing = 0.8; // Clean physical paper thickness, zero stepping edge lines
 
           bookLeafRefs.current.forEach((leaf, i) => {
             if (!leaf) return;
@@ -948,17 +977,22 @@ export const App: React.FC = () => {
                 leaf.style.transform = `translate3d(0, 0, ${-i * leafSpacing}px) rotateY(0deg)`;
                 leaf.style.zIndex = `${40 - i}`;
               }
+            } else if (closeT > 0) {
+              // BOOK CLOSING PHASE! All 5 leaves swing shut inside the cover
+              const closedRotY = -174 * (1 - closeEase);
+              leaf.style.transform = `translate3d(0, 0, ${-i * leafSpacing}px) rotateY(${closedRotY.toFixed(1)}deg)`;
+              leaf.style.zIndex = `${20 + i}`;
             } else {
-              // Active interactive page turns (zero collision, high arc elevation)
-              if (i < 4 && turnProgress > i && turnProgress < i + 1) {
+              // Active interactive page turns (zero collision, high arc elevation, seamless 90deg zIndex handoff)
+              if (turnProgress > i && turnProgress < i + 1) {
                 // Leaf i is currently in flight!
                 const tTurn = turnProgress - i;
                 const easeTurn = 0.5 - 0.5 * Math.cos(tTurn * Math.PI);
                 const leafRotY = -174 * easeTurn;
-                const arcZ = Math.sin(tTurn * Math.PI) * 32;
+                const arcZ = Math.sin(tTurn * Math.PI) * 36;
                 const leafLiftZ = (1 - easeTurn) * (-i * leafSpacing) + easeTurn * (-(4 - i) * leafSpacing) + arcZ;
                 leaf.style.transform = `translate3d(0, 0, ${leafLiftZ.toFixed(1)}px) rotateY(${leafRotY.toFixed(1)}deg)`;
-                leaf.style.zIndex = '100'; // Always above both stacks in flight!
+                leaf.style.zIndex = tTurn > 0.5 ? `${30 + i}` : `${40 - i}`;
               } else if (turnProgress >= i + 1) {
                 // Leaf i has flipped to the left stack
                 leaf.style.transform = `translate3d(0, 0, ${-(4 - i) * leafSpacing}px) rotateY(-174deg)`;
@@ -971,22 +1005,38 @@ export const App: React.FC = () => {
             }
           });
 
-          // Minimalist Bottom Controls
+          // Minimalist Bottom Controls & Dynamic Direct DOM Updates (Zero React Re-renders!)
           if (bookControlsRef.current) {
             const ctrlOp = (tiltEase > 0 ? 1 : 0) * (1 - exitEase);
             bookControlsRef.current.style.opacity = `${ctrlOp.toFixed(2)}`;
             bookControlsRef.current.style.pointerEvents = ctrlOp > 0.5 ? 'auto' : 'none';
           }
 
-          // Counter Text in Bottom Pill
           if (bookCounterRef.current) {
             if (p < 0.34) {
               bookCounterRef.current.textContent = 'COVER';
             } else if (spreadEase < 1.0) {
               bookCounterRef.current.textContent = '01 / 05';
+            } else if (closeT > 0.4) {
+              bookCounterRef.current.textContent = 'CLOSED';
             } else {
-              bookCounterRef.current.textContent = `0${actPage + 1} / 05`;
+              const curP = Math.min(5, Math.floor(turnProgress) + 1);
+              bookCounterRef.current.textContent = `0${curP} / 05`;
             }
+          }
+
+          if (bookNextBtnRef.current) {
+            if (closeT > 0.3) {
+              bookNextBtnRef.current.textContent = 'MOMENTS →';
+            } else if (turnProgress >= 4) {
+              bookNextBtnRef.current.textContent = 'CLOSE BOOK ›';
+            } else {
+              bookNextBtnRef.current.textContent = 'NEXT ›';
+            }
+          }
+
+          if (bookPrevBtnRef.current) {
+            bookPrevBtnRef.current.disabled = (p <= 0.36);
           }
         }
       }
@@ -1609,7 +1659,8 @@ export const App: React.FC = () => {
                       src={win.img}
                       alt={win.title}
                       className="page-photo-img"
-                      loading="lazy"
+                      loading="eager"
+                      decoding="async"
                     />
                   </div>
 
@@ -1714,23 +1765,24 @@ export const App: React.FC = () => {
             <div className="book-nav-bar">
               <button
                 type="button"
+                ref={bookPrevBtnRef}
                 className="book-nav-btn"
                 onClick={() => turnPrev()}
-                disabled={wCard === 0 && tgtRef.current <= 0.34}
               >
                 ‹ PREV
               </button>
               <div className="book-page-pill">
                 <span ref={bookCounterRef}>
-                  {tgtRef.current < 0.34 ? 'COVER' : `0${wCard + 1} / 05`}
+                  01 / 05
                 </span>
               </div>
               <button
                 type="button"
+                ref={bookNextBtnRef}
                 className="book-nav-btn"
                 onClick={() => turnNext()}
               >
-                {wCard < 4 ? 'NEXT ›' : 'MOMENTS →'}
+                NEXT ›
               </button>
             </div>
           </div>
