@@ -242,7 +242,7 @@ const MOMENTS_ITEMS = [
 ];
 
 const MILESTONES = [0, 0.24, 0.48, 0.74, 1.0];
-const THRESHOLDS = [0, 0.12, 0.31, 0.65, 0.88];
+const THRESHOLDS = [0, 0.12, 0.30, 0.66, 0.88];
 const SECTIONS = ['HOME', 'ABOUT', 'WINS', 'MOMENTS', 'CONTACT'];
 
 export const App: React.FC = () => {
@@ -376,38 +376,41 @@ export const App: React.FC = () => {
       tgtRef.current = 0.48; // Open to Page 1
     } else if (tgtRef.current < 0.48) {
       tgtRef.current = 0.48;
-    } else {
-      const curTurn = sg(tgtRef.current, 0.48, 0.60) * 5;
-      const curPage = Math.min(5, Math.floor(curTurn + 0.1));
-      if (curPage < 4) {
-        // Go to next page (1, 2, 3, 4)
-        tgtRef.current = 0.48 + (curPage + 1) * (0.12 / 5);
-      } else if (curPage === 4) {
-        // At Page 5: CLOSE THE BOOK!
-        tgtRef.current = 0.62;
+    } else if (tgtRef.current < 0.57) {
+      // Forward reading: pages 1 to 5
+      const curTurn = sg(tgtRef.current, 0.48, 0.58) * 5;
+      const curPage = Math.min(4, Math.floor(curTurn + 0.1));
+      if (curPage < 3) {
+        tgtRef.current = 0.48 + (curPage + 1) * (0.10 / 5);
       } else {
-        // From closed book: GO TO MOMENTS!
-        goTo(3);
+        // At Page 5: next click closes the book in reverse!
+        tgtRef.current = 0.575;
       }
+    } else if (tgtRef.current >= 0.57 && tgtRef.current < 0.64) {
+      // Trigger full reverse closing sequence (Page 5 -> 4 -> 3 -> 2 -> 1 -> Cover shut!)
+      tgtRef.current = 0.655;
+    } else {
+      // From closed book: GO TO MOMENTS!
+      goTo(3);
     }
   }, [goTo]);
 
   const turnPrev = useCallback(() => {
-    if (tgtRef.current <= 0.425) {
-      tgtRef.current = 0.38; // Return to closed 3D book cover
-    } else if (tgtRef.current <= 0.485) {
-      tgtRef.current = 0.42; // Return to 3D accordion fan state
-    } else if (tgtRef.current >= 0.61) {
+    if (tgtRef.current >= 0.64) {
       // Re-open from closed book back to Page 5
-      tgtRef.current = 0.48 + 4 * (0.12 / 5);
-    } else {
-      const curTurn = sg(tgtRef.current, 0.48, 0.60) * 5;
-      const curPage = Math.min(5, Math.floor(curTurn + 0.1));
+      tgtRef.current = 0.575;
+    } else if (tgtRef.current > 0.485) {
+      const curTurn = sg(tgtRef.current, 0.48, 0.58) * 5;
+      const curPage = Math.min(4, Math.floor(curTurn + 0.1));
       if (curPage > 0) {
-        tgtRef.current = 0.48 + (curPage - 1) * (0.12 / 5);
+        tgtRef.current = 0.48 + (curPage - 1) * (0.10 / 5);
       } else {
-        tgtRef.current = 0.42;
+        tgtRef.current = 0.48;
       }
+    } else if (tgtRef.current <= 0.485 && tgtRef.current > 0.42) {
+      tgtRef.current = 0.42; // Return to 3D accordion fan state
+    } else {
+      tgtRef.current = 0.37; // Return to closed 3D book cover
     }
   }, []);
 
@@ -416,24 +419,25 @@ export const App: React.FC = () => {
       tgtRef.current = 0.48;
       return;
     }
-    const curTurn = sg(tgtRef.current, 0.48, 0.60) * 5;
-    const curPage = Math.min(5, Math.floor(curTurn + 0.1));
-    if (idx < curPage) {
-      tgtRef.current = 0.48 + idx * (0.12 / 5);
-    } else if (idx === curPage && curPage < 4) {
-      tgtRef.current = 0.48 + (curPage + 1) * (0.12 / 5);
-    } else if (idx === 4 && curPage === 4) {
-      // Clicking the last page closes the book!
-      tgtRef.current = 0.62;
-    } else if (idx > curPage) {
-      tgtRef.current = 0.48 + idx * (0.12 / 5);
+    if (tgtRef.current >= 0.64) {
+      tgtRef.current = 0.48;
+      return;
+    }
+    const curTurn = sg(tgtRef.current, 0.48, 0.58) * 5;
+    const curPage = Math.min(4, Math.floor(curTurn + 0.1));
+    if (idx <= curPage) {
+      tgtRef.current = 0.48 + idx * (0.10 / 5);
+    } else if (idx === 4 && curPage === 3) {
+      tgtRef.current = 0.575;
+    } else {
+      tgtRef.current = 0.48 + idx * (0.10 / 5);
     }
   }, []);
 
   const handleCoverClick = useCallback(() => {
     if (tgtRef.current < 0.44) {
       tgtRef.current = 0.48;
-    } else if (tgtRef.current >= 0.61) {
+    } else if (tgtRef.current >= 0.64) {
       tgtRef.current = 0.48;
     } else {
       tgtRef.current = 0.42;
@@ -705,8 +709,7 @@ export const App: React.FC = () => {
             tg2Ref.current.style.top = `${cy0 - D * 0.03}px`;
           }
 
-          // 1. Cascading reveals & exit for typography lines
-          const textDeltas = [0, 0.014, 0.028, 0.042, 0.056, 0.07];
+          // 1. Cascading reveals & rapid exit for typography lines (vanishes quickly without lingering)
           aRevealsRef.current.forEach((el, i) => {
             if (!el) return;
             if (p < 0.25) {
@@ -714,26 +717,33 @@ export const App: React.FC = () => {
               const ends = [0.15, 0.17, 0.19, 0.205, 0.22, 0.23];
               const u = io(sg(p, starts[i], ends[i]));
               el.style.transform = `translateY(${115 * (1 - u)}%)`;
+              el.style.opacity = '1';
             } else {
-              const d = textDeltas[i] || 0;
-              const uExit = io(sg(p, 0.26 + d * 0.45, 0.295 + d * 0.45));
-              el.style.transform = `translateY(${118 * uExit}%)`;
+              // Rapid, clean exit as requested: vanishes quickly so left side is clean
+              const uExit = io(sg(p, 0.25, 0.272));
+              el.style.transform = `translateY(${120 * uExit}%)`;
+              el.style.opacity = `${cl(1 - uExit * 1.6)}`;
             }
           });
 
-          // Red underline bar
+          // Red underline bar - quick clean vanish
           if (aBarRef.current) {
             if (p < 0.25) {
               aBarRef.current.style.transform = `scaleX(${eo(sg(p, 0.11, 0.18))})`;
+              aBarRef.current.style.opacity = '1';
             } else {
-              aBarRef.current.style.transform = `scaleX(${1 - eo(sg(p, 0.26, 0.285))})`;
+              const uExit = io(sg(p, 0.25, 0.268));
+              aBarRef.current.style.transform = `scaleX(${1 - uExit})`;
+              aBarRef.current.style.opacity = `${cl(1 - uExit * 1.8)}`;
             }
           }
 
-          // Left text group parallax & velocity skew
+          // Left text group parallax & rapid exit fade
           if (aLRef.current) {
             const textParallax = -(p - 0.24) * 160;
+            const leftGroupOpacity = p < 0.25 ? 1 : cl(1 - sg(p, 0.25, 0.272) * 1.6);
             aLRef.current.style.transform = `translate3d(0, ${textParallax}px, 0) skewY(${sk * 0.35}deg)`;
+            aLRef.current.style.opacity = `${leftGroupOpacity}`;
           }
 
           // Portrait Arch exits straight down with gentle rotation
@@ -746,9 +756,9 @@ export const App: React.FC = () => {
               aPhRef.current.style.transform = `translate3d(0, ${phOff}px, 0) rotate(${phRot}deg)`;
               aPhRef.current.style.opacity = `${cl(uPh * 3)}`;
             } else {
-              const up = io(sg(p, 0.26, 0.30));
+              const up = io(sg(p, 0.25, 0.275));
               aPhRef.current.style.transform = `translateY(${vh * 0.7 * up}px) rotate(${8 * up}deg)`;
-              aPhRef.current.style.opacity = `${cl(1 - sg(p, 0.28, 0.30))}`;
+              aPhRef.current.style.opacity = `${cl(1 - up * 1.5)}`;
             }
           }
 
@@ -759,9 +769,9 @@ export const App: React.FC = () => {
               tg1Ref.current.style.transform = `rotate(${-8 + 25 * (1 - eo(u1))}deg) scale(${1 + 1.5 * (1 - eb(u1))})`;
               tg1Ref.current.style.opacity = `${cl(u1 * 4)}`;
             } else {
-              const ut = io(sg(p, 0.26, 0.295));
+              const ut = io(sg(p, 0.25, 0.272));
               tg1Ref.current.style.transform = `translate(${-vw * 0.2 * ut}px, ${-vh * 0.4 * ut}px) rotate(${-8 - 40 * ut}deg)`;
-              tg1Ref.current.style.opacity = `${cl(1 - sg(p, 0.275, 0.295))}`;
+              tg1Ref.current.style.opacity = `${cl(1 - ut * 1.6)}`;
             }
           }
           if (tg2Ref.current) {
@@ -770,9 +780,9 @@ export const App: React.FC = () => {
               tg2Ref.current.style.transform = `translateX(${(1 - eo(u2)) * 260}px) rotate(${6 * u2}deg)`;
               tg2Ref.current.style.opacity = `${cl(u2 * 4)}`;
             } else {
-              const ut = io(sg(p, 0.26, 0.295));
+              const ut = io(sg(p, 0.25, 0.272));
               tg2Ref.current.style.transform = `translate(${vw * 0.3 * ut}px, ${vh * 0.1 * ut}px) rotate(${6 + 30 * ut}deg)`;
-              tg2Ref.current.style.opacity = `${cl(1 - sg(p, 0.275, 0.295))}`;
+              tg2Ref.current.style.opacity = `${cl(1 - ut * 1.6)}`;
             }
           }
 
@@ -784,7 +794,7 @@ export const App: React.FC = () => {
                 pl.style.transform = `scale(${Math.max(0, eb(uPill))})`;
                 pl.style.opacity = `${cl(uPill * 4)}`;
               } else {
-                pl.style.opacity = `${cl(1 - sg(p, 0.26, 0.285))}`;
+                pl.style.opacity = `${cl(1 - sg(p, 0.25, 0.27) * 1.6)}`;
               }
             }
           });
@@ -874,41 +884,48 @@ export const App: React.FC = () => {
 
           // -----------------------------------------------------
           // Step 5: 3D Accordion Fan Reveal (MATCHES 0315e51d.jpg!)
-          // p: 0.40 -> 0.44
+          // Cover opens to -164deg first, Page 1 and other pages fan out from spine
           // -----------------------------------------------------
-          const tiltT = sg(p, 0.40, 0.44);
-          const tiltEase = io(tiltT);
+          const coverOpenT = sg(p, 0.39, 0.435);
+          const coverOpenEase = io(coverOpenT);
+          const fanT = sg(p, 0.405, 0.445);
+          const fanEase = io(fanT);
 
           // -----------------------------------------------------
           // Step 6: Transition from Fan to Centered Flat Spread (MATCHES 1a0dbb24.jpg!)
-          // p: 0.44 -> 0.48 (Milestone 2: WINS Open Spread)
+          // p: 0.445 -> 0.48 (Milestone 2: WINS Open Spread)
           // -----------------------------------------------------
-          const spreadT = sg(p, 0.44, 0.48);
+          const spreadT = sg(p, 0.445, 0.48);
           const spreadEase = io(spreadT);
 
           // -----------------------------------------------------
-          // Step 7: Interactive 5 Page Turns
-          // p: 0.48 -> 0.60 (5 pages: Leaves 0, 1, 2, 3, 4)
+          // Step 7: Interactive 5 Page Turns (Forward Reading)
+          // p: 0.48 -> 0.58 (Leaves 0, 1, 2, 3 flip to left, reaching Page 5)
           // -----------------------------------------------------
-          const turnProgress = sg(p, 0.48, 0.60) * 5;
+          const turnProgress = sg(p, 0.48, 0.58) * 5;
 
           // -----------------------------------------------------
-          // Step 8: Book Closes After Last Page!
-          // p: 0.60 -> 0.64 (Front cover & all pages swing shut)
+          // Step 8: Book Closes in REVERSE after Last Page! (USER'S REQUEST!)
+          // p: 0.58 -> 0.655: Last page (5th) -> 4th -> 3rd -> 2nd -> 1st -> Cover closes shut!
           // -----------------------------------------------------
-          const closeT = sg(p, 0.60, 0.64);
-          const closeEase = io(closeT);
+          const cT = sg(p, 0.58, 0.655);
+          const cProg = cT * 6; // 6 sub-phases
+          const c3 = io(sg(cProg, 0.8, 1.8));  // Leaf 3 (4th page) flips back
+          const c2 = io(sg(cProg, 1.8, 2.8));  // Leaf 2 (3rd page) flips back
+          const c1 = io(sg(cProg, 2.8, 3.8));  // Leaf 1 (2nd page) flips back
+          const c0 = io(sg(cProg, 3.8, 4.8));  // Leaf 0 (1st page) flips back
+          const coverClose = io(sg(cProg, 4.8, 6.0)); // Front Cover swings shut!
 
           // -----------------------------------------------------
           // Step 9: Smooth Exit into Moments
-          // p: 0.64 -> 0.70 (Closed book glides back in 3D distance)
+          // p: 0.655 -> 0.71 (Closed book glides back in 3D distance)
           // -----------------------------------------------------
-          const exitT = sg(p, 0.64, 0.70);
+          const exitT = sg(p, 0.655, 0.71);
           const exitEase = io(exitT);
 
           // Fore-edge, top edge, and bottom edge fade out when book opens, reappear when closed
           const closedEdges = [bookForeRef.current, bookTopEdgeRef.current, bookBotEdgeRef.current];
-          const closedEdgeOp = (sg(p, 0.33, 0.365) * (1 - tiltEase)) + (closeEase * (1 - exitEase));
+          const closedEdgeOp = (sg(p, 0.33, 0.365) * (1 - coverOpenEase)) + (coverClose * (1 - exitEase));
           closedEdges.forEach((el) => {
             if (el) el.style.opacity = `${closedEdgeOp.toFixed(3)}`;
           });
@@ -925,30 +942,30 @@ export const App: React.FC = () => {
 
           // Calculate Book Wrap coordinates & 3D orientation
           let targetWrapX = 0;
-          if (spreadT > 0 && closeT === 0) {
+          if (cT > 0) {
+            targetWrapX = (bw * 0.50) * (1 - coverClose);
+          } else if (spreadT > 0) {
             targetWrapX = (bw * 0.38) + (bw * 0.12) * spreadEase; // Centered flat open spread
-          } else if (closeT > 0) {
-            targetWrapX = (bw * 0.5) * (1 - closeEase);
-          } else if (tiltT > 0) {
-            targetWrapX = (bw * 0.38) * tiltEase; // Balanced center in 3D accordion fan
+          } else if (coverOpenEase > 0) {
+            targetWrapX = (bw * 0.38) * coverOpenEase; // Balanced center in 3D accordion fan
           }
           const wrapX = targetWrapX;
           const wrapY = fl + (140 * exitEase);
           const wrapZ = -450 * exitEase;
 
-          const rotX = (-14 * r * (1 - tiltEase)) +
-                       (7 * tiltEase * (1 - spreadEase)) +
-                       (3 * spreadEase * (1 - closeEase)) +
-                       (-14 * r * closeEase) +
-                       (12 * exitEase) - my * (spreadEase > 0.5 && closeEase === 0 ? 3 : 5);
+          const rotX = (-14 * r * (1 - coverOpenEase)) +
+                       (7 * coverOpenEase * (1 - spreadEase)) +
+                       (3 * spreadEase * (1 - coverClose)) +
+                       (-14 * r * coverClose) +
+                       (12 * exitEase) - my * (spreadEase > 0.5 && coverClose === 0 ? 3 : 5);
 
-          const rotY = (-30 * r * (1 - tiltEase)) +
-                       (-14 * tiltEase * (1 - spreadEase)) +
-                       (-2 * spreadEase * (1 - closeEase)) +
-                       (-30 * r * closeEase) +
-                       (8 * exitEase) + mx * (spreadEase > 0.5 && closeEase === 0 ? 5 : 8);
+          const rotY = (-30 * r * (1 - coverOpenEase)) +
+                       (-14 * coverOpenEase * (1 - spreadEase)) +
+                       (-2 * spreadEase * (1 - coverClose)) +
+                       (-30 * r * coverClose) +
+                       (8 * exitEase) + mx * (spreadEase > 0.5 && coverClose === 0 ? 5 : 8);
 
-          const wrapScale = (1 + 0.1 * r + pop + 0.05 * tiltEase + 0.04 * spreadEase - 0.04 * closeEase) * (1 - 0.22 * exitEase);
+          const wrapScale = (1 + 0.1 * r + pop + 0.05 * coverOpenEase + 0.04 * spreadEase - 0.04 * coverClose) * (1 - 0.22 * exitEase);
           const wrapOpacity = 1 - exitEase;
 
           if (bookWrapRef.current) {
@@ -957,26 +974,29 @@ export const App: React.FC = () => {
           }
 
           // -----------------------------------------------------
-          // Step 10: Cover rotation:
-          // Closed (0deg) -> 3D Accordion Fan (-164deg: matches 0315e51d.jpg!) -> Flat Open (-174deg) -> Closes Shut (0deg)
+          // Step 10: Cover rotation & hinge alignment (Attached to spine!)
           // -----------------------------------------------------
           let coverRotY = 0;
-          if (tiltT > 0 && spreadT === 0) {
-            coverRotY = -164 * tiltEase;
-          } else if (spreadT > 0 && closeT === 0) {
+          let coverHingeZ = (T / 2 * u);
+          if (cT > 0) {
+            coverRotY = -174 * (1 - coverClose);
+            coverHingeZ = (T / 2) * coverClose;
+          } else if (spreadT > 0) {
             coverRotY = -164 - 10 * spreadEase;
-          } else if (closeT > 0) {
-            coverRotY = -174 * (1 - closeEase);
+            coverHingeZ = 0;
+          } else if (coverOpenEase > 0) {
+            coverRotY = -164 * coverOpenEase;
+            coverHingeZ = (T / 2 * u) * (1 - coverOpenEase);
           }
           if (bookCoverRef.current) {
-            bookCoverRef.current.style.transform = `translateZ(${(T / 2 * u).toFixed(1)}px) rotateY(${coverRotY.toFixed(1)}deg)`;
-            bookCoverRef.current.style.zIndex = (spreadEase > 0.85 && closeEase === 0) ? '15' : '45';
+            bookCoverRef.current.style.transform = `translateZ(${coverHingeZ.toFixed(1)}px) rotateY(${coverRotY.toFixed(1)}deg)`;
+            bookCoverRef.current.style.zIndex = (spreadEase > 0.85 && coverClose === 0) ? '15' : '50';
           }
 
           // Dynamic Floor Shadow
           if (bookShadowRef.current) {
-            const shadowLeft = 50 - 50 * (spreadEase * (1 - closeEase));
-            const shadowScaleX = 1 + 0.35 * tiltEase + 0.35 * spreadEase - 0.35 * closeEase;
+            const shadowLeft = 50 - 50 * (spreadEase * (1 - coverClose));
+            const shadowScaleX = 1 + 0.35 * coverOpenEase + 0.35 * spreadEase - 0.35 * coverClose;
             const shadowOpacity = (sg(p, 0.35, 0.40) * 0.8) * (1 - exitEase);
             bookShadowRef.current.style.left = `${shadowLeft.toFixed(1)}%`;
             bookShadowRef.current.style.transform = `translateX(-50%) rotateX(85deg) scale(${shadowScaleX.toFixed(2)}, 1)`;
@@ -984,7 +1004,7 @@ export const App: React.FC = () => {
           }
 
           // -----------------------------------------------------
-          // Step 11: 5 Leaves (Thick, Smooth, Zero-Blinking Turns & Complete Close)
+          // Step 11: 5 Leaves (Attached to Spine, Smooth Fan, Forward Turn, & REVERSE CLOSING!)
           // -----------------------------------------------------
           const fanAngles = [-66, -48, -34, -20, -5];
           const leafSpacing = 2.4; // Real tactile paper thickness, eliminates GPU Z-fighting and blinking
@@ -992,10 +1012,66 @@ export const App: React.FC = () => {
           bookLeafRefs.current.forEach((leaf, i) => {
             if (!leaf) return;
 
-            if (spreadEase < 1.0) {
-              if (tiltT > 0 && spreadT === 0) {
-                // ACCORDION FAN IN 3D PERSPECTIVE (MATCHES 0315e51d.jpg!)
-                const ang = fanAngles[i] * tiltEase;
+            if (cT > 0) {
+              // ===================================================
+              // REVERSE CLOSING SEQUENCE (5th -> 4th -> 3rd -> 2nd -> 1st)
+              // ===================================================
+              if (i === 4) {
+                // Leaf 4 (Page 5 - Last page): rests flat on right stack
+                leaf.style.transform = `translate3d(0, 0, ${(-4 * leafSpacing).toFixed(1)}px) rotateY(0deg)`;
+              } else if (i === 3) {
+                // Leaf 3 (4th page): flips back during c3
+                if (cProg < 0.8) {
+                  leaf.style.transform = `translate3d(0, 0, ${(10 + 1 * leafSpacing).toFixed(1)}px) rotateY(-174deg)`;
+                } else if (cProg < 1.8) {
+                  const rot = -174 * (1 - c3);
+                  const arc = Math.sin(c3 * Math.PI) * 40;
+                  const liftZ = (1 - c3) * (10 + 1 * leafSpacing) + c3 * (-3 * leafSpacing) + arc;
+                  leaf.style.transform = `translate3d(0, 0, ${liftZ.toFixed(1)}px) rotateY(${rot.toFixed(1)}deg)`;
+                } else {
+                  leaf.style.transform = `translate3d(0, 0, ${(-3 * leafSpacing).toFixed(1)}px) rotateY(0deg)`;
+                }
+              } else if (i === 2) {
+                // Leaf 2 (3rd page): flips back during c2
+                if (cProg < 1.8) {
+                  leaf.style.transform = `translate3d(0, 0, ${(10 + 2 * leafSpacing).toFixed(1)}px) rotateY(-174deg)`;
+                } else if (cProg < 2.8) {
+                  const rot = -174 * (1 - c2);
+                  const arc = Math.sin(c2 * Math.PI) * 40;
+                  const liftZ = (1 - c2) * (10 + 2 * leafSpacing) + c2 * (-2 * leafSpacing) + arc;
+                  leaf.style.transform = `translate3d(0, 0, ${liftZ.toFixed(1)}px) rotateY(${rot.toFixed(1)}deg)`;
+                } else {
+                  leaf.style.transform = `translate3d(0, 0, ${(-2 * leafSpacing).toFixed(1)}px) rotateY(0deg)`;
+                }
+              } else if (i === 1) {
+                // Leaf 1 (2nd page): flips back during c1
+                if (cProg < 2.8) {
+                  leaf.style.transform = `translate3d(0, 0, ${(10 + 3 * leafSpacing).toFixed(1)}px) rotateY(-174deg)`;
+                } else if (cProg < 3.8) {
+                  const rot = -174 * (1 - c1);
+                  const arc = Math.sin(c1 * Math.PI) * 40;
+                  const liftZ = (1 - c1) * (10 + 3 * leafSpacing) + c1 * (-1 * leafSpacing) + arc;
+                  leaf.style.transform = `translate3d(0, 0, ${liftZ.toFixed(1)}px) rotateY(${rot.toFixed(1)}deg)`;
+                } else {
+                  leaf.style.transform = `translate3d(0, 0, ${(-1 * leafSpacing).toFixed(1)}px) rotateY(0deg)`;
+                }
+              } else if (i === 0) {
+                // Leaf 0 (1st page): flips back during c0
+                if (cProg < 3.8) {
+                  leaf.style.transform = `translate3d(0, 0, ${(10 + 4 * leafSpacing).toFixed(1)}px) rotateY(-174deg)`;
+                } else if (cProg < 4.8) {
+                  const rot = -174 * (1 - c0);
+                  const arc = Math.sin(c0 * Math.PI) * 40;
+                  const liftZ = (1 - c0) * (10 + 4 * leafSpacing) + c0 * (0) + arc;
+                  leaf.style.transform = `translate3d(0, 0, ${liftZ.toFixed(1)}px) rotateY(${rot.toFixed(1)}deg)`;
+                } else {
+                  leaf.style.transform = `translate3d(0, 0, 0px) rotateY(0deg)`;
+                }
+              }
+            } else if (spreadEase < 1.0) {
+              if (coverOpenEase > 0 && spreadT === 0) {
+                // ACCORDION FAN IN 3D PERSPECTIVE (Attached to spine!)
+                const ang = fanAngles[i] * fanEase;
                 leaf.style.transform = `translate3d(0, 0, ${(-i * leafSpacing).toFixed(1)}px) rotateY(${ang.toFixed(1)}deg)`;
               } else if (spreadT > 0) {
                 // Fanning pages settle flat onto the right stack
@@ -1005,12 +1081,8 @@ export const App: React.FC = () => {
                 // Closed flat inside book
                 leaf.style.transform = `translate3d(0, 0, ${(-i * leafSpacing).toFixed(1)}px) rotateY(0deg)`;
               }
-            } else if (closeT > 0) {
-              // BOOK CLOSING PHASE! All 5 leaves swing shut inside the cover
-              const closedRotY = -174 * (1 - closeEase);
-              leaf.style.transform = `translate3d(0, 0, ${(-i * leafSpacing).toFixed(1)}px) rotateY(${closedRotY.toFixed(1)}deg)`;
             } else {
-              // Active interactive page turns (smooth arc lift, zero collisions, zero blinking)
+              // Active interactive forward page turns
               if (turnProgress > i && turnProgress < i + 1) {
                 // Leaf i is currently in flight!
                 const tTurn = turnProgress - i;
@@ -1031,7 +1103,7 @@ export const App: React.FC = () => {
 
           // Minimalist Bottom Controls & Dynamic Direct DOM Updates (Zero React Re-renders!)
           if (bookControlsRef.current) {
-            const ctrlOp = (tiltEase > 0 ? 1 : 0) * (1 - exitEase);
+            const ctrlOp = (coverOpenEase > 0 ? 1 : 0) * (1 - exitEase);
             bookControlsRef.current.style.opacity = `${ctrlOp.toFixed(2)}`;
             bookControlsRef.current.style.pointerEvents = ctrlOp > 0.5 ? 'auto' : 'none';
           }
@@ -1041,8 +1113,20 @@ export const App: React.FC = () => {
               bookCounterRef.current.textContent = 'COVER';
             } else if (spreadEase < 1.0) {
               bookCounterRef.current.textContent = '01 / 05';
-            } else if (closeT > 0.4) {
-              bookCounterRef.current.textContent = 'CLOSED';
+            } else if (cT > 0) {
+              if (cProg < 0.8) {
+                bookCounterRef.current.textContent = '05 / 05';
+              } else if (cProg < 1.8) {
+                bookCounterRef.current.textContent = '04 / 05';
+              } else if (cProg < 2.8) {
+                bookCounterRef.current.textContent = '03 / 05';
+              } else if (cProg < 3.8) {
+                bookCounterRef.current.textContent = '02 / 05';
+              } else if (cProg < 4.8) {
+                bookCounterRef.current.textContent = '01 / 05';
+              } else {
+                bookCounterRef.current.textContent = 'CLOSED';
+              }
             } else {
               const curP = Math.min(5, Math.floor(turnProgress) + 1);
               bookCounterRef.current.textContent = `0${curP} / 05`;
@@ -1050,9 +1134,11 @@ export const App: React.FC = () => {
           }
 
           if (bookNextBtnRef.current) {
-            if (closeT > 0.3) {
+            if (coverClose >= 0.85) {
               bookNextBtnRef.current.textContent = 'MOMENTS →';
-            } else if (turnProgress >= 4) {
+            } else if (cT > 0) {
+              bookNextBtnRef.current.textContent = 'CLOSE BOOK ›';
+            } else if (turnProgress >= 3.8) {
               bookNextBtnRef.current.textContent = 'CLOSE BOOK ›';
             } else {
               bookNextBtnRef.current.textContent = 'NEXT ›';
@@ -1073,7 +1159,7 @@ export const App: React.FC = () => {
         p4Ref.current.style.display = momentsVisible ? 'block' : 'none';
         if (momentsVisible) {
           // Entrance begins cleanly AFTER Wins has exited completely
-          const momIn = io(sg(p, 0.64, 0.72));
+          const momIn = io(sg(p, 0.655, 0.72));
           // Clean forward zoom into blank space (starts at 0.76, fully clears by 0.86)
           const momFly = io(sg(p, 0.76, 0.86));
           p4Ref.current.style.opacity = `${momIn * (1 - momFly)}`;
@@ -1085,7 +1171,7 @@ export const App: React.FC = () => {
           }
 
           // 3D Panoramic Fly-in & Clean Forward Zoom: Inside-the-Globe View
-          const en = io(sg(p, 0.64, 0.72));
+          const en = io(sg(p, 0.655, 0.72));
           const sr = sg(p, 0.65, 0.80);
 
           // Resting zoom keeps cards large and immersive; transition flies forward into blank space
