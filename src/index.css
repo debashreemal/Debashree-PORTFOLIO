@@ -324,7 +324,7 @@ body {
   position: absolute;
   inset: 0;
   background: var(--cr);
-  box-shadow: 0 35px 80px rgba(0, 0, 0, 0.65);
+  box-shadow: 0 -25px 70px rgba(0, 0, 0, 0.55), 0 35px 80px rgba(0, 0, 0, 0.65);
   will-change: transform;
   clip-path: none !important;
 }
@@ -348,6 +348,7 @@ body {
   height: clamp(260px, 32vw, 480px);
   border-radius: 50%;
   background: var(--rd);
+  box-shadow: 0 20px 60px rgba(238, 59, 31, 0.32), 0 4px 16px rgba(0, 0, 0, 0.12);
   transform: scale(0);
   will-change: transform;
 }
