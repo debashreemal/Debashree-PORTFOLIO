@@ -317,6 +317,8 @@ export const App: React.FC = () => {
   const tileInnersRef = useRef<(HTMLDivElement | null)[]>([]);
   const domeState = useRef({ ry: 0, rx: 0, vy: 0, vx: 0, drag: null as { x: number; y: number } | null });
   const mtlRef = useRef<HTMLDivElement>(null);
+  const momentsArrivalRef = useRef<number | null>(null);
+  const momentsAutoTriggeredRef = useRef(false);
 
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
   const [windowHeight, setWindowHeight] = useState(typeof window !== 'undefined' ? window.innerHeight : 800);
@@ -368,6 +370,8 @@ export const App: React.FC = () => {
   const goTo = useCallback((n: number) => {
     const targetIdx = Math.max(0, Math.min(4, n));
     tgtRef.current = MILESTONES[targetIdx];
+    momentsArrivalRef.current = null;
+    momentsAutoTriggeredRef.current = false;
   }, []);
 
   // 3D Book Page Turning Callbacks (exact, obstacle-free page targets)
@@ -377,14 +381,14 @@ export const App: React.FC = () => {
     } else if (tgtRef.current < 0.48) {
       tgtRef.current = 0.48;
     } else {
-      const curTurn = sg(tgtRef.current, 0.48, 0.585) * 5;
+      const curTurn = sg(tgtRef.current, 0.48, 0.60) * 5;
       const curPage = Math.min(5, Math.floor(curTurn + 0.1));
       if (curPage < 4) {
         // Go to next page (1, 2, 3, 4)
-        tgtRef.current = 0.48 + (curPage + 1) * (0.105 / 5);
+        tgtRef.current = 0.48 + (curPage + 1) * (0.12 / 5);
       } else if (curPage === 4) {
         // At Page 5: CLOSE THE BOOK!
-        tgtRef.current = 0.625;
+        tgtRef.current = 0.62;
       } else {
         // From closed book: GO TO MOMENTS!
         goTo(3);
@@ -399,12 +403,12 @@ export const App: React.FC = () => {
       tgtRef.current = 0.42; // Return to 3D accordion fan state
     } else if (tgtRef.current >= 0.61) {
       // Re-open from closed book back to Page 5
-      tgtRef.current = 0.48 + 4 * (0.105 / 5);
+      tgtRef.current = 0.48 + 4 * (0.12 / 5);
     } else {
-      const curTurn = sg(tgtRef.current, 0.48, 0.585) * 5;
+      const curTurn = sg(tgtRef.current, 0.48, 0.60) * 5;
       const curPage = Math.min(5, Math.floor(curTurn + 0.1));
       if (curPage > 0) {
-        tgtRef.current = 0.48 + (curPage - 1) * (0.105 / 5);
+        tgtRef.current = 0.48 + (curPage - 1) * (0.12 / 5);
       } else {
         tgtRef.current = 0.42;
       }
@@ -416,17 +420,17 @@ export const App: React.FC = () => {
       tgtRef.current = 0.48;
       return;
     }
-    const curTurn = sg(tgtRef.current, 0.48, 0.585) * 5;
+    const curTurn = sg(tgtRef.current, 0.48, 0.60) * 5;
     const curPage = Math.min(5, Math.floor(curTurn + 0.1));
     if (idx < curPage) {
-      tgtRef.current = 0.48 + idx * (0.105 / 5);
+      tgtRef.current = 0.48 + idx * (0.12 / 5);
     } else if (idx === curPage && curPage < 4) {
-      tgtRef.current = 0.48 + (curPage + 1) * (0.105 / 5);
+      tgtRef.current = 0.48 + (curPage + 1) * (0.12 / 5);
     } else if (idx === 4 && curPage === 4) {
       // Clicking the last page closes the book!
-      tgtRef.current = 0.625;
+      tgtRef.current = 0.62;
     } else if (idx > curPage) {
-      tgtRef.current = 0.48 + idx * (0.105 / 5);
+      tgtRef.current = 0.48 + idx * (0.12 / 5);
     }
   }, []);
 
@@ -465,9 +469,10 @@ export const App: React.FC = () => {
       if ((d > 0 && tgtRef.current >= 1) || (d < 0 && tgtRef.current <= 0)) return;
       e.preventDefault();
 
-      // In the Moments transition zone, keep wheel increments gentle and in flow
-      const inTransZone = tgtRef.current >= 0.58 && tgtRef.current <= 0.74;
-      const wheelFactor = inTransZone ? 0.00038 : 0.00068;
+      // In the Moments round gallery zone (0.68 - 0.82), keep wheel increments comfortable
+      // so the round gallery view is experienced for ample time (~2 seconds of scrolling)
+      const inRoundGallery = tgtRef.current >= 0.68 && tgtRef.current <= 0.82;
+      const wheelFactor = inRoundGallery ? 0.00045 : 0.00068;
       tgtRef.current = cl(tgtRef.current + d * wheelFactor);
     };
 
@@ -582,10 +587,9 @@ export const App: React.FC = () => {
       lastTimeRef.current = now;
 
       // Exponential progress damping:
-      // When moving into Moments (0.58 <= p <= 0.74), glide slowly so cards take approx 3-4 seconds to come in
-      const inMomentsTransition = curProgressRef.current >= 0.58 && curProgressRef.current <= 0.738;
-      const dampingRate = inMomentsTransition ? 1.4 : 11.5;
-      curProgressRef.current += (tgtRef.current - curProgressRef.current) * (1 - Math.exp(-dt * dampingRate));
+      // Snappy and responsive across the page, gentle during card pop-out for cinematic elegance
+      const damping = (tgtRef.current >= 0.80 && tgtRef.current <= 0.86) ? 7.5 : 11.5;
+      curProgressRef.current += (tgtRef.current - curProgressRef.current) * (1 - Math.exp(-dt * damping));
       const p = curProgressRef.current;
 
       // Dynamic velocity calculation & skew
@@ -600,6 +604,28 @@ export const App: React.FC = () => {
       const my = mouseSmoothRef.current.y;
       const tt = now / 1000;
 
+      // Dwell timer for Moments:
+      // When arriving at Moments round gallery zone (0.71 <= p <= 0.77), keep gallery round for 2 seconds more
+      // before cards emerge to center focus!
+      if (p >= 0.71 && p <= 0.77 && Math.abs(tgtRef.current - 0.74) < 0.035) {
+        if (momentsArrivalRef.current === null && !momentsAutoTriggeredRef.current) {
+          momentsArrivalRef.current = now;
+        } else if (
+          momentsArrivalRef.current !== null &&
+          !momentsAutoTriggeredRef.current &&
+          now - momentsArrivalRef.current >= 2000 &&
+          !domeState.current.drag &&
+          activeCardRef.current === null
+        ) {
+          momentsAutoTriggeredRef.current = true;
+          tgtRef.current = 0.85; // Gently bring card out into center hero focus!
+        }
+      } else if (p < 0.66 || p > 0.81) {
+        // Reset when leaving Moments so user can experience it again when returning
+        momentsArrivalRef.current = null;
+        momentsAutoTriggeredRef.current = false;
+      }
+
       // 1. Active Section Index calculation
       let idx = 0;
       for (let m = 0; m < 5; m++) {
@@ -610,7 +636,7 @@ export const App: React.FC = () => {
         setCur(idx);
       }
       if (stageRef.current) {
-        stageRef.current.dataset.dk = (p > 0.07 && p < 0.28) || p > 0.86 ? '1' : '0';
+        stageRef.current.dataset.dk = (p > 0.07 && p < 0.28) || p > 0.90 ? '1' : '0';
       }
 
       // =========================================================
@@ -883,9 +909,9 @@ export const App: React.FC = () => {
 
       // =========================================================
       // PANEL 2: WINS (3D BOOK - EXACT MATCH TO about-to-wins-final.html)
-      // (0.255 < p < 0.725)
+      // (0.255 < p < 0.69)
       // =========================================================
-      const winsVisible = p > 0.255 && p < 0.725;
+      const winsVisible = p > 0.255 && p < 0.69;
       if (p2Ref.current) {
         p2Ref.current.style.display = winsVisible ? 'block' : 'none';
         p2Ref.current.style.zIndex = p > 0.28 ? '4' : '2';
@@ -902,7 +928,7 @@ export const App: React.FC = () => {
           if (bookFrontRef.current) {
             bookFrontRef.current.style.transform = `scale(${sx.toFixed(4)}, ${sy.toFixed(4)}) translateZ(1px)`;
             bookFrontRef.current.style.borderRadius = `${3 * u}px ${12 * u}px ${12 * u}px ${3 * u}px`;
-            const isBookOpen = p > 0.40 && p < 0.60;
+            const isBookOpen = p > 0.40 && p < 0.62;
             bookFrontRef.current.style.boxShadow = isBookOpen
               ? 'none'
               : `0 ${20 * u}px ${45 * u}px rgba(0, 0, 0, ${0.45 * u}), -2px 0 6px rgba(0, 0, 0, 0.2)`;
@@ -957,32 +983,23 @@ export const App: React.FC = () => {
 
           // -----------------------------------------------------
           // Step 7: Interactive 5 Page Turns
-          // p: 0.48 -> 0.585 (5 pages: Leaves 0, 1, 2, 3, 4)
+          // p: 0.48 -> 0.60 (5 pages: Leaves 0, 1, 2, 3, 4)
           // -----------------------------------------------------
-          const turnProgress = sg(p, 0.48, 0.585) * 5;
+          const turnProgress = sg(p, 0.48, 0.60) * 5;
 
           // -----------------------------------------------------
           // Step 8: Book Closes After Last Page!
-          // p: 0.585 -> 0.625 (Front cover & all pages swing shut)
+          // p: 0.60 -> 0.635 (Front cover & all pages swing shut)
           // -----------------------------------------------------
-          const closeT = sg(p, 0.585, 0.625);
+          const closeT = sg(p, 0.60, 0.635);
           const closeEase = io(closeT);
 
           // -----------------------------------------------------
-          // Step 9: Flow Transition: Initial Little Zoom -> Circular Arc -> Slow Globe Reveal
-          // p: 0.625 -> 0.710 (Continuous, fluid choreography into Moments)
+          // Step 9: Smooth Zoom-Through Transition into Moments 3D Globe
+          // p: 0.635 -> 0.685 (Closed book zooms dramatically towards camera & dissolves into Moments)
           // -----------------------------------------------------
-          const zoomT = sg(p, 0.625, 0.710);
+          const zoomT = sg(p, 0.635, 0.685);
           const zoomEase = io(zoomT);
-
-          // Phase A: The book first does a little zoom forward in 3D (0 -> 0.20 of zoom progress)
-          // Phase B: Then smoothly sweeps in circular arc towards top-right (0.20 -> 1.0)
-          const sweepProgress = sg(zoomT, 0.20, 1.0);
-          const sweepEase = io(sweepProgress);
-
-          // Dissolves cleanly as it reaches the black background in the top-right
-          const hitEdge = sg(zoomT, 0.65, 0.98);
-          const wrapOpacity = 1 - io(hitEdge);
 
           // Fore-edge, top edge, and bottom edge:
           // Fully visible and 3D when the book is CLOSED (both before opening at p < 0.365 and after closing at p >= 0.60)
@@ -990,7 +1007,7 @@ export const App: React.FC = () => {
           const isClosedBefore = (1 - tiltEase) * (1 - spreadEase);
           const isClosedAfter = closeEase;
           const closedFactor = cl(isClosedBefore + isClosedAfter);
-          const closedEdgeOp = cl(sg(p, 0.33, 0.365) * closedFactor * wrapOpacity);
+          const closedEdgeOp = cl(sg(p, 0.33, 0.365) * closedFactor * (1 - sg(zoomT, 0.70, 0.98)));
 
           const closedEdges = [bookForeRef.current, bookTopEdgeRef.current, bookBotEdgeRef.current];
           closedEdges.forEach((el) => {
@@ -1007,7 +1024,7 @@ export const App: React.FC = () => {
 
           // Real Back Cover remains present and solid behind pages throughout the 3D book experience!
           if (bookBackRef.current) {
-            const backOp = sg(p, 0.33, 0.365) * wrapOpacity;
+            const backOp = sg(p, 0.33, 0.365) * (1 - sg(zoomT, 0.70, 0.98));
             bookBackRef.current.style.opacity = `${backOp.toFixed(3)}`;
             if (closedFactor > 0.4) {
               bookBackRef.current.style.boxShadow = '0 20px 45px rgba(0, 0, 0, 0.65), -4px 0 12px rgba(0, 0, 0, 0.35)';
@@ -1018,7 +1035,7 @@ export const App: React.FC = () => {
 
           if (bookSpineRef.current) {
             // Spine is 100% visible when book is closed, smoothly tucks away when book is flat open
-            const spineOp = cl(sg(p, 0.33, 0.365) * (closedFactor + (1 - closedFactor) * 0.3) * wrapOpacity);
+            const spineOp = cl(sg(p, 0.33, 0.365) * (closedFactor + (1 - closedFactor) * 0.3) * (1 - sg(zoomT, 0.70, 0.98)));
             bookSpineRef.current.style.opacity = `${spineOp.toFixed(3)}`;
           }
 
@@ -1031,37 +1048,31 @@ export const App: React.FC = () => {
           } else if (tiltT > 0) {
             targetWrapX = (bw * 0.38) * tiltEase; // Balanced center in 3D accordion fan
           }
+          // Zoom forward in 3D while maintaining perspective
+          const wrapX = targetWrapX - (bw * 0.15) * zoomEase;
+          const wrapY = fl * (1 - zoomEase);
+          const wrapZ = zoomEase * 680;
 
-          // Circular Arc Sweep towards Top-Right into the Black Background:
-          // X sweeps towards the right (+X) smoothly
-          const arcRadiusX = Math.max(bw * 1.15, vw * 0.40);
-          const arcX = Math.sin(sweepEase * (Math.PI * 0.5)) * arcRadiusX;
+          // 3D Angle: Keep the book authentically tilted towards the left (approx 25deg to 28deg) so the entire 3D volume zooms, NOT a flat face-on cover zoom!
+          const baseRotX = (-14 * r * (1 - tiltEase)) +
+                           (7 * tiltEase * (1 - spreadEase)) +
+                           (3 * spreadEase * (1 - closeEase)) +
+                           (-14 * r * closeEase) - my * (spreadEase > 0.5 && closeEase === 0 ? 3 : 5);
 
-          // Y sweeps in a gentle upward arc towards the top-right (-Y in screen space)
-          const arcRadiusY = Math.min(vh * 0.22, 160);
-          const arcY = -Math.sin(sweepEase * Math.PI * 0.75) * arcRadiusY;
+          const baseRotY = (-30 * r * (1 - tiltEase)) +
+                           (-14 * tiltEase * (1 - spreadEase)) +
+                           (-2 * spreadEase * (1 - closeEase)) +
+                           (-28 * r * closeEase) + mx * (spreadEase > 0.5 && closeEase === 0 ? 5 : 8);
 
-          const wrapX = targetWrapX + arcX;
-          const wrapY = (fl * (1 - zoomEase)) + arcY;
-          const wrapZ = zoomEase * 40;
+          // Maintain the 25deg - 28deg 3D tilt towards the left throughout the entire zoom
+          const rotX = baseRotX - (zoomEase * 3);
+          const rotY = baseRotY + (zoomEase * 2);
 
-          // Orientation: NO TILT ON THE BOOK ("no titlt book")
-          // Fan and spread open states rotate as usual, but as book closes, it returns to clean upright 0deg!
-          const baseRotX = ((-14 * r * (1 - tiltEase)) +
-                            (7 * tiltEase * (1 - spreadEase)) +
-                            (3 * spreadEase * (1 - closeEase))) * (1 - closeEase) - my * (spreadEase > 0.5 && closeEase === 0 ? 3 : 0);
-
-          const baseRotY = ((-30 * r * (1 - tiltEase)) +
-                            (-14 * tiltEase * (1 - spreadEase)) +
-                            (-2 * spreadEase * (1 - closeEase))) * (1 - closeEase) + mx * (spreadEase > 0.5 && closeEase === 0 ? 5 : 0);
-
-          // Zero tilt during closed book & circular zoom!
-          const rotX = baseRotX * (1 - zoomEase);
-          const rotY = baseRotY * (1 - zoomEase);
-
-          // Little zoom only (subtle +12% scale expansion, no excessive zoom)
+          // 3D scale expansion
           const baseScale = 1 + 0.1 * r + pop + 0.05 * tiltEase + 0.04 * spreadEase - 0.04 * closeEase;
-          const wrapScale = baseScale + zoomEase * 0.12;
+          const wrapScale = baseScale + zoomEase * 1.8;
+          // Smooth fade-out near peak of zoom
+          const wrapOpacity = 1 - sg(zoomT, 0.60, 0.98);
 
           if (bookWrapRef.current) {
             bookWrapRef.current.style.transform = `translate3d(${wrapX.toFixed(1)}px, ${wrapY.toFixed(1)}px, ${wrapZ.toFixed(1)}px) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg) scale(${wrapScale.toFixed(3)})`;
@@ -1087,9 +1098,9 @@ export const App: React.FC = () => {
 
           // Dynamic Floor Shadow
           if (bookShadowRef.current) {
-            const shadowLeft = (50 - 50 * (spreadEase * (1 - closeEase))) + (arcX / (vw || 1)) * 50;
-            const shadowScaleX = (1 + 0.35 * tiltEase + 0.35 * spreadEase - 0.35 * closeEase) * (1 + zoomEase * 0.1);
-            const shadowOpacity = (sg(p, 0.35, 0.40) * 0.8) * wrapOpacity;
+            const shadowLeft = 50 - 50 * (spreadEase * (1 - closeEase));
+            const shadowScaleX = (1 + 0.35 * tiltEase + 0.35 * spreadEase - 0.35 * closeEase) * (1 + zoomEase * 0.8);
+            const shadowOpacity = (sg(p, 0.35, 0.40) * 0.8) * (1 - zoomT);
             bookShadowRef.current.style.left = `${shadowLeft.toFixed(1)}%`;
             bookShadowRef.current.style.transform = `translateX(-50%) rotateX(85deg) scale(${shadowScaleX.toFixed(2)}, 1)`;
             bookShadowRef.current.style.opacity = `${shadowOpacity.toFixed(2)}`;
@@ -1178,35 +1189,35 @@ export const App: React.FC = () => {
       }
 
       // =========================================================
-      // PANEL 3: MOMENTS (0.638 < p < 0.88) - Inside Globe & Clean Zoom Fly-Through
+      // PANEL 3: MOMENTS (0.64 < p < 0.94) - Inside Globe & Clean Zoom Fly-Through
       // =========================================================
-      const momentsVisible = p > 0.638 && p < 0.88;
+      const momentsVisible = p > 0.64 && p < 0.94;
       if (p4Ref.current) {
         p4Ref.current.style.display = momentsVisible ? 'block' : 'none';
-        p4Ref.current.style.zIndex = p < 0.705 ? '3' : '4';
-        p4Ref.current.style.pointerEvents = p >= 0.705 ? 'auto' : 'none';
+        p4Ref.current.style.zIndex = p < 0.685 ? '3' : '4';
+        p4Ref.current.style.pointerEvents = p >= 0.685 ? 'auto' : 'none';
         if (momentsVisible) {
-          // Moments Globe Appears Slowly (0.640 -> 0.740)
-          const momIn = io(sg(p, 0.640, 0.740));
-          // Clean forward zoom into blank space (starts at 0.76, fully clears by 0.86)
-          const momFly = io(sg(p, 0.76, 0.86));
+          // Entrance begins smoothly as the closed book zooms in (0.64 -> 0.70)
+          const momIn = io(sg(p, 0.64, 0.70));
+          // Clean forward zoom into blank space (starts at 0.86, fully clears by 0.94)
+          const momFly = io(sg(p, 0.86, 0.94));
           p4Ref.current.style.opacity = `${momIn * (1 - momFly)}`;
           p4Ref.current.style.filter = 'none'; // Zero blur! Crystal sharp zoom
 
           // Close active pop-out card if scrolling towards transition
-          if (p > 0.73 && activeCardRef.current !== null) {
+          if (p > 0.81 && activeCardRef.current !== null) {
             setActiveCard(null);
           }
 
           // 3D Panoramic Fly-in & Clean Forward Zoom: Inside-the-Globe View
-          const en = io(sg(p, 0.640, 0.740));
-          const sr = sg(p, 0.66, 0.80);
+          const en = io(sg(p, 0.64, 0.70));
+          const sr = sg(p, 0.66, 0.82);
 
           // Resting zoom keeps cards large and immersive; transition flies forward into blank space
           const baseZoom = 480 * K;
-          const slotZoom = io(sg(p, 0.71, 0.78)) * 160 * K;
+          const slotZoom = io(sg(p, 0.81, 0.87)) * 160 * K;
           const transitionZoom = momFly * 850 * K;
-          // Globe swoops forward slowly from depth (-380px) to full baseZoom
+          // Globe swoops forward from depth (-380px) to full baseZoom, expanding outward from behind the zooming book
           const entranceZoom = (1 - en) * -380 * K;
           const dz = entranceZoom + baseZoom + slotZoom + transitionZoom;
 
@@ -1215,12 +1226,11 @@ export const App: React.FC = () => {
             domeState.current.vy *= 0.94;
           }
 
-          // Very gentle spin (18deg) so cards float in calmly and slowly
-          const spinIn = (1 - en) * 18;
-          const ry = -tt * 0.7 + sr * 50 + mx * 8 + domeState.current.ry + spinIn;
+          // Panoramic 360 rotation around inside cyclorama
+          const ry = -tt * 0.7 + sr * 50 + mx * 8 + domeState.current.ry;
           const rx = 0 + 4 * io(sr) - my * 5 + domeState.current.rx;
 
-          // Globe expands slowly from scale (0.60) to full panoramic scale (1.0)
+          // Globe expands from scale 0.60 to 1.0 as the book zooms past
           const domeScale = lp(0.60, 1.0, en);
 
           // Entire inside 3D cyclorama rotates as a single hardware-accelerated 4x4 matrix
@@ -1228,9 +1238,9 @@ export const App: React.FC = () => {
             domeRef.current.style.transform = `translateZ(${dz.toFixed(1)}px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) scale(${domeScale.toFixed(3)})`;
           }
 
-          // MOMENTS heading: fades in cleanly as globe settles
+          // MOMENTS heading: fades in cleanly as globe settles, exits cleanly when card pop-out begins
           if (mtlRef.current) {
-            const mo2 = sg(p, 0.69, 0.75) * (1 - io(sg(p, 0.76, 0.82)));
+            const mo2 = sg(p, 0.66, 0.72) * (1 - io(sg(p, 0.81, 0.86)));
             mtlRef.current.style.opacity = `${mo2}`;
             mtlRef.current.style.transform = `translateX(${-(p - 0.74) * 45}px) skewY(${sk * 0.3}deg) scale(1)`;
           }
@@ -1240,12 +1250,12 @@ export const App: React.FC = () => {
       // =========================================================
       // PANEL 4: CONTACT (LAST SCREEN - Emerges from Blank Space with Choreographed Movement)
       // =========================================================
-      const contactVisible = p > 0.84;
+      const contactVisible = p > 0.86;
       if (p5Ref.current) {
         p5Ref.current.style.display = contactVisible ? 'block' : 'none';
         if (contactVisible) {
           // Contact emerges smoothly AFTER the globe has passed into blank space
-          const contactIn = io(sg(p, 0.86, 0.98));
+          const contactIn = io(sg(p, 0.88, 0.98));
           p5Ref.current.style.opacity = `${contactIn}`;
 
           // Top Title smoothly descends and settles with scale
@@ -1256,14 +1266,14 @@ export const App: React.FC = () => {
 
           // Subtitle staggers in smoothly
           if (cSubTextRef.current) {
-            const subIn = io(sg(p, 0.89, 0.99));
+            const subIn = io(sg(p, 0.90, 0.99));
             cSubTextRef.current.style.transform = `translate3d(0, ${(1 - subIn) * 20}px, 0)`;
             cSubTextRef.current.style.opacity = `${subIn}`;
           }
 
           // Say Hello Rocket Button container glides in smoothly
           if (cSayHelloRef.current) {
-            const bIn = io(sg(p, 0.88, 0.98));
+            const bIn = io(sg(p, 0.89, 0.98));
             cSayHelloRef.current.style.transform = `translate3d(0, ${(1 - bIn) * 35}px, 0)`;
             cSayHelloRef.current.style.opacity = `${bIn}`;
           }
@@ -1275,7 +1285,7 @@ export const App: React.FC = () => {
 
           // Back to top floating pill
           if (cTopBtnRef.current) {
-            const tpIn = sg(p, 0.92, 0.99);
+            const tpIn = sg(p, 0.93, 0.99);
             cTopBtnRef.current.style.opacity = `${tpIn}`;
             cTopBtnRef.current.style.pointerEvents = tpIn > 0.5 ? 'auto' : 'none';
           }
@@ -1290,10 +1300,10 @@ export const App: React.FC = () => {
       const heroTileInner = tileInnersRef.current[heroTileIdx];
       const slotEl = heroTileInner?.parentElement || heroTileInner;
 
-      // Card comes out of its slot starting at p=0.72
-      const coinVisible = p > 0.72 && p <= 1.0;
+      // Card comes out of its slot starting at p=0.825
+      const coinVisible = p > 0.825 && p <= 1.0;
       if (heroTileInner) {
-        if (p >= 0.72) {
+        if (p >= 0.825) {
           heroTileInner.style.opacity = '0';
           heroTileInner.parentElement?.classList.add('dt-empty-slot');
         } else {
@@ -1346,14 +1356,14 @@ export const App: React.FC = () => {
           let spinDeg = 0;
           let isStuck = false;
 
-          if (p < 0.78) {
+          if (p < 0.88) {
             // -----------------------------------------------------
             // SUB-PHASE 1 (NEW IN-BETWEEN ANIMATION):
             // The card comes OUT of that specific slot into center
-            // p: 0.72 -> 0.78
+            // p: 0.825 -> 0.88
             // Zooms in prominently to hero focus!
             // -----------------------------------------------------
-            const popT = io(sg(p, 0.72, 0.78));
+            const popT = io(sg(p, 0.825, 0.88));
             curX = slotX + (startX - slotX) * popT;
             curY = slotY + (startY - slotY) * popT;
             // Zooms forward out of the slot to 1.25 hero scale
@@ -1366,9 +1376,9 @@ export const App: React.FC = () => {
             // -----------------------------------------------------
             // SUB-PHASE 2 (CURRENT ANIMATION CONTINUES EXACTLY):
             // Flies from center to Contact sticker position
-            // p: 0.78 -> 0.95
+            // p: 0.88 -> 0.98
             // -----------------------------------------------------
-            const rawT = Math.min(1, Math.max(0, (p - 0.78) / 0.17));
+            const rawT = Math.min(1, Math.max(0, (p - 0.88) / 0.10));
             const flightEase = io(rawT);
             curX = startX + (destX - startX) * flightEase;
             const arcY = Math.sin(rawT * Math.PI) * -32;
@@ -1382,7 +1392,7 @@ export const App: React.FC = () => {
           }
 
           // Rapid seamless fade-in at the exact slot location
-          const liftOff = Math.min(1, Math.max(0, (p - 0.72) / 0.015));
+          const liftOff = Math.min(1, Math.max(0, (p - 0.825) / 0.015));
 
           coinCardRef.current.dataset.stuck = isStuck ? 'true' : 'false';
           coinCardRef.current.style.pointerEvents = isStuck ? 'auto' : 'none';
