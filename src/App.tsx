@@ -275,10 +275,10 @@ export const App: React.FC = () => {
   const hLeftRef = useRef<HTMLSpanElement>(null);
   const hRightRef = useRef<HTMLSpanElement>(null);
   const hRobotRef = useRef<HTMLDivElement>(null);
+  const hatchRef = useRef<HTMLDivElement>(null);
 
   // About Refs
   const sheetRef = useRef<HTMLDivElement>(null);
-  const sheetHandleRef = useRef<HTMLDivElement>(null);
   const aLRef = useRef<HTMLDivElement>(null);
   const aRRef = useRef<HTMLDivElement>(null);
   const aBarRef = useRef<HTMLDivElement>(null);
@@ -609,9 +609,20 @@ export const App: React.FC = () => {
       }
 
       // =========================================================
-      // PANEL 0: HERO (p < 0.22)
+      // PANEL 0: HERO (0 <= p < 0.16)
+      // Master Choreography:
+      // 1. Initial State (p = 0):
+      //    - Split name: DEBASHREE far left, MAL far right
+      //    - 3D Robot anchored center, full height, no clipping, zero overlap
+      // 2. Scroll Starts (p: 0 -> 0.04):
+      //    - Base border square (hatch) arrives from below at robot base
+      //    - DEBASHREE & MAL spread outward and fade
+      // 3. Robot Sinks INSIDE Base Square (p: 0.025 -> 0.085):
+      //    - Robot translates down into floor hatch
+      //    - Portions moving past floor aperture are clipped off
+      //    - By p = 0.085, robot is fully submerged inside hatch
       // =========================================================
-      const heroVisible = p < 0.22;
+      const heroVisible = p < 0.16;
       if (heroVisible !== heroActiveRef.current) {
         heroActiveRef.current = heroVisible;
         setHeroActive(heroVisible);
@@ -619,28 +630,68 @@ export const App: React.FC = () => {
       if (p0Ref.current) {
         p0Ref.current.style.display = heroVisible ? 'block' : 'none';
         if (heroVisible) {
-          const hs = sg(p, 0.005, 0.12);
-          const heroPush = io(hs);
+          // Guarantee clean stage on initial load & reverse scroll
+          p0Ref.current.style.transform = 'none';
+          p0Ref.current.style.filter = 'none';
 
-          // Name parallax exit with velocity skew & dynamic spread in 3D
+          const hs = sg(p, 0.005, 0.08);
+
+          // Name parallax exit with velocity skew & dynamic spread
           if (hLeftRef.current) {
-            hLeftRef.current.style.transform = `translate3d(${-260 * heroPush}px, ${-140 * heroPush - p * 60}px, ${-heroPush * 80}px) rotate(${-8 * heroPush}deg) skewX(${-sk}deg)`;
-            hLeftRef.current.style.opacity = `${1 - cl(heroPush * 1.5)}`;
+            hLeftRef.current.style.transform = `translate3d(${-240 * hs}px, ${-160 * hs - p * 60}px, 0) rotate(${-8 * hs}deg) skewX(${-sk}deg)`;
+            hLeftRef.current.style.opacity = `${1 - cl(hs * 1.5)}`;
           }
           if (hRightRef.current) {
-            hRightRef.current.style.transform = `translate3d(${260 * heroPush}px, ${-140 * heroPush - p * 60}px, ${-heroPush * 80}px) rotate(${8 * heroPush}deg) skewX(${-sk}deg)`;
-            hRightRef.current.style.opacity = `${1 - cl(heroPush * 1.5)}`;
+            hRightRef.current.style.transform = `translate3d(${240 * hs}px, ${-160 * hs - p * 60}px, 0) rotate(${8 * hs}deg) skewX(${-sk}deg)`;
+            hRightRef.current.style.opacity = `${1 - cl(hs * 1.5)}`;
           }
 
-          // 3D Robot model smooth sink straight down below screen with depth recession
+          // -----------------------------------------------------
+          // Base Border Square (Floor Hatch) arrives from below
+          // -----------------------------------------------------
+          if (hatchRef.current) {
+            if (p < 0.005) {
+              hatchRef.current.style.opacity = '0';
+              hatchRef.current.style.transform = 'translateX(-50%) perspective(700px) translateY(50px) rotateX(65deg) scale(0.9)';
+            } else if (p < 0.09) {
+              const uHatch = io(sg(p, 0.005, 0.038));
+              const hatchLift = (1 - uHatch) * 50;
+              const hatchScale = lp(0.9, 1.0, uHatch);
+              hatchRef.current.style.opacity = `${cl(uHatch * 1.3).toFixed(3)}`;
+              hatchRef.current.style.transform = `translateX(-50%) perspective(700px) translateY(${hatchLift.toFixed(1)}px) rotateX(65deg) scale(${hatchScale.toFixed(3)})`;
+              hatchRef.current.style.background = 'radial-gradient(ellipse at center, rgba(14, 14, 16, 0.92) 0%, rgba(20, 20, 24, 0.98) 100%)';
+            } else {
+              // Seamless handover as cream sheet expands out
+              const fadeHatch = cl(1 - sg(p, 0.09, 0.115));
+              hatchRef.current.style.opacity = `${fadeHatch.toFixed(3)}`;
+              hatchRef.current.style.transform = 'translateX(-50%) perspective(700px) translateY(0) rotateX(65deg) scale(1)';
+            }
+          }
+
+          // -----------------------------------------------------
+          // Robot Sinks Down INSIDE the Base Square (Images 2, 3, 4)
+          // -----------------------------------------------------
           if (hRobotRef.current) {
-            hRobotRef.current.style.transform = `translate3d(0, ${heroPush * 70}vh, ${-heroPush * 240}px) scale(${1 - heroPush * 0.12})`;
-            hRobotRef.current.style.opacity = `${1 - cl(heroPush * 1.4)}`;
-          }
+            if (p <= 0.02) {
+              hRobotRef.current.style.transform = 'translate3d(0, 0, 0)';
+              hRobotRef.current.style.clipPath = 'none';
+              hRobotRef.current.style.opacity = '1';
+            } else if (p < 0.11) {
+              const uSink = io(sg(p, 0.02, 0.085));
+              const sinkDist = windowHeight * 0.82;
+              const currentSink = uSink * sinkDist;
+              // Floor line aligned with hatch aperture
+              const floorY = windowHeight - Math.min(60, Math.max(22, windowHeight * 0.05));
+              const visibleHeight = Math.max(0, floorY - currentSink);
 
-          // Hero stage subtle 3D pushback and lighting dimming as sheet rises in foreground
-          p0Ref.current.style.transform = `scale(${(1 - heroPush * 0.06).toFixed(3)}) translate3d(0, ${(-heroPush * 3).toFixed(1)}vh, 0)`;
-          p0Ref.current.style.filter = `brightness(${(1 - heroPush * 0.35).toFixed(3)})`;
+              hRobotRef.current.style.transform = `translate3d(0, ${currentSink.toFixed(1)}px, 0)`;
+              hRobotRef.current.style.clipPath = `polygon(0 0, 100% 0, 100% ${visibleHeight.toFixed(1)}px, 0 ${visibleHeight.toFixed(1)}px)`;
+              hRobotRef.current.style.opacity = `${cl(1 - sg(p, 0.078, 0.088)).toFixed(3)}`;
+            } else {
+              hRobotRef.current.style.opacity = '0';
+              hRobotRef.current.style.clipPath = 'none';
+            }
+          }
         }
       }
 
@@ -661,17 +712,14 @@ export const App: React.FC = () => {
       document.documentElement.style.setProperty('--t', `${T}px`);
 
       // =========================================================
-      // PANEL 1: ABOUT ME (0.008 < p < 0.34)
+      // PANEL 1: ABOUT ME (0.075 < p < 0.34)
       // Master Choreography:
-      // 1. Cream archival sheet enters in 3D PERSPECTIVE (p: 0.01 -> 0.12):
-      //    tilted back with rotateX, sculpted with luxury rounded top corners,
-      //    scaled from depth with deep ambient shadow, and seamlessly docks flat fullscreen.
-      // 2. Orange circle appears SMALL, then smoothly blooms into
-      //    BIG ORIGINAL size (p: 0.095 -> 0.165).
-      // 3. Cutout portrait glides up into circle (p: 0.150 -> 0.210).
-      // 4. Floating tags & pills pop into place (p: 0.185 -> 0.235).
+      // 1. Base border square expands & rises into fullscreen cream sheet (p: 0.08 -> 0.155)
+      // 2. Orange circle blooms small -> big original (p: 0.145 -> 0.205)
+      // 3. Cutout portrait glides up into circle (p: 0.175 -> 0.225)
+      // 4. Floating tags & pills pop into place (p: 0.195 -> 0.24)
       // =========================================================
-      const aboutVisible = p > 0.008 && p < 0.34;
+      const aboutVisible = p > 0.075 && p < 0.34;
       if (p1Ref.current) {
         p1Ref.current.style.display = aboutVisible ? 'block' : 'none';
         p1Ref.current.style.zIndex = p > 0.28 ? '2' : '4';
@@ -682,33 +730,31 @@ export const App: React.FC = () => {
           p1Ref.current.style.transform = 'none';
 
           // -----------------------------------------------------
-          // 1. CREAM ARCHIVAL SHEET: 3D CARD PERSPECTIVE ENTRANCE! (p: 0.01 -> 0.12)
-          // Rises in full 3D space: tilted back with rotateX, sculpted with luxury rounded top corners,
-          // scaled from depth with deep ambient shadow, and seamlessly docks flat fullscreen.
+          // 1. BASE BORDER SQUARE BECOMES CREAM SCREEN! (p: 0.08 -> 0.155)
+          // Starts from floor perspective square and smoothly unfolds flat fullscreen
           // -----------------------------------------------------
           if (sheetRef.current) {
-            const sheetIn = io(sg(p, 0.01, 0.12));
             if (p < 0.26) {
-              const yPct = (100 * (1 - sheetIn)).toFixed(2);
-              const rx = (16 * (1 - sheetIn)).toFixed(2);
-              const sc = lp(0.88, 1.0, sheetIn).toFixed(3);
-              const tz = (-90 * (1 - sheetIn)).toFixed(1);
-              const br = (36 * (1 - sheetIn)).toFixed(1);
+              const morph = io(sg(p, 0.08, 0.155));
+              if (morph < 0.999) {
+                const yPct = (36 * (1 - morph)).toFixed(2);
+                const rx = (65 * (1 - morph)).toFixed(2);
+                const sc = lp(0.42, 1.0, morph).toFixed(3);
+                const tz = (-140 * (1 - morph)).toFixed(1);
+                const br = (20 * (1 - morph)).toFixed(1);
 
-              sheetRef.current.style.transform = `perspective(1200px) translateY(${yPct}%) translateZ(${tz}px) rotateX(${rx}deg) scale(${sc})`;
-              sheetRef.current.style.transformOrigin = '50% 100%';
-              sheetRef.current.style.borderRadius = `${br}px ${br}px 0 0`;
-              sheetRef.current.style.opacity = '1';
+                sheetRef.current.style.transform = `perspective(800px) translateY(${yPct}vh) translateZ(${tz}px) rotateX(${rx}deg) scale(${sc})`;
+                sheetRef.current.style.borderRadius = `${br}px ${br}px 0 0`;
+                sheetRef.current.style.opacity = `${cl(sg(p, 0.078, 0.086) * 1.5).toFixed(3)}`;
+              } else {
+                sheetRef.current.style.transform = 'none';
+                sheetRef.current.style.borderRadius = '0px';
+                sheetRef.current.style.opacity = '1';
+              }
             } else {
               sheetRef.current.style.transform = 'none';
               sheetRef.current.style.borderRadius = '0px';
               sheetRef.current.style.opacity = `${cl(1 - sg(p, 0.26, 0.29)).toFixed(3)}`;
-            }
-
-            // Minimal tactile grab handle: communicates physical bottom-sheet elevation, fades out on dock
-            if (sheetHandleRef.current) {
-              const handleOp = cl((1 - sheetIn) * 3.5);
-              sheetHandleRef.current.style.opacity = `${handleOp.toFixed(3)}`;
             }
           }
 
@@ -737,21 +783,21 @@ export const App: React.FC = () => {
           }
 
           // -----------------------------------------------------
-          // 2. ORANGE CIRCLE: STARTS SMALL, THEN BLOOMS TO BIG ORIGINAL! (p: 0.095 -> 0.165)
-          // Emerges strictly after cream sheet has docked. Starts as a compact glowing seed,
+          // 2. ORANGE CIRCLE: STARTS SMALL, THEN BLOOMS TO BIG ORIGINAL! (p: 0.145 -> 0.205)
+          // Emerges strictly as cream sheet finishes docking. Starts as a compact glowing seed,
           // then blossoms smoothly and organically into full original scale.
           // -----------------------------------------------------
           if (aCircRef.current) {
             if (p < 0.25) {
-              if (p < 0.095) {
+              if (p < 0.145) {
                 aCircRef.current.style.opacity = '0';
-                aCircRef.current.style.transform = 'translate3d(0, 140px, 0) scale(0)';
+                aCircRef.current.style.transform = 'translate3d(0, 120px, 0) scale(0)';
               } else {
-                const uCirc = sg(p, 0.095, 0.165);
-                // Starts small (scale ~0.10) and grows with smooth cubic progression to 1.0 (big original)
+                const uCirc = sg(p, 0.145, 0.205);
+                // Starts small (scale ~0.12) and grows with smooth cubic progression to 1.0 (big original)
                 const circGrowth = Math.pow(uCirc, 1.25);
-                const circScale = lp(0.10, 1.0, circGrowth);
-                const circLift = (1 - eo(uCirc)) * 120;
+                const circScale = lp(0.12, 1.0, circGrowth);
+                const circLift = (1 - eo(uCirc)) * 100;
                 aCircRef.current.style.transform = `translate3d(0, ${circLift.toFixed(1)}px, 0) scale(${circScale.toFixed(3)})`;
                 aCircRef.current.style.opacity = `${cl(uCirc * 4.5).toFixed(3)}`;
               }
@@ -767,20 +813,20 @@ export const App: React.FC = () => {
           }
 
           // -----------------------------------------------------
-          // 3. CUTOUT PORTRAIT: ENTERS AFTER CIRCLE IS BIG ORIGINAL! (p: 0.150 -> 0.210)
+          // 3. CUTOUT PORTRAIT: ENTERS AFTER CIRCLE IS BLOOMING! (p: 0.175 -> 0.225)
           // Glides up from below into the glowing circle with gentle tilt
           // -----------------------------------------------------
           if (aPhRef.current) {
             if (p < 0.25) {
-              if (p < 0.150) {
+              if (p < 0.175) {
                 aPhRef.current.style.opacity = '0';
-                aPhRef.current.style.transform = 'translate3d(0, 340px, 0) rotate(-4deg) scale(0.88)';
+                aPhRef.current.style.transform = 'translate3d(0, 320px, 0) rotate(-4deg) scale(0.9)';
               } else {
-                const uPh = sg(p, 0.150, 0.210);
+                const uPh = sg(p, 0.175, 0.225);
                 const phEase = eo(uPh);
-                const phLift = (1 - phEase) * 340;
+                const phLift = (1 - phEase) * 320;
                 const phRot = (1 - phEase) * -4;
-                const phScale = lp(0.88, 1.0, phEase);
+                const phScale = lp(0.9, 1.0, phEase);
                 aPhRef.current.style.transform = `translate3d(0, ${phLift.toFixed(1)}px, 0) rotate(${phRot.toFixed(2)}deg) scale(${phScale.toFixed(3)})`;
                 aPhRef.current.style.opacity = `${cl(uPh * 3.5).toFixed(3)}`;
               }
@@ -792,15 +838,15 @@ export const App: React.FC = () => {
           }
 
           // -----------------------------------------------------
-          // 4. FLOATING TAGS: POP INTO ORBIT AFTER CUTOUT IS DOCKED! (p: 0.185 -> 0.235)
+          // 4. FLOATING TAGS: POP INTO ORBIT AFTER CUTOUT DOCKS! (p: 0.195 -> 0.24)
           // -----------------------------------------------------
           if (tg1Ref.current) {
             if (p < 0.25) {
-              if (p < 0.185) {
+              if (p < 0.195) {
                 tg1Ref.current.style.opacity = '0';
                 tg1Ref.current.style.transform = 'scale(0)';
               } else {
-                const u1 = sg(p, 0.185, 0.225);
+                const u1 = sg(p, 0.195, 0.235);
                 const tag1Scale = Math.max(0, eb(u1));
                 const tag1Rot = -8 + (1 - eo(u1)) * 24;
                 const tag1Lift = (1 - eo(u1)) * 40;
@@ -816,11 +862,11 @@ export const App: React.FC = () => {
 
           if (tg2Ref.current) {
             if (p < 0.25) {
-              if (p < 0.195) {
+              if (p < 0.205) {
                 tg2Ref.current.style.opacity = '0';
                 tg2Ref.current.style.transform = 'scale(0)';
               } else {
-                const u2 = sg(p, 0.195, 0.235);
+                const u2 = sg(p, 0.205, 0.24);
                 const tag2Scale = Math.max(0, eb(u2));
                 const tag2Rot = 6 + (1 - eo(u2)) * -22;
                 const tag2Slide = (1 - eo(u2)) * 80;
@@ -838,11 +884,11 @@ export const App: React.FC = () => {
           pillsRef.current.forEach((pl, k) => {
             if (pl) {
               if (p < 0.25) {
-                if (p < 0.19) {
+                if (p < 0.20) {
                   pl.style.opacity = '0';
                   pl.style.transform = 'scale(0)';
                 } else {
-                  const uPill = sg(p, 0.19 + k * 0.012, 0.23 + k * 0.012);
+                  const uPill = sg(p, 0.20 + k * 0.01, 0.235 + k * 0.01);
                   const pillScale = Math.max(0, eb(uPill));
                   const pillLift = (1 - eo(uPill)) * 25;
                   pl.style.transform = `translate3d(0, ${pillLift.toFixed(1)}px, 0) scale(${pillScale.toFixed(3)})`;
@@ -869,8 +915,8 @@ export const App: React.FC = () => {
           aRevealsRef.current.forEach((el, i) => {
             if (!el) return;
             if (p < 0.25) {
-              const starts = [0.095, 0.115, 0.135, 0.155, 0.170, 0.185];
-              const ends = [0.165, 0.185, 0.200, 0.215, 0.228, 0.238];
+              const starts = [0.10, 0.12, 0.14, 0.16, 0.175, 0.19];
+              const ends = [0.165, 0.185, 0.20, 0.215, 0.228, 0.238];
               const u = io(sg(p, starts[i], ends[i]));
               el.style.transform = `translateY(${(115 * (1 - u)).toFixed(1)}%)`;
             } else {
@@ -1500,23 +1546,22 @@ export const App: React.FC = () => {
           <span ref={hRightRef} className="hero-name-right l">MAL</span>
         </div>
 
-        {/* 3D Robot Model centered, in front of text (Z-Index: 10) */}
+        {/* 3D Robot Model centered (Z-Index: 5) */}
         <div ref={hRobotRef} className="hero-robot-wrap">
           <Suspense fallback={null}>
             <HeroRobot isVisible={heroActive} />
           </Suspense>
         </div>
+
+        {/* Robot Floor Hatch: The base border square (Z-Index: 6) */}
+        <div ref={hatchRef} className="robot-floor-hatch" />
       </section>
 
       {/* =========================================================
           Panel 1: ABOUT (FULL SCREEN)
           ========================================================= */}
       <section ref={p1Ref} className="pn p1" style={{ zIndex: 4, display: 'none' }}>
-        <div className="sheet" id="sheet" ref={sheetRef}>
-          <div ref={sheetHandleRef} className="sheet-handle">
-            <div className="sheet-pill" />
-          </div>
-        </div>
+        <div className="sheet" id="sheet" ref={sheetRef} />
 
         <div ref={aLRef} className="grp">
           <div className="rv" style={{ left: 'clamp(24px, 6vw, 84px)', top: 'clamp(60px, 11vh, 120px)', height: 'clamp(60px, 10vw, 130px)' }}>
