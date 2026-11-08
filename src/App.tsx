@@ -896,7 +896,10 @@ export const App: React.FC = () => {
           if (bookFrontRef.current) {
             bookFrontRef.current.style.transform = `scale(${sx.toFixed(4)}, ${sy.toFixed(4)}) translateZ(1px)`;
             bookFrontRef.current.style.borderRadius = `${3 * u}px ${12 * u}px ${12 * u}px ${3 * u}px`;
-            bookFrontRef.current.style.boxShadow = (p > 0.36) ? 'none' : `0 ${30 * u}px ${60 * u}px rgba(0, 0, 0, ${0.5 * u})`;
+            const isBookOpen = p > 0.40 && p < 0.62;
+            bookFrontRef.current.style.boxShadow = isBookOpen
+              ? 'none'
+              : `0 ${20 * u}px ${45 * u}px rgba(0, 0, 0, ${0.45 * u}), -2px 0 6px rgba(0, 0, 0, 0.2)`;
           }
 
           // -----------------------------------------------------
@@ -966,20 +969,42 @@ export const App: React.FC = () => {
           const exitT = sg(p, 0.64, 0.70);
           const exitEase = io(exitT);
 
-          // Fore-edge, top edge, and bottom edge disabled for crisp, clean presentation
+          // Fore-edge, top edge, and bottom edge:
+          // Fully visible and 3D when the book is CLOSED (both before opening at p < 0.365 and after closing at p >= 0.60)
+          // Smoothly hidden when the book is OPEN (during accordion fan and flat spread)
+          const isClosedBefore = (1 - tiltEase) * (1 - spreadEase);
+          const isClosedAfter = closeEase;
+          const closedFactor = cl(isClosedBefore + isClosedAfter);
+          const closedEdgeOp = cl(sg(p, 0.33, 0.365) * closedFactor * (1 - exitEase));
+
           const closedEdges = [bookForeRef.current, bookTopEdgeRef.current, bookBotEdgeRef.current];
           closedEdges.forEach((el) => {
-            if (el) el.style.display = 'none';
+            if (el) {
+              if (closedEdgeOp > 0.01) {
+                el.style.display = 'block';
+                el.style.opacity = `${closedEdgeOp.toFixed(3)}`;
+              } else {
+                el.style.display = 'none';
+                el.style.opacity = '0';
+              }
+            }
           });
 
           // Real Back Cover remains present and solid behind pages throughout the 3D book experience!
           if (bookBackRef.current) {
             const backOp = sg(p, 0.33, 0.365) * (1 - exitEase);
             bookBackRef.current.style.opacity = `${backOp.toFixed(3)}`;
+            if (closedFactor > 0.4) {
+              bookBackRef.current.style.boxShadow = '0 20px 45px rgba(0, 0, 0, 0.65), -4px 0 12px rgba(0, 0, 0, 0.35)';
+            } else {
+              bookBackRef.current.style.boxShadow = 'none';
+            }
           }
 
           if (bookSpineRef.current) {
-            bookSpineRef.current.style.opacity = `${((sg(p, 0.33, 0.365) * (1 - spreadEase * 0.7)) * (1 - exitEase)).toFixed(3)}`;
+            // Spine is 100% visible when book is closed, smoothly tucks away when book is flat open
+            const spineOp = cl(sg(p, 0.33, 0.365) * (closedFactor + (1 - closedFactor) * 0.3) * (1 - exitEase));
+            bookSpineRef.current.style.opacity = `${spineOp.toFixed(3)}`;
           }
 
           // Calculate Book Wrap coordinates & 3D orientation
