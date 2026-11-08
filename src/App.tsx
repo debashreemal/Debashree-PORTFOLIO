@@ -618,23 +618,23 @@ export const App: React.FC = () => {
       if (p0Ref.current) {
         p0Ref.current.style.display = heroVisible ? 'block' : 'none';
         if (heroVisible) {
-          const hs = sg(p, 0, 0.18);
+          const hs = sg(p, 0.005, 0.12);
 
           // Name parallax exit with velocity skew & dynamic spread
           if (hLeftRef.current) {
             hLeftRef.current.style.transform = `translate3d(${-240 * hs}px, ${-180 * hs - p * 60}px, 0) rotate(${-8 * hs}deg) skewX(${-sk}deg)`;
-            hLeftRef.current.style.opacity = `${1 - cl(hs * 1.4)}`;
+            hLeftRef.current.style.opacity = `${1 - cl(hs * 1.5)}`;
           }
           if (hRightRef.current) {
             hRightRef.current.style.transform = `translate3d(${240 * hs}px, ${-180 * hs - p * 60}px, 0) rotate(${8 * hs}deg) skewX(${-sk}deg)`;
-            hRightRef.current.style.opacity = `${1 - cl(hs * 1.4)}`;
+            hRightRef.current.style.opacity = `${1 - cl(hs * 1.5)}`;
           }
 
           // 3D Robot model smooth sink straight down below screen (zero scaling, original length preserved)
           if (hRobotRef.current) {
-            const robotSink = io(sg(p, 0.01, 0.18));
+            const robotSink = io(sg(p, 0.005, 0.12));
             hRobotRef.current.style.transform = `translate3d(0, ${robotSink * 115}vh, 0)`;
-            hRobotRef.current.style.opacity = `${1 - cl(robotSink * 1.4)}`;
+            hRobotRef.current.style.opacity = `${1 - cl(robotSink * 1.5)}`;
           }
         }
       }
@@ -656,13 +656,16 @@ export const App: React.FC = () => {
       document.documentElement.style.setProperty('--t', `${T}px`);
 
       // =========================================================
-      // PANEL 1: ABOUT ME (0.02 < p < 0.34)
-      // Magical 3-Stage Orchestrated Entrance:
-      // 1. Orange circle comes FIRST (p: 0.03 -> 0.15)
-      // 2. Cutout image comes SECOND (p: 0.10 -> 0.20)
-      // 3. Floating tags come THIRD (p: 0.16 -> 0.23)
+      // PANEL 1: ABOUT ME (0.008 < p < 0.34)
+      // Master Choreography:
+      // 1. Cream sheet foundation arrives FIRST (p: 0.01 -> 0.085)
+      //    establishing the pristine archival canvas with zero visual leaks.
+      // 2. Orange circle appears SMALL, then smoothly blooms into
+      //    BIG ORIGINAL size (p: 0.085 -> 0.155).
+      // 3. Cutout portrait glides up into circle (p: 0.145 -> 0.205).
+      // 4. Floating tags & pills pop into place (p: 0.185 -> 0.235).
       // =========================================================
-      const aboutVisible = p > 0.02 && p < 0.34;
+      const aboutVisible = p > 0.008 && p < 0.34;
       if (p1Ref.current) {
         p1Ref.current.style.display = aboutVisible ? 'block' : 'none';
         p1Ref.current.style.zIndex = p > 0.28 ? '2' : '4';
@@ -672,9 +675,12 @@ export const App: React.FC = () => {
           // Keep p1Ref fixed at fullscreen so individual elements flow with independent physics
           p1Ref.current.style.transform = 'none';
 
-          // Cream sheet glides up gracefully from below like archival paper
+          // -----------------------------------------------------
+          // 1. CREAM SHEET FOUNDATION ARRIVES FIRST! (p: 0.01 -> 0.085)
+          // Rises gracefully from below, fully covering dark hero before circle emerges
+          // -----------------------------------------------------
           if (sheetRef.current) {
-            const sheetIn = io(sg(p, 0.02, 0.16));
+            const sheetIn = io(sg(p, 0.01, 0.085));
             if (p < 0.26) {
               sheetRef.current.style.transform = `translateY(${(100 * (1 - sheetIn)).toFixed(1)}%)`;
               sheetRef.current.style.opacity = '1';
@@ -709,16 +715,24 @@ export const App: React.FC = () => {
           }
 
           // -----------------------------------------------------
-          // 1. THE ORANGE CIRCLE COMES FIRST! (p: 0.03 -> 0.15)
-          // Rises majestically with organic spring bounce & warm glow
+          // 2. ORANGE CIRCLE: STARTS SMALL, THEN BLOOMS TO BIG ORIGINAL! (p: 0.085 -> 0.155)
+          // Emerges strictly after cream sheet has arrived. Starts as a compact glowing seed,
+          // then blossoms smoothly and organically into full original scale.
           // -----------------------------------------------------
           if (aCircRef.current) {
             if (p < 0.25) {
-              const uCirc = sg(p, 0.03, 0.15);
-              const circLift = (1 - eo(uCirc)) * 280;
-              const circScale = Math.max(0, eb(uCirc));
-              aCircRef.current.style.transform = `translate3d(0, ${circLift.toFixed(1)}px, 0) scale(${circScale.toFixed(3)})`;
-              aCircRef.current.style.opacity = `${cl(uCirc * 2.8).toFixed(3)}`;
+              if (p < 0.085) {
+                aCircRef.current.style.opacity = '0';
+                aCircRef.current.style.transform = 'translate3d(0, 140px, 0) scale(0)';
+              } else {
+                const uCirc = sg(p, 0.085, 0.155);
+                // Starts small (scale ~0.10) and grows with smooth cubic progression to 1.0 (big original)
+                const circGrowth = Math.pow(uCirc, 1.25);
+                const circScale = lp(0.10, 1.0, circGrowth);
+                const circLift = (1 - eo(uCirc)) * 120;
+                aCircRef.current.style.transform = `translate3d(0, ${circLift.toFixed(1)}px, 0) scale(${circScale.toFixed(3)})`;
+                aCircRef.current.style.opacity = `${cl(uCirc * 4.5).toFixed(3)}`;
+              }
             } else {
               const uc = io(sg(p, 0.26, 0.32));
               const s = lp(1, 18 / Math.max(1, D), uc);
@@ -731,18 +745,23 @@ export const App: React.FC = () => {
           }
 
           // -----------------------------------------------------
-          // 2. THE CUTOUT IMAGE COMES SECOND! (p: 0.10 -> 0.20)
+          // 3. CUTOUT PORTRAIT: ENTERS AFTER CIRCLE IS BIG ORIGINAL! (p: 0.145 -> 0.205)
           // Glides up from below into the glowing circle with gentle tilt
           // -----------------------------------------------------
           if (aPhRef.current) {
             if (p < 0.25) {
-              const uPh = sg(p, 0.10, 0.20);
-              const phEase = eo(uPh);
-              const phLift = (1 - phEase) * 380;
-              const phRot = (1 - phEase) * -5;
-              const phScale = lp(0.88, 1.0, phEase);
-              aPhRef.current.style.transform = `translate3d(0, ${phLift.toFixed(1)}px, 0) rotate(${phRot.toFixed(2)}deg) scale(${phScale.toFixed(3)})`;
-              aPhRef.current.style.opacity = `${cl(uPh * 3.5).toFixed(3)}`;
+              if (p < 0.145) {
+                aPhRef.current.style.opacity = '0';
+                aPhRef.current.style.transform = 'translate3d(0, 340px, 0) rotate(-4deg) scale(0.88)';
+              } else {
+                const uPh = sg(p, 0.145, 0.205);
+                const phEase = eo(uPh);
+                const phLift = (1 - phEase) * 340;
+                const phRot = (1 - phEase) * -4;
+                const phScale = lp(0.88, 1.0, phEase);
+                aPhRef.current.style.transform = `translate3d(0, ${phLift.toFixed(1)}px, 0) rotate(${phRot.toFixed(2)}deg) scale(${phScale.toFixed(3)})`;
+                aPhRef.current.style.opacity = `${cl(uPh * 3.5).toFixed(3)}`;
+              }
             } else {
               const up = io(sg(p, 0.26, 0.30));
               aPhRef.current.style.transform = `translateY(${(vh * 0.7 * up).toFixed(1)}px) rotate(${(8 * up).toFixed(2)}deg)`;
@@ -751,17 +770,21 @@ export const App: React.FC = () => {
           }
 
           // -----------------------------------------------------
-          // 3. THE FLOATING TAGS COME THIRD! (p: 0.16 -> 0.23)
-          // Orbit around the portrait with buoyant elastic pop
+          // 4. FLOATING TAGS: POP INTO ORBIT AFTER CUTOUT IS DOCKED! (p: 0.185 -> 0.235)
           // -----------------------------------------------------
           if (tg1Ref.current) {
             if (p < 0.25) {
-              const u1 = sg(p, 0.16, 0.21);
-              const tag1Scale = Math.max(0, eb(u1));
-              const tag1Rot = -8 + (1 - eo(u1)) * 24;
-              const tag1Lift = (1 - eo(u1)) * 40;
-              tg1Ref.current.style.transform = `translate3d(0, ${tag1Lift.toFixed(1)}px, 0) rotate(${tag1Rot.toFixed(1)}deg) scale(${tag1Scale.toFixed(3)})`;
-              tg1Ref.current.style.opacity = `${cl(u1 * 4).toFixed(3)}`;
+              if (p < 0.185) {
+                tg1Ref.current.style.opacity = '0';
+                tg1Ref.current.style.transform = 'scale(0)';
+              } else {
+                const u1 = sg(p, 0.185, 0.225);
+                const tag1Scale = Math.max(0, eb(u1));
+                const tag1Rot = -8 + (1 - eo(u1)) * 24;
+                const tag1Lift = (1 - eo(u1)) * 40;
+                tg1Ref.current.style.transform = `translate3d(0, ${tag1Lift.toFixed(1)}px, 0) rotate(${tag1Rot.toFixed(1)}deg) scale(${tag1Scale.toFixed(3)})`;
+                tg1Ref.current.style.opacity = `${cl(u1 * 4).toFixed(3)}`;
+              }
             } else {
               const ut = io(sg(p, 0.26, 0.295));
               tg1Ref.current.style.transform = `translate(${(-vw * 0.2 * ut).toFixed(1)}px, ${(-vh * 0.4 * ut).toFixed(1)}px) rotate(${(-8 - 40 * ut).toFixed(1)}deg)`;
@@ -771,12 +794,17 @@ export const App: React.FC = () => {
 
           if (tg2Ref.current) {
             if (p < 0.25) {
-              const u2 = sg(p, 0.18, 0.23);
-              const tag2Scale = Math.max(0, eb(u2));
-              const tag2Rot = 6 + (1 - eo(u2)) * -22;
-              const tag2Slide = (1 - eo(u2)) * 80;
-              tg2Ref.current.style.transform = `translate3d(${tag2Slide.toFixed(1)}px, 0, 0) rotate(${tag2Rot.toFixed(1)}deg) scale(${tag2Scale.toFixed(3)})`;
-              tg2Ref.current.style.opacity = `${cl(u2 * 4).toFixed(3)}`;
+              if (p < 0.195) {
+                tg2Ref.current.style.opacity = '0';
+                tg2Ref.current.style.transform = 'scale(0)';
+              } else {
+                const u2 = sg(p, 0.195, 0.235);
+                const tag2Scale = Math.max(0, eb(u2));
+                const tag2Rot = 6 + (1 - eo(u2)) * -22;
+                const tag2Slide = (1 - eo(u2)) * 80;
+                tg2Ref.current.style.transform = `translate3d(${tag2Slide.toFixed(1)}px, 0, 0) rotate(${tag2Rot.toFixed(1)}deg) scale(${tag2Scale.toFixed(3)})`;
+                tg2Ref.current.style.opacity = `${cl(u2 * 4).toFixed(3)}`;
+              }
             } else {
               const ut = io(sg(p, 0.26, 0.295));
               tg2Ref.current.style.transform = `translate(${(vw * 0.3 * ut).toFixed(1)}px, ${(vh * 0.1 * ut).toFixed(1)}px) rotate(${(6 + 30 * ut).toFixed(1)}deg)`;
@@ -788,11 +816,16 @@ export const App: React.FC = () => {
           pillsRef.current.forEach((pl, k) => {
             if (pl) {
               if (p < 0.25) {
-                const uPill = sg(p, 0.17 + k * 0.016, 0.22 + k * 0.016);
-                const pillScale = Math.max(0, eb(uPill));
-                const pillLift = (1 - eo(uPill)) * 25;
-                pl.style.transform = `translate3d(0, ${pillLift.toFixed(1)}px, 0) scale(${pillScale.toFixed(3)})`;
-                pl.style.opacity = `${cl(uPill * 4).toFixed(3)}`;
+                if (p < 0.19) {
+                  pl.style.opacity = '0';
+                  pl.style.transform = 'scale(0)';
+                } else {
+                  const uPill = sg(p, 0.19 + k * 0.012, 0.23 + k * 0.012);
+                  const pillScale = Math.max(0, eb(uPill));
+                  const pillLift = (1 - eo(uPill)) * 25;
+                  pl.style.transform = `translate3d(0, ${pillLift.toFixed(1)}px, 0) scale(${pillScale.toFixed(3)})`;
+                  pl.style.opacity = `${cl(uPill * 4).toFixed(3)}`;
+                }
               } else {
                 pl.style.opacity = `${cl(1 - sg(p, 0.26, 0.285)).toFixed(3)}`;
               }
@@ -802,7 +835,7 @@ export const App: React.FC = () => {
           // Scroll Hint fades out as transition begins
           if (hintRef.current) {
             if (p < 0.25) {
-              const uHint = sg(p, 0.20, 0.24);
+              const uHint = sg(p, 0.21, 0.245);
               hintRef.current.style.opacity = `${(uHint * (1 - sg(p, 0.26, 0.285))).toFixed(3)}`;
             } else {
               hintRef.current.style.opacity = `${cl(1 - sg(p, 0.26, 0.285)).toFixed(3)}`;
@@ -814,8 +847,8 @@ export const App: React.FC = () => {
           aRevealsRef.current.forEach((el, i) => {
             if (!el) return;
             if (p < 0.25) {
-              const starts = [0.06, 0.09, 0.12, 0.14, 0.155, 0.17];
-              const ends = [0.15, 0.17, 0.19, 0.205, 0.22, 0.23];
+              const starts = [0.085, 0.105, 0.125, 0.145, 0.16, 0.175];
+              const ends = [0.155, 0.175, 0.195, 0.21, 0.225, 0.235];
               const u = io(sg(p, starts[i], ends[i]));
               el.style.transform = `translateY(${(115 * (1 - u)).toFixed(1)}%)`;
             } else {
@@ -828,7 +861,7 @@ export const App: React.FC = () => {
           // Red underline bar
           if (aBarRef.current) {
             if (p < 0.25) {
-              aBarRef.current.style.transform = `scaleX(${eo(sg(p, 0.11, 0.18)).toFixed(3)})`;
+              aBarRef.current.style.transform = `scaleX(${eo(sg(p, 0.13, 0.19)).toFixed(3)})`;
             } else {
               aBarRef.current.style.transform = `scaleX(${(1 - eo(sg(p, 0.26, 0.285))).toFixed(3)})`;
             }
