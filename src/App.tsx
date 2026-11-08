@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo, lazy, Suspense } from 'react';
 import debashreePhoto from './assets/debashree.png';
 import FlyingButton from './components/FlyingButton';
+import { AiFillLinkedin, AiFillGithub, AiFillMail } from 'react-icons/ai';
 
 // Lazy-load heavy 3D WebGL canvas to keep initial page load instantaneous
 const HeroRobot = lazy(() => import('./components/canvas/HeroRobot'));
@@ -261,11 +262,9 @@ export const App: React.FC = () => {
   const p5Ref = useRef<HTMLElement>(null);
 
   // Contact Refs (Last Screen)
-  const cSheetRef = useRef<HTMLDivElement>(null);
   const cTitleRef = useRef<HTMLDivElement>(null);
-  const cSubTextRef = useRef<HTMLSpanElement>(null);
+  const cSheetRef = useRef<HTMLDivElement>(null);
   const cSayHelloRef = useRef<HTMLDivElement>(null);
-  const cTopBtnRef = useRef<HTMLButtonElement>(null);
 
   // Moments-to-Contact Hero Coin-to-Sticker Refs
   const coinCardRef = useRef<HTMLDivElement>(null);
@@ -275,6 +274,7 @@ export const App: React.FC = () => {
   const hLeftRef = useRef<HTMLSpanElement>(null);
   const hRightRef = useRef<HTMLSpanElement>(null);
   const hRobotRef = useRef<HTMLDivElement>(null);
+  const hSocialRef = useRef<HTMLDivElement>(null);
 
   // About Refs
   const sheetRef = useRef<HTMLDivElement>(null);
@@ -330,21 +330,23 @@ export const App: React.FC = () => {
 
   const domeConfig = useMemo(() => {
     const k = K;
-    const tileWidth = Math.round(124 * k);
-    const tileHeight = Math.round(176 * k);
-    const cols = 28;
-    // Radius calculated so horizontal pitch gives clean, elegant ~24px gap
-    const R = Math.round((cols * (tileWidth + 24)) / (2 * Math.PI));
+    // Larger square cards (228px x 228px at base scale)
+    const tileSize = Math.round(228 * k);
+    const tileWidth = tileSize;
+    const tileHeight = tileSize;
+    const cols = 24;
+    // Radius calculated so horizontal pitch gives clean, elegant ~28px gap
+    const R = Math.round((cols * (tileWidth + 28)) / (2 * Math.PI));
     return {
-      perspective: Math.round(750 * k),
+      perspective: Math.round(820 * k),
       R,
       cols,
       tileWidth,
       tileHeight,
       marginLeft: Math.round(-tileWidth / 2),
       marginTop: Math.round(-tileHeight / 2),
-      fontSize: Math.max(8, Math.round(10 * k)),
-      borderRadius: Math.max(8, Math.round(12 * k)),
+      fontSize: Math.max(10, Math.round(12 * k)),
+      borderRadius: Math.max(14, Math.round(18 * k)),
     };
   }, [K]);
 
@@ -605,7 +607,7 @@ export const App: React.FC = () => {
       const tt = now / 1000;
 
       // Dwell timer for Moments:
-      // When arriving at Moments round gallery zone (0.71 <= p <= 0.77), keep gallery round for 2 seconds more
+      // When arriving at Moments round gallery zone (0.71 <= p <= 0.77), keep gallery round for 1 second
       // before cards emerge to center focus!
       if (p >= 0.71 && p <= 0.77 && Math.abs(tgtRef.current - 0.74) < 0.035) {
         if (momentsArrivalRef.current === null && !momentsAutoTriggeredRef.current) {
@@ -613,7 +615,7 @@ export const App: React.FC = () => {
         } else if (
           momentsArrivalRef.current !== null &&
           !momentsAutoTriggeredRef.current &&
-          now - momentsArrivalRef.current >= 2000 &&
+          now - momentsArrivalRef.current >= 1000 &&
           !domeState.current.drag &&
           activeCardRef.current === null
         ) {
@@ -636,7 +638,7 @@ export const App: React.FC = () => {
         setCur(idx);
       }
       if (stageRef.current) {
-        stageRef.current.dataset.dk = (p > 0.07 && p < 0.28) || p > 0.90 ? '1' : '0';
+        stageRef.current.dataset.dk = p > 0.07 && p < 0.28 ? '1' : '0';
       }
 
       // =========================================================
@@ -667,6 +669,13 @@ export const App: React.FC = () => {
             const robotSink = io(sg(p, 0.005, 0.12));
             hRobotRef.current.style.transform = `translate3d(0, ${robotSink * 115}vh, 0)`;
             hRobotRef.current.style.opacity = `${1 - cl(robotSink * 1.5)}`;
+          }
+
+          // Left-bottom social column smooth fade out on scroll
+          if (hSocialRef.current) {
+            const hsOut = sg(p, 0.005, 0.10);
+            hSocialRef.current.style.transform = `translate3d(${-35 * hsOut}px, 0, 0)`;
+            hSocialRef.current.style.opacity = `${1 - cl(hsOut * 1.6)}`;
           }
         }
       }
@@ -1048,31 +1057,31 @@ export const App: React.FC = () => {
           } else if (tiltT > 0) {
             targetWrapX = (bw * 0.38) * tiltEase; // Balanced center in 3D accordion fan
           }
-          // Zoom forward in 3D while maintaining perspective
-          const wrapX = targetWrapX - (bw * 0.15) * zoomEase;
+          // Zoom forward in 3D with refined, aesthetic moderation (gentle depth glide)
+          const wrapX = targetWrapX - (bw * 0.12) * zoomEase;
           const wrapY = fl * (1 - zoomEase);
-          const wrapZ = zoomEase * 680;
+          const wrapZ = zoomEase * 320;
 
           // 3D Angle: Keep the book authentically tilted towards the left (approx 25deg to 28deg) so the entire 3D volume zooms, NOT a flat face-on cover zoom!
           const baseRotX = (-14 * r * (1 - tiltEase)) +
-                           (7 * tiltEase * (1 - spreadEase)) +
-                           (3 * spreadEase * (1 - closeEase)) +
-                           (-14 * r * closeEase) - my * (spreadEase > 0.5 && closeEase === 0 ? 3 : 5);
+            (7 * tiltEase * (1 - spreadEase)) +
+            (3 * spreadEase * (1 - closeEase)) +
+            (-14 * r * closeEase) - my * (spreadEase > 0.5 && closeEase === 0 ? 3 : 5);
 
           const baseRotY = (-30 * r * (1 - tiltEase)) +
-                           (-14 * tiltEase * (1 - spreadEase)) +
-                           (-2 * spreadEase * (1 - closeEase)) +
-                           (-28 * r * closeEase) + mx * (spreadEase > 0.5 && closeEase === 0 ? 5 : 8);
+            (-14 * tiltEase * (1 - spreadEase)) +
+            (-2 * spreadEase * (1 - closeEase)) +
+            (-28 * r * closeEase) + mx * (spreadEase > 0.5 && closeEase === 0 ? 5 : 8);
 
           // Maintain the 25deg - 28deg 3D tilt towards the left throughout the entire zoom
-          const rotX = baseRotX - (zoomEase * 3);
-          const rotY = baseRotY + (zoomEase * 2);
+          const rotX = baseRotX - (zoomEase * 2.5);
+          const rotY = baseRotY + (zoomEase * 1.8);
 
-          // 3D scale expansion
+          // Subtle, elegant scale expansion (max ~1.4x instead of massive 2.8x)
           const baseScale = 1 + 0.1 * r + pop + 0.05 * tiltEase + 0.04 * spreadEase - 0.04 * closeEase;
-          const wrapScale = baseScale + zoomEase * 1.8;
-          // Smooth fade-out near peak of zoom
-          const wrapOpacity = 1 - sg(zoomT, 0.60, 0.98);
+          const wrapScale = baseScale + zoomEase * 0.42;
+          // Smooth, gradual fade-out into Moments
+          const wrapOpacity = 1 - io(sg(zoomT, 0.45, 0.96));
 
           if (bookWrapRef.current) {
             bookWrapRef.current.style.transform = `translate3d(${wrapX.toFixed(1)}px, ${wrapY.toFixed(1)}px, ${wrapZ.toFixed(1)}px) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg) scale(${wrapScale.toFixed(3)})`;
@@ -1189,16 +1198,16 @@ export const App: React.FC = () => {
       }
 
       // =========================================================
-      // PANEL 3: MOMENTS (0.64 < p < 0.94) - Inside Globe & Clean Zoom Fly-Through
+      // PANEL 3: MOMENTS (0.635 < p < 0.94) - Inside Globe & Clean Zoom Fly-Through
       // =========================================================
-      const momentsVisible = p > 0.64 && p < 0.94;
+      const momentsVisible = p > 0.635 && p < 0.94;
       if (p4Ref.current) {
         p4Ref.current.style.display = momentsVisible ? 'block' : 'none';
-        p4Ref.current.style.zIndex = p < 0.685 ? '3' : '4';
-        p4Ref.current.style.pointerEvents = p >= 0.685 ? 'auto' : 'none';
+        p4Ref.current.style.zIndex = p < 0.68 ? '3' : '4';
+        p4Ref.current.style.pointerEvents = p >= 0.68 ? 'auto' : 'none';
         if (momentsVisible) {
-          // Entrance begins smoothly as the closed book zooms in (0.64 -> 0.70)
-          const momIn = io(sg(p, 0.64, 0.70));
+          // Entrance begins smoothly as the closed book zooms in (0.635 -> 0.72)
+          const momIn = io(sg(p, 0.635, 0.72));
           // Clean forward zoom into blank space (starts at 0.86, fully clears by 0.94)
           const momFly = io(sg(p, 0.86, 0.94));
           p4Ref.current.style.opacity = `${momIn * (1 - momFly)}`;
@@ -1210,15 +1219,15 @@ export const App: React.FC = () => {
           }
 
           // 3D Panoramic Fly-in & Clean Forward Zoom: Inside-the-Globe View
-          const en = io(sg(p, 0.64, 0.70));
-          const sr = sg(p, 0.66, 0.82);
+          const en = io(sg(p, 0.635, 0.72));
+          const sr = sg(p, 0.65, 0.82);
 
           // Resting zoom keeps cards large and immersive; transition flies forward into blank space
-          const baseZoom = 480 * K;
+          const baseZoom = 430 * K;
           const slotZoom = io(sg(p, 0.81, 0.87)) * 160 * K;
           const transitionZoom = momFly * 850 * K;
-          // Globe swoops forward from depth (-380px) to full baseZoom, expanding outward from behind the zooming book
-          const entranceZoom = (1 - en) * -380 * K;
+          // Globe gently floats forward from depth (-160px) to full baseZoom, expanding outward behind the zooming book
+          const entranceZoom = (1 - en) * -160 * K;
           const dz = entranceZoom + baseZoom + slotZoom + transitionZoom;
 
           if (!domeState.current.drag && activeCardRef.current === null) {
@@ -1226,12 +1235,13 @@ export const App: React.FC = () => {
             domeState.current.vy *= 0.94;
           }
 
-          // Panoramic 360 rotation around inside cyclorama
-          const ry = -tt * 0.7 + sr * 50 + mx * 8 + domeState.current.ry;
+          // Panoramic 360 rotation around inside cyclorama with subtle entry spin
+          const spinIn = (1 - en) * 12;
+          const ry = -tt * 0.7 + sr * 50 + mx * 8 + domeState.current.ry + spinIn;
           const rx = 0 + 4 * io(sr) - my * 5 + domeState.current.rx;
 
-          // Globe expands from scale 0.60 to 1.0 as the book zooms past
-          const domeScale = lp(0.60, 1.0, en);
+          // Globe expands gracefully from scale 0.88 to 1.0 as the book zooms past
+          const domeScale = lp(0.88, 1.0, en);
 
           // Entire inside 3D cyclorama rotates as a single hardware-accelerated 4x4 matrix
           if (domeRef.current) {
@@ -1264,11 +1274,9 @@ export const App: React.FC = () => {
             cTitleRef.current.style.opacity = `${contactIn}`;
           }
 
-          // Subtitle staggers in smoothly
-          if (cSubTextRef.current) {
-            const subIn = io(sg(p, 0.90, 0.99));
-            cSubTextRef.current.style.transform = `translate3d(0, ${(1 - subIn) * 20}px, 0)`;
-            cSubTextRef.current.style.opacity = `${subIn}`;
+          // Cream / Beige contact sheet glides up with luxury paper elevation
+          if (cSheetRef.current) {
+            cSheetRef.current.style.transform = `translateY(${100 * (1 - contactIn)}%)`;
           }
 
           // Say Hello Rocket Button container glides in smoothly
@@ -1277,26 +1285,14 @@ export const App: React.FC = () => {
             cSayHelloRef.current.style.transform = `translate3d(0, ${(1 - bIn) * 35}px, 0)`;
             cSayHelloRef.current.style.opacity = `${bIn}`;
           }
-
-          // Cream contact sheet glides up with luxury paper elevation
-          if (cSheetRef.current) {
-            cSheetRef.current.style.transform = `translateY(${100 * (1 - contactIn)}%)`;
-          }
-
-          // Back to top floating pill
-          if (cTopBtnRef.current) {
-            const tpIn = sg(p, 0.93, 0.99);
-            cTopBtnRef.current.style.opacity = `${tpIn}`;
-            cTopBtnRef.current.style.pointerEvents = tpIn > 0.5 ? 'auto' : 'none';
-          }
         }
       }
 
       // =========================================================
       // MOMENTS-TO-CONTACT HERO COIN-TO-STICKER TRANSITION
       // =========================================================
-      // 1. The exact card slot in the dome
-      const heroTileIdx = 56;
+      // 1. The exact card slot in the dome (Row 1 middle eye-level center, col 0)
+      const heroTileIdx = domeConfig.cols;
       const heroTileInner = tileInnersRef.current[heroTileIdx];
       const slotEl = heroTileInner?.parentElement || heroTileInner;
 
@@ -1321,9 +1317,10 @@ export const App: React.FC = () => {
           const vw = window.innerWidth;
           const vh = window.innerHeight;
 
-          // Card dimensions (responsive sticker size)
-          const cardW = Math.max(136, Math.min(176, vw * 0.135));
-          const cardH = cardW * 1.40;
+          // Card dimensions (responsive square sticker size matching 3-row square tiles)
+          const cardSize = Math.max(170, Math.min(230, vw * 0.16));
+          const cardW = cardSize;
+          const cardH = cardSize;
 
           // Screen Center Destination for Sub-phase 1
           const startX = vw * 0.5 - cardW * 0.5;
@@ -1419,21 +1416,22 @@ export const App: React.FC = () => {
     setActiveCard((prev) => (prev === idx ? null : idx));
   }, []);
 
-  // Pre-generate 3D Globe Gallery (Inside view: 4 rows with guaranteed ~30px vertical gap, concave curvature)
+  // Pre-generate 3D Globe Gallery (Inside view: 3 rows with clean ~36px vertical gap, concave curvature)
   const domeTiles = useMemo(() => {
-    // 4 tiers chosen with consistent 18.2 deg separation for clean ~34px vertical gaps across rows
-    const lats = [-27.3, -9.1, 9.1, 27.3];
+    // 3 tiers: Top (-16°), Middle eye-level (0°), Bottom (+16°)
+    const lats = [-16, 0, 16];
     const cols = domeConfig.cols;
     const R = domeConfig.R;
     const tiles: React.ReactNode[] = [];
     let idx = 0;
+    const heroIdx = cols; // row 1, col 0 (eye-level center)
 
     lats.forEach((la, r) => {
       for (let i = 0; i < cols; i++) {
         const currentIdx = idx++;
-        // Aligned in the exact same sequence across rows (no offset)
+        // Aligned in sequence across rows
         const lo = (i * 360) / cols;
-        const item = currentIdx === 56 ? MOMENTS_ITEMS[0] : MOMENTS_ITEMS[(i + r * 4) % MOMENTS_ITEMS.length];
+        const item = currentIdx === heroIdx ? MOMENTS_ITEMS[0] : MOMENTS_ITEMS[(i + r * 5) % MOMENTS_ITEMS.length];
         const isSelected = activeCard === currentIdx;
 
         tiles.push(
@@ -1546,6 +1544,38 @@ export const App: React.FC = () => {
         <div className="hero-split-name">
           <span ref={hLeftRef} className="hero-name-left l">DEBASHREE</span>
           <span ref={hRightRef} className="hero-name-right l">MAL</span>
+        </div>
+
+        {/* Left Bottom Corner: Vertical Social Icons (Filled LinkedIn, GitHub, Mail) */}
+        <div ref={hSocialRef} className="hero-social-col">
+          <a
+            href="https://www.linkedin.com/in/debashree-mal-118837269/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hero-social-btn"
+            title="LinkedIn • Debashree Mal"
+            aria-label="LinkedIn Profile"
+          >
+            <AiFillLinkedin />
+          </a>
+          <a
+            href="https://github.com/debashree-08"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hero-social-btn"
+            title="GitHub • @debashree-08"
+            aria-label="GitHub Profile"
+          >
+            <AiFillGithub />
+          </a>
+          <a
+            href="mailto:debashreee87@gmail.com"
+            className="hero-social-btn"
+            title="Email • debashreee87@gmail.com"
+            aria-label="Send Direct Email"
+          >
+            <AiFillMail />
+          </a>
         </div>
 
         {/* 3D Robot Model centered, in front of text (Z-Index: 10) */}
@@ -2036,10 +2066,10 @@ export const App: React.FC = () => {
       </section>
 
       {/* =========================================================
-          Panel 4: CONTACT (LAST SCREEN - STARTS AS MOMENTS REACHES MIDDLE)
+          Panel 4: LET'S CONNECT (LAST SCREEN)
           ========================================================= */}
       <section ref={p5Ref} className="pn p5" style={{ zIndex: 5, display: 'none' }}>
-        {/* Ambient Top Tagline / Title */}
+        {/* Ambient Top Title */}
         <div
           ref={cTitleRef}
           style={{
@@ -2063,27 +2093,16 @@ export const App: React.FC = () => {
                 letterSpacing: '0.02em',
                 display: 'block',
                 textTransform: 'uppercase',
+                userSelect: 'none',
               }}
+              className="lets-connect-heading"
             >
               LET'S CONNECT
-            </span>
-            <span
-              ref={cSubTextRef}
-              style={{
-                fontFamily: 'var(--mo)',
-                fontSize: 'clamp(11px, 1.1vw, 14px)',
-                color: 'var(--rd)',
-                letterSpacing: '0.14em',
-                display: 'block',
-                marginTop: '8px',
-              }}
-            >
-              MUMBAI, INDIA • OPEN FOR AI &amp; FULL-STACK COLLABORATIONS
             </span>
           </div>
         </div>
 
-        {/* SAY HELLO Flying Rocket Button - Wide seamless canvas so smoke expands freely, button placed on right */}
+        {/* SAY HELLO Flying Rocket Button - Original place resting on right above beige sheet */}
         <div
           ref={cSayHelloRef}
           style={{
@@ -2123,115 +2142,8 @@ export const App: React.FC = () => {
           </FlyingButton>
         </div>
 
-        {/* Cream Ripped Bottom Sheet */}
-        <div ref={cSheetRef} className="contact-bottom-sheet">
-          <div className="contact-services-tag">
-            <span>FULL-STACK</span>
-            <em>|</em>
-            <span>AI &amp; AGENTS</span>
-            <em>|</em>
-            <span>SYSTEM DESIGN</span>
-            <em>|</em>
-            <span>OFFLINE FACE SDK</span>
-            <em>|</em>
-            <span>HACKATHON WINNER</span>
-          </div>
-
-          <div className="contact-footer-bar">
-            {/* Left: Direct Mail Link Button */}
-            <a
-              href="mailto:debashreee87@gmail.com"
-              className="contact-me-btn"
-              title="Send direct email"
-            >
-              SAY HELLO ↗
-            </a>
-
-            {/* Center: Email Address */}
-            <a
-              href="mailto:debashreee87@gmail.com"
-              className="contact-email-link"
-              title="Copy or send email"
-            >
-              debashreee87@gmail.com
-            </a>
-
-            {/* Right: Social Circle Buttons */}
-            <div className="contact-social-wrap">
-              <div className="social-icons-row">
-                <a
-                  href="https://www.linkedin.com/in/debashree-mal-118837269/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="social-circle-btn"
-                  title="LinkedIn Profile"
-                >
-                  <i className="ti ti-brand-linkedin" />
-                </a>
-                <a
-                  href="https://github.com/debashree-08"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="social-circle-btn"
-                  title="GitHub Profile"
-                >
-                  <i className="ti ti-brand-github" />
-                </a>
-                <a
-                  href="mailto:debashreee87@gmail.com"
-                  className="social-circle-btn"
-                  title="Send Email"
-                >
-                  <i className="ti ti-mail" />
-                </a>
-                <a
-                  href="/resume.pdf"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="social-circle-btn"
-                  title="Download Resume"
-                >
-                  <i className="ti ti-download" />
-                </a>
-              </div>
-              <span className="contact-handle">@debashree_mal • CE '28</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Back to Top Floating Pill Button */}
-        <button
-          ref={cTopBtnRef}
-          onClick={() => goTo(0)}
-          className="back-to-top-pill"
-          title="Return to top"
-          style={{
-            position: 'absolute',
-            right: 'clamp(16px, 3.5vw, 40px)',
-            bottom: 'clamp(14px, 2.2vh, 26px)',
-            zIndex: 30,
-            opacity: 0,
-            pointerEvents: 'none',
-            transition: 'opacity 0.3s ease, transform 0.2s ease, background 0.2s ease',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            background: '#141417',
-            color: '#EFEAE0',
-            border: '1px solid rgba(255, 255, 255, 0.15)',
-            borderRadius: '999px',
-            padding: '9px 20px',
-            fontFamily: 'var(--mo)',
-            fontSize: '11px',
-            fontWeight: 600,
-            letterSpacing: '0.12em',
-            cursor: 'pointer',
-            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.45)',
-          }}
-        >
-          <i className="ti ti-arrow-up" style={{ fontSize: '13px', color: 'var(--rd)' }} />
-          <span>TOP</span>
-        </button>
+        {/* Clean Beige Color Block Below */}
+        <div ref={cSheetRef} className="contact-bottom-sheet" />
       </section>
 
       {/* Hero Flying Coin-to-Sticker Card (Transitions from Moments Zoom -> Contact Sticker) */}

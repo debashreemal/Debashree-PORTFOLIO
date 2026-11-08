@@ -317,6 +317,57 @@ body {
   cursor: grabbing;
 }
 
+/* Hero Left-Bottom Vertical Social Column (matching reference) */
+.hero-social-col {
+  position: absolute;
+  left: clamp(20px, 3.5vw, 54px);
+  bottom: clamp(28px, 4.5vh, 54px);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(28px, 4vh, 42px);
+  z-index: 20;
+  pointer-events: auto;
+  will-change: transform, opacity;
+}
+
+.hero-social-btn {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0;
+  margin: 0;
+  width: auto;
+  height: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #EFEAE0;
+  font-size: clamp(20px, 1.6vw, 23px);
+  text-decoration: none;
+  transition: color 0.2s ease;
+  cursor: pointer;
+  user-select: none;
+  transform: none !important;
+}
+
+.hero-social-btn:hover {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: var(--rd, #EE3B1F) !important;
+  transform: none !important;
+  text-shadow: none !important;
+  filter: none !important;
+}
+
+.hero-social-btn svg {
+  display: block;
+  width: clamp(20px, 1.6vw, 23px);
+  height: clamp(20px, 1.6vw, 23px);
+  fill: currentColor;
+}
+
 /* =========================================================
    PANEL 1: ABOUT (FULL SCREEN)
    ========================================================= */
@@ -1239,6 +1290,15 @@ body {
   margin-top: -0.04em;
 }
 
+.lets-connect-heading {
+  color: #EFEAE0;
+}
+
+.lets-connect-heading:hover {
+  color: #EFEAE0 !important;
+  cursor: default;
+}
+
 /* Clean Modern Contact Sheet (Bottom Half) */
 .contact-bottom-sheet {
   position: absolute;
@@ -1255,7 +1315,7 @@ body {
   clip-path: none !important;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-end;
   padding: clamp(24px, 4.5vh, 48px) clamp(24px, 5vw, 72px) clamp(20px, 3vh, 36px);
   z-index: 8;
   color: #111;
@@ -1538,32 +1598,34 @@ body {
 }
 
 /* =========================================================
-   3D Portrait Cards in Moments (Single-Tier Panoramic Cylinder)
+   3D Cards in Moments (3-Row Panoramic Cylinder - Aesthetic Square Format)
    ========================================================= */
 .portrait-card-3d {
   position: relative;
   width: 100%;
   height: 100%;
+  aspect-ratio: 1 / 1;
   overflow: hidden;
   background: #131317;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 11px;
+  padding: 13px;
   box-sizing: border-box;
   transform-style: preserve-3d;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   transform: translateZ(0);
   border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.65);
-  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
 }
 
 .portrait-card-3d:hover {
   background: #1b1b22 !important;
-  border-color: rgba(255, 255, 255, 0.5) !important;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.95), 0 0 25px rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  box-shadow: 0 24px 54px rgba(0, 0, 0, 0.95) !important;
   outline: none !important;
 }
 
@@ -1580,15 +1642,15 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center top;
+  object-position: center;
   display: block;
   transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease;
   filter: contrast(1.08) brightness(0.92);
 }
 
 .portrait-card-3d:hover .portrait-img {
-  transform: scale(1.08);
-  filter: contrast(1.15) brightness(1.05);
+  transform: scale(1.05);
+  filter: contrast(1.08) brightness(0.92);
 }
 
 .portrait-vignette {
@@ -1596,16 +1658,16 @@ body {
   inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(10, 10, 14, 0.8) 0%,
-    rgba(10, 10, 14, 0.3) 25%,
-    rgba(10, 10, 14, 0.05) 50%,
-    rgba(10, 10, 14, 0.35) 75%,
-    rgba(10, 10, 14, 0.85) 100%
+    rgba(10, 10, 14, 0.82) 0%,
+    rgba(10, 10, 14, 0.38) 28%,
+    rgba(10, 10, 14, 0.08) 50%,
+    rgba(10, 10, 14, 0.42) 74%,
+    rgba(10, 10, 14, 0.90) 100%
   );
   pointer-events: none;
 }
 
-/* Top-Left: Title & Subtitle (matching reference layout & typography) */
+/* Top-Left: Title & Subtitle */
 .portrait-card-header {
   position: relative;
   z-index: 2;
@@ -1618,10 +1680,10 @@ body {
 
 .portrait-card-title {
   margin: 0;
-  font: 700 12px/1.2 var(--in, sans-serif);
+  font: 700 13px/1.2 var(--in, sans-serif);
   color: #FFFFFF;
   letter-spacing: -0.01em;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1629,11 +1691,15 @@ body {
 }
 
 .portrait-card-sub {
-  font: 400 9px/1.2 var(--in, sans-serif);
-  color: rgba(255, 255, 255, 0.72);
-  margin-top: 2.5px;
-  letter-spacing: 0.01em;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+  font: 600 9px/1.2 var(--mo, monospace);
+  color: rgba(255, 255, 255, 0.82);
+  margin-top: 4px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.12);
+  padding: 2.5px 6.5px;
+  border-radius: 4px;
+  backdrop-filter: blur(4px);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1650,17 +1716,23 @@ body {
 }
 
 .portrait-card-seemore {
-  font: 500 9px/1.2 var(--in, sans-serif);
-  color: rgba(255, 255, 255, 0.75);
-  letter-spacing: 0.02em;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+  font: 500 9.5px/1.2 var(--in, sans-serif);
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: 0.03em;
   display: inline-flex;
   align-items: center;
-  transition: color 0.2s ease;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+  padding: 3.5px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  transition: all 0.2s ease;
 }
 
 .portrait-card-3d:hover .portrait-card-seemore {
   color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.35);
 }
 
 .mm-card-img-wrap {
@@ -1688,7 +1760,7 @@ body {
   border: 1.5px dashed rgba(255, 255, 255, 0.22) !important;
   background: rgba(255, 255, 255, 0.02) !important;
   box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.7) !important;
-  border-radius: 8px;
+  border-radius: 16px !important;
 }
 
 .coin-sticker-wrap {
@@ -1718,13 +1790,13 @@ body {
   height: 100%;
   transform-style: preserve-3d;
   will-change: transform;
-  border-radius: 14px;
+  border-radius: 16px;
 }
 
 .coin-face {
   position: absolute;
   inset: 0;
-  border-radius: 14px;
+  border-radius: 16px;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   overflow: hidden;

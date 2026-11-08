@@ -791,6 +791,7 @@ function createEngine({ root, canvas, button, cursor, ramp, props }) {
     if (!rampOn()) {
       const align = props.current.buttonAlign;
       if (align === 'right') return clamp(s.W - s.bw / 2 - 32, lo, hi);
+      if (align === 'left') return clamp(s.bw / 2 + 28, lo, hi);
       if (typeof align === 'number') {
         if (align > 0 && align <= 1) return clamp(s.W * align, lo, hi);
         return clamp(align, lo, hi);
