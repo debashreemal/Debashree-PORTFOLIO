@@ -278,6 +278,7 @@ export const App: React.FC = () => {
 
   // About Refs
   const sheetRef = useRef<HTMLDivElement>(null);
+  const sheetHandleRef = useRef<HTMLDivElement>(null);
   const aLRef = useRef<HTMLDivElement>(null);
   const aRRef = useRef<HTMLDivElement>(null);
   const aBarRef = useRef<HTMLDivElement>(null);
@@ -619,23 +620,27 @@ export const App: React.FC = () => {
         p0Ref.current.style.display = heroVisible ? 'block' : 'none';
         if (heroVisible) {
           const hs = sg(p, 0.005, 0.12);
+          const heroPush = io(hs);
 
-          // Name parallax exit with velocity skew & dynamic spread
+          // Name parallax exit with velocity skew & dynamic spread in 3D
           if (hLeftRef.current) {
-            hLeftRef.current.style.transform = `translate3d(${-240 * hs}px, ${-180 * hs - p * 60}px, 0) rotate(${-8 * hs}deg) skewX(${-sk}deg)`;
-            hLeftRef.current.style.opacity = `${1 - cl(hs * 1.5)}`;
+            hLeftRef.current.style.transform = `translate3d(${-260 * heroPush}px, ${-140 * heroPush - p * 60}px, ${-heroPush * 80}px) rotate(${-8 * heroPush}deg) skewX(${-sk}deg)`;
+            hLeftRef.current.style.opacity = `${1 - cl(heroPush * 1.5)}`;
           }
           if (hRightRef.current) {
-            hRightRef.current.style.transform = `translate3d(${240 * hs}px, ${-180 * hs - p * 60}px, 0) rotate(${8 * hs}deg) skewX(${-sk}deg)`;
-            hRightRef.current.style.opacity = `${1 - cl(hs * 1.5)}`;
+            hRightRef.current.style.transform = `translate3d(${260 * heroPush}px, ${-140 * heroPush - p * 60}px, ${-heroPush * 80}px) rotate(${8 * heroPush}deg) skewX(${-sk}deg)`;
+            hRightRef.current.style.opacity = `${1 - cl(heroPush * 1.5)}`;
           }
 
-          // 3D Robot model smooth sink straight down below screen (zero scaling, original length preserved)
+          // 3D Robot model smooth sink straight down below screen with depth recession
           if (hRobotRef.current) {
-            const robotSink = io(sg(p, 0.005, 0.12));
-            hRobotRef.current.style.transform = `translate3d(0, ${robotSink * 115}vh, 0)`;
-            hRobotRef.current.style.opacity = `${1 - cl(robotSink * 1.5)}`;
+            hRobotRef.current.style.transform = `translate3d(0, ${heroPush * 70}vh, ${-heroPush * 240}px) scale(${1 - heroPush * 0.12})`;
+            hRobotRef.current.style.opacity = `${1 - cl(heroPush * 1.4)}`;
           }
+
+          // Hero stage subtle 3D pushback and lighting dimming as sheet rises in foreground
+          p0Ref.current.style.transform = `scale(${(1 - heroPush * 0.06).toFixed(3)}) translate3d(0, ${(-heroPush * 3).toFixed(1)}vh, 0)`;
+          p0Ref.current.style.filter = `brightness(${(1 - heroPush * 0.35).toFixed(3)})`;
         }
       }
 
@@ -658,11 +663,12 @@ export const App: React.FC = () => {
       // =========================================================
       // PANEL 1: ABOUT ME (0.008 < p < 0.34)
       // Master Choreography:
-      // 1. Cream sheet foundation arrives FIRST (p: 0.01 -> 0.085)
-      //    establishing the pristine archival canvas with zero visual leaks.
+      // 1. Cream archival sheet enters in 3D PERSPECTIVE (p: 0.01 -> 0.12):
+      //    tilted back with rotateX, sculpted with luxury rounded top corners,
+      //    scaled from depth with deep ambient shadow, and seamlessly docks flat fullscreen.
       // 2. Orange circle appears SMALL, then smoothly blooms into
-      //    BIG ORIGINAL size (p: 0.085 -> 0.155).
-      // 3. Cutout portrait glides up into circle (p: 0.145 -> 0.205).
+      //    BIG ORIGINAL size (p: 0.095 -> 0.165).
+      // 3. Cutout portrait glides up into circle (p: 0.150 -> 0.210).
       // 4. Floating tags & pills pop into place (p: 0.185 -> 0.235).
       // =========================================================
       const aboutVisible = p > 0.008 && p < 0.34;
@@ -676,17 +682,33 @@ export const App: React.FC = () => {
           p1Ref.current.style.transform = 'none';
 
           // -----------------------------------------------------
-          // 1. CREAM SHEET FOUNDATION ARRIVES FIRST! (p: 0.01 -> 0.085)
-          // Rises gracefully from below, fully covering dark hero before circle emerges
+          // 1. CREAM ARCHIVAL SHEET: 3D CARD PERSPECTIVE ENTRANCE! (p: 0.01 -> 0.12)
+          // Rises in full 3D space: tilted back with rotateX, sculpted with luxury rounded top corners,
+          // scaled from depth with deep ambient shadow, and seamlessly docks flat fullscreen.
           // -----------------------------------------------------
           if (sheetRef.current) {
-            const sheetIn = io(sg(p, 0.01, 0.085));
+            const sheetIn = io(sg(p, 0.01, 0.12));
             if (p < 0.26) {
-              sheetRef.current.style.transform = `translateY(${(100 * (1 - sheetIn)).toFixed(1)}%)`;
+              const yPct = (100 * (1 - sheetIn)).toFixed(2);
+              const rx = (16 * (1 - sheetIn)).toFixed(2);
+              const sc = lp(0.88, 1.0, sheetIn).toFixed(3);
+              const tz = (-90 * (1 - sheetIn)).toFixed(1);
+              const br = (36 * (1 - sheetIn)).toFixed(1);
+
+              sheetRef.current.style.transform = `perspective(1200px) translateY(${yPct}%) translateZ(${tz}px) rotateX(${rx}deg) scale(${sc})`;
+              sheetRef.current.style.transformOrigin = '50% 100%';
+              sheetRef.current.style.borderRadius = `${br}px ${br}px 0 0`;
               sheetRef.current.style.opacity = '1';
             } else {
               sheetRef.current.style.transform = 'none';
+              sheetRef.current.style.borderRadius = '0px';
               sheetRef.current.style.opacity = `${cl(1 - sg(p, 0.26, 0.29)).toFixed(3)}`;
+            }
+
+            // Minimal tactile grab handle: communicates physical bottom-sheet elevation, fades out on dock
+            if (sheetHandleRef.current) {
+              const handleOp = cl((1 - sheetIn) * 3.5);
+              sheetHandleRef.current.style.opacity = `${handleOp.toFixed(3)}`;
             }
           }
 
@@ -715,17 +737,17 @@ export const App: React.FC = () => {
           }
 
           // -----------------------------------------------------
-          // 2. ORANGE CIRCLE: STARTS SMALL, THEN BLOOMS TO BIG ORIGINAL! (p: 0.085 -> 0.155)
-          // Emerges strictly after cream sheet has arrived. Starts as a compact glowing seed,
+          // 2. ORANGE CIRCLE: STARTS SMALL, THEN BLOOMS TO BIG ORIGINAL! (p: 0.095 -> 0.165)
+          // Emerges strictly after cream sheet has docked. Starts as a compact glowing seed,
           // then blossoms smoothly and organically into full original scale.
           // -----------------------------------------------------
           if (aCircRef.current) {
             if (p < 0.25) {
-              if (p < 0.085) {
+              if (p < 0.095) {
                 aCircRef.current.style.opacity = '0';
                 aCircRef.current.style.transform = 'translate3d(0, 140px, 0) scale(0)';
               } else {
-                const uCirc = sg(p, 0.085, 0.155);
+                const uCirc = sg(p, 0.095, 0.165);
                 // Starts small (scale ~0.10) and grows with smooth cubic progression to 1.0 (big original)
                 const circGrowth = Math.pow(uCirc, 1.25);
                 const circScale = lp(0.10, 1.0, circGrowth);
@@ -745,16 +767,16 @@ export const App: React.FC = () => {
           }
 
           // -----------------------------------------------------
-          // 3. CUTOUT PORTRAIT: ENTERS AFTER CIRCLE IS BIG ORIGINAL! (p: 0.145 -> 0.205)
+          // 3. CUTOUT PORTRAIT: ENTERS AFTER CIRCLE IS BIG ORIGINAL! (p: 0.150 -> 0.210)
           // Glides up from below into the glowing circle with gentle tilt
           // -----------------------------------------------------
           if (aPhRef.current) {
             if (p < 0.25) {
-              if (p < 0.145) {
+              if (p < 0.150) {
                 aPhRef.current.style.opacity = '0';
                 aPhRef.current.style.transform = 'translate3d(0, 340px, 0) rotate(-4deg) scale(0.88)';
               } else {
-                const uPh = sg(p, 0.145, 0.205);
+                const uPh = sg(p, 0.150, 0.210);
                 const phEase = eo(uPh);
                 const phLift = (1 - phEase) * 340;
                 const phRot = (1 - phEase) * -4;
@@ -847,8 +869,8 @@ export const App: React.FC = () => {
           aRevealsRef.current.forEach((el, i) => {
             if (!el) return;
             if (p < 0.25) {
-              const starts = [0.085, 0.105, 0.125, 0.145, 0.16, 0.175];
-              const ends = [0.155, 0.175, 0.195, 0.21, 0.225, 0.235];
+              const starts = [0.095, 0.115, 0.135, 0.155, 0.170, 0.185];
+              const ends = [0.165, 0.185, 0.200, 0.215, 0.228, 0.238];
               const u = io(sg(p, starts[i], ends[i]));
               el.style.transform = `translateY(${(115 * (1 - u)).toFixed(1)}%)`;
             } else {
@@ -1490,7 +1512,11 @@ export const App: React.FC = () => {
           Panel 1: ABOUT (FULL SCREEN)
           ========================================================= */}
       <section ref={p1Ref} className="pn p1" style={{ zIndex: 4, display: 'none' }}>
-        <div className="sheet" id="sheet" ref={sheetRef} />
+        <div className="sheet" id="sheet" ref={sheetRef}>
+          <div ref={sheetHandleRef} className="sheet-handle">
+            <div className="sheet-pill" />
+          </div>
+        </div>
 
         <div ref={aLRef} className="grp">
           <div className="rv" style={{ left: 'clamp(24px, 6vw, 84px)', top: 'clamp(60px, 11vh, 120px)', height: 'clamp(60px, 10vw, 130px)' }}>
