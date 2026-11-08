@@ -465,7 +465,10 @@ export const App: React.FC = () => {
       if ((d > 0 && tgtRef.current >= 1) || (d < 0 && tgtRef.current <= 0)) return;
       e.preventDefault();
 
-      tgtRef.current = cl(tgtRef.current + d * 0.00068);
+      // In the Moments transition zone, keep wheel increments gentle and in flow
+      const inTransZone = tgtRef.current >= 0.58 && tgtRef.current <= 0.74;
+      const wheelFactor = inTransZone ? 0.00038 : 0.00068;
+      tgtRef.current = cl(tgtRef.current + d * wheelFactor);
     };
 
     // Keyboard navigation
@@ -578,8 +581,11 @@ export const App: React.FC = () => {
       const dt = Math.min(0.05, (now - lastTimeRef.current) / 1000);
       lastTimeRef.current = now;
 
-      // Exponential progress damping (snappy, velvety, responsive)
-      curProgressRef.current += (tgtRef.current - curProgressRef.current) * (1 - Math.exp(-dt * 11.5));
+      // Exponential progress damping:
+      // When moving into Moments (0.58 <= p <= 0.74), glide slowly so cards take approx 3-4 seconds to come in
+      const inMomentsTransition = curProgressRef.current >= 0.58 && curProgressRef.current <= 0.738;
+      const dampingRate = inMomentsTransition ? 1.4 : 11.5;
+      curProgressRef.current += (tgtRef.current - curProgressRef.current) * (1 - Math.exp(-dt * dampingRate));
       const p = curProgressRef.current;
 
       // Dynamic velocity calculation & skew
@@ -1027,42 +1033,38 @@ export const App: React.FC = () => {
           }
 
           // Circular Arc Sweep towards Top-Right into the Black Background:
-          // X sweeps towards the right (+X) smoothly after the initial forward zoom
-          const arcRadiusX = Math.max(bw * 1.4, vw * 0.48);
+          // X sweeps towards the right (+X) smoothly
+          const arcRadiusX = Math.max(bw * 1.15, vw * 0.40);
           const arcX = Math.sin(sweepEase * (Math.PI * 0.5)) * arcRadiusX;
 
-          // Y sweeps in an upward crest towards the top-right (-Y in screen space)
-          const arcRadiusY = Math.min(vh * 0.28, 220);
+          // Y sweeps in a gentle upward arc towards the top-right (-Y in screen space)
+          const arcRadiusY = Math.min(vh * 0.22, 160);
           const arcY = -Math.sin(sweepEase * Math.PI * 0.75) * arcRadiusY;
 
           const wrapX = targetWrapX + arcX;
           const wrapY = (fl * (1 - zoomEase)) + arcY;
-          const wrapZ = zoomEase * 660;
+          const wrapZ = zoomEase * 40;
 
-          // 3D Angle: Keep the book authentically tilted towards the left (approx 20deg to 30deg)
-          // so the spine, thickness, and cover are in full 3D perspective throughout the sweep, NOT flat!
-          const baseRotX = (-14 * r * (1 - tiltEase)) +
-                           (7 * tiltEase * (1 - spreadEase)) +
-                           (3 * spreadEase * (1 - closeEase)) +
-                           (-14 * r * closeEase) - my * (spreadEase > 0.5 && closeEase === 0 ? 3 : 5);
+          // Orientation: NO TILT ON THE BOOK ("no titlt book")
+          // Fan and spread open states rotate as usual, but as book closes, it returns to clean upright 0deg!
+          const baseRotX = ((-14 * r * (1 - tiltEase)) +
+                            (7 * tiltEase * (1 - spreadEase)) +
+                            (3 * spreadEase * (1 - closeEase))) * (1 - closeEase) - my * (spreadEase > 0.5 && closeEase === 0 ? 3 : 0);
 
-          const baseRotY = (-30 * r * (1 - tiltEase)) +
-                           (-14 * tiltEase * (1 - spreadEase)) +
-                           (-2 * spreadEase * (1 - closeEase)) +
-                           (-28 * r * closeEase) + mx * (spreadEase > 0.5 && closeEase === 0 ? 5 : 8);
+          const baseRotY = ((-30 * r * (1 - tiltEase)) +
+                            (-14 * tiltEase * (1 - spreadEase)) +
+                            (-2 * spreadEase * (1 - closeEase))) * (1 - closeEase) + mx * (spreadEase > 0.5 && closeEase === 0 ? 5 : 0);
 
-          // Maintain the 20deg - 30deg 3D tilt towards the left throughout the circular zoom
-          const rotX = baseRotX - Math.sin(sweepEase * Math.PI * 0.5) * 8;
-          const rotY = baseRotY + Math.sin(sweepEase * Math.PI * 0.5) * 5;
-          // Dynamic bank (rotZ) into the circular turn:
-          const rotZ = Math.sin(sweepEase * Math.PI * 0.65) * 16;
+          // Zero tilt during closed book & circular zoom!
+          const rotX = baseRotX * (1 - zoomEase);
+          const rotY = baseRotY * (1 - zoomEase);
 
-          // 3D scale expansion
+          // Little zoom only (subtle +12% scale expansion, no excessive zoom)
           const baseScale = 1 + 0.1 * r + pop + 0.05 * tiltEase + 0.04 * spreadEase - 0.04 * closeEase;
-          const wrapScale = baseScale + zoomEase * 1.5;
+          const wrapScale = baseScale + zoomEase * 0.12;
 
           if (bookWrapRef.current) {
-            bookWrapRef.current.style.transform = `translate3d(${wrapX.toFixed(1)}px, ${wrapY.toFixed(1)}px, ${wrapZ.toFixed(1)}px) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg) rotateZ(${rotZ.toFixed(2)}deg) scale(${wrapScale.toFixed(3)})`;
+            bookWrapRef.current.style.transform = `translate3d(${wrapX.toFixed(1)}px, ${wrapY.toFixed(1)}px, ${wrapZ.toFixed(1)}px) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg) scale(${wrapScale.toFixed(3)})`;
             bookWrapRef.current.style.opacity = `${wrapOpacity.toFixed(3)}`;
           }
 
@@ -1086,7 +1088,7 @@ export const App: React.FC = () => {
           // Dynamic Floor Shadow
           if (bookShadowRef.current) {
             const shadowLeft = (50 - 50 * (spreadEase * (1 - closeEase))) + (arcX / (vw || 1)) * 50;
-            const shadowScaleX = (1 + 0.35 * tiltEase + 0.35 * spreadEase - 0.35 * closeEase) * (1 + zoomEase * 0.8);
+            const shadowScaleX = (1 + 0.35 * tiltEase + 0.35 * spreadEase - 0.35 * closeEase) * (1 + zoomEase * 0.1);
             const shadowOpacity = (sg(p, 0.35, 0.40) * 0.8) * wrapOpacity;
             bookShadowRef.current.style.left = `${shadowLeft.toFixed(1)}%`;
             bookShadowRef.current.style.transform = `translateX(-50%) rotateX(85deg) scale(${shadowScaleX.toFixed(2)}, 1)`;
@@ -1176,16 +1178,16 @@ export const App: React.FC = () => {
       }
 
       // =========================================================
-      // PANEL 3: MOMENTS (0.642 < p < 0.88) - Inside Globe & Clean Zoom Fly-Through
+      // PANEL 3: MOMENTS (0.638 < p < 0.88) - Inside Globe & Clean Zoom Fly-Through
       // =========================================================
-      const momentsVisible = p > 0.642 && p < 0.88;
+      const momentsVisible = p > 0.638 && p < 0.88;
       if (p4Ref.current) {
         p4Ref.current.style.display = momentsVisible ? 'block' : 'none';
         p4Ref.current.style.zIndex = p < 0.705 ? '3' : '4';
         p4Ref.current.style.pointerEvents = p >= 0.705 ? 'auto' : 'none';
         if (momentsVisible) {
-          // Globe appears slowly right after the little zoom to the book (0.645 -> 0.740)
-          const momIn = io(sg(p, 0.645, 0.740));
+          // Moments Globe Appears Slowly (0.640 -> 0.740)
+          const momIn = io(sg(p, 0.640, 0.740));
           // Clean forward zoom into blank space (starts at 0.76, fully clears by 0.86)
           const momFly = io(sg(p, 0.76, 0.86));
           p4Ref.current.style.opacity = `${momIn * (1 - momFly)}`;
@@ -1197,15 +1199,15 @@ export const App: React.FC = () => {
           }
 
           // 3D Panoramic Fly-in & Clean Forward Zoom: Inside-the-Globe View
-          const en = io(sg(p, 0.645, 0.740));
+          const en = io(sg(p, 0.640, 0.740));
           const sr = sg(p, 0.66, 0.80);
 
           // Resting zoom keeps cards large and immersive; transition flies forward into blank space
           const baseZoom = 480 * K;
           const slotZoom = io(sg(p, 0.71, 0.78)) * 160 * K;
           const transitionZoom = momFly * 850 * K;
-          // Globe swoops forward slowly from depth (-450px) to full baseZoom
-          const entranceZoom = (1 - en) * -450 * K;
+          // Globe swoops forward slowly from depth (-380px) to full baseZoom
+          const entranceZoom = (1 - en) * -380 * K;
           const dz = entranceZoom + baseZoom + slotZoom + transitionZoom;
 
           if (!domeState.current.drag && activeCardRef.current === null) {
@@ -1213,13 +1215,13 @@ export const App: React.FC = () => {
             domeState.current.vy *= 0.94;
           }
 
-          // Gentle spin synchronized with flow
-          const spinIn = (1 - en) * 26;
+          // Very gentle spin (18deg) so cards float in calmly and slowly
+          const spinIn = (1 - en) * 18;
           const ry = -tt * 0.7 + sr * 50 + mx * 8 + domeState.current.ry + spinIn;
           const rx = 0 + 4 * io(sr) - my * 5 + domeState.current.rx;
 
-          // Globe expands slowly from compact scale (0.52) to full panoramic scale (1.0)
-          const domeScale = lp(0.52, 1.0, en);
+          // Globe expands slowly from scale (0.60) to full panoramic scale (1.0)
+          const domeScale = lp(0.60, 1.0, en);
 
           // Entire inside 3D cyclorama rotates as a single hardware-accelerated 4x4 matrix
           if (domeRef.current) {
