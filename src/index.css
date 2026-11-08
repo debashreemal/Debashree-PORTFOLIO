@@ -1,3 +1,38 @@
+/* =========================================================
+   LOCAL PRELOADED HEADLINE FONTS (Zero Layout Shift / FOUT)
+   ========================================================= */
+@font-face {
+  font-family: 'Bebas Neue';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('/fonts/BebasNeue-Regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Anton';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('/fonts/Anton-Regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: block;
+  src: url('/fonts/JetBrainsMono-Regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Permanent Marker';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('/fonts/PermanentMarker-Regular.woff2') format('woff2');
+}
+
 html,
 body {
   margin: 0;
@@ -29,7 +64,7 @@ body {
   --cr: #EFEAE0;
   --bk: #111111;
   --an: 'Anton', 'Impact', sans-serif;
-  --bn: 'Bebas Neue', 'Anton', sans-serif;
+  --bn: 'Bebas Neue', 'Impact', 'Arial Narrow', sans-serif;
   --mk: 'Permanent Marker', cursive;
   --mo: 'JetBrains Mono', monospace;
   --in: 'Inter', system-ui, sans-serif;
@@ -239,7 +274,7 @@ body {
   z-index: 2;
   /* Recessed behind robot if any slight overlap */
   pointer-events: none;
-  font-family: var(--bn, 'Bebas Neue', 'Anton', sans-serif);
+  font-family: var(--bn);
   font-size: clamp(58px, 10vw, 160px);
   line-height: 0.88;
   text-transform: uppercase;
@@ -1164,7 +1199,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-family: var(--bn, 'Bebas Neue', 'Anton', sans-serif);
+  font-family: var(--bn);
   font-size: clamp(68px, 11.5vw, 168px);
   line-height: 0.85;
   letter-spacing: 0.02em;
@@ -1243,7 +1278,7 @@ body {
 
 /* Left: CONTACT ME button */
 .contact-me-btn {
-  font-family: var(--bn, 'Bebas Neue', 'Anton', sans-serif);
+  font-family: var(--bn);
   font-size: clamp(28px, 3.8vw, 54px);
   font-weight: 700;
   color: #111111;
@@ -1439,7 +1474,7 @@ body {
 }
 
 .mm-title {
-  font-family: var(--bn, 'Bebas Neue', 'Anton', sans-serif);
+  font-family: var(--bn);
   font-size: clamp(34px, 3.8vw, 52px);
   line-height: 0.95;
   letter-spacing: 0.02em;
