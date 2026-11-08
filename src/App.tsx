@@ -877,9 +877,9 @@ export const App: React.FC = () => {
 
       // =========================================================
       // PANEL 2: WINS (3D BOOK - EXACT MATCH TO about-to-wins-final.html)
-      // (0.255 < p < 0.68)
+      // (0.255 < p < 0.69)
       // =========================================================
-      const winsVisible = p > 0.255 && p < 0.68;
+      const winsVisible = p > 0.255 && p < 0.69;
       if (p2Ref.current) {
         p2Ref.current.style.display = winsVisible ? 'block' : 'none';
         p2Ref.current.style.zIndex = p > 0.28 ? '4' : '2';
@@ -957,17 +957,17 @@ export const App: React.FC = () => {
 
           // -----------------------------------------------------
           // Step 8: Book Closes After Last Page!
-          // p: 0.60 -> 0.64 (Front cover & all pages swing shut)
+          // p: 0.60 -> 0.635 (Front cover & all pages swing shut)
           // -----------------------------------------------------
-          const closeT = sg(p, 0.60, 0.64);
+          const closeT = sg(p, 0.60, 0.635);
           const closeEase = io(closeT);
 
           // -----------------------------------------------------
-          // Step 9: Smooth Exit into Moments
-          // p: 0.64 -> 0.70 (Closed book glides back in 3D distance)
+          // Step 9: Smooth Zoom-Through Transition into Moments 3D Globe
+          // p: 0.635 -> 0.685 (Closed book zooms dramatically towards camera & dissolves into Moments)
           // -----------------------------------------------------
-          const exitT = sg(p, 0.64, 0.70);
-          const exitEase = io(exitT);
+          const zoomT = sg(p, 0.635, 0.685);
+          const zoomEase = io(zoomT);
 
           // Fore-edge, top edge, and bottom edge:
           // Fully visible and 3D when the book is CLOSED (both before opening at p < 0.365 and after closing at p >= 0.60)
@@ -975,7 +975,7 @@ export const App: React.FC = () => {
           const isClosedBefore = (1 - tiltEase) * (1 - spreadEase);
           const isClosedAfter = closeEase;
           const closedFactor = cl(isClosedBefore + isClosedAfter);
-          const closedEdgeOp = cl(sg(p, 0.33, 0.365) * closedFactor * (1 - exitEase));
+          const closedEdgeOp = cl(sg(p, 0.33, 0.365) * closedFactor * (1 - zoomT));
 
           const closedEdges = [bookForeRef.current, bookTopEdgeRef.current, bookBotEdgeRef.current];
           closedEdges.forEach((el) => {
@@ -992,7 +992,7 @@ export const App: React.FC = () => {
 
           // Real Back Cover remains present and solid behind pages throughout the 3D book experience!
           if (bookBackRef.current) {
-            const backOp = sg(p, 0.33, 0.365) * (1 - exitEase);
+            const backOp = sg(p, 0.33, 0.365) * (1 - zoomT);
             bookBackRef.current.style.opacity = `${backOp.toFixed(3)}`;
             if (closedFactor > 0.4) {
               bookBackRef.current.style.boxShadow = '0 20px 45px rgba(0, 0, 0, 0.65), -4px 0 12px rgba(0, 0, 0, 0.35)';
@@ -1003,7 +1003,7 @@ export const App: React.FC = () => {
 
           if (bookSpineRef.current) {
             // Spine is 100% visible when book is closed, smoothly tucks away when book is flat open
-            const spineOp = cl(sg(p, 0.33, 0.365) * (closedFactor + (1 - closedFactor) * 0.3) * (1 - exitEase));
+            const spineOp = cl(sg(p, 0.33, 0.365) * (closedFactor + (1 - closedFactor) * 0.3) * (1 - zoomT));
             bookSpineRef.current.style.opacity = `${spineOp.toFixed(3)}`;
           }
 
@@ -1016,24 +1016,27 @@ export const App: React.FC = () => {
           } else if (tiltT > 0) {
             targetWrapX = (bw * 0.38) * tiltEase; // Balanced center in 3D accordion fan
           }
-          const wrapX = targetWrapX;
-          const wrapY = fl + (140 * exitEase);
-          const wrapZ = -450 * exitEase;
+          const wrapX = targetWrapX * (1 - zoomEase);
+          const wrapY = fl * (1 - zoomEase);
+          // Zoom forward towards camera!
+          const wrapZ = zoomEase * 750;
 
-          const rotX = (-14 * r * (1 - tiltEase)) +
+          // Rotation: Rotates from -30deg Y / -14deg X to square up with camera (0deg) as it zooms
+          const rotX = ((-14 * r * (1 - tiltEase)) +
                        (7 * tiltEase * (1 - spreadEase)) +
                        (3 * spreadEase * (1 - closeEase)) +
-                       (-14 * r * closeEase) +
-                       (12 * exitEase) - my * (spreadEase > 0.5 && closeEase === 0 ? 3 : 5);
+                       (-14 * r * closeEase) - my * (spreadEase > 0.5 && closeEase === 0 ? 3 : 5)) * (1 - zoomEase * 0.7);
 
-          const rotY = (-30 * r * (1 - tiltEase)) +
+          const rotY = ((-30 * r * (1 - tiltEase)) +
                        (-14 * tiltEase * (1 - spreadEase)) +
                        (-2 * spreadEase * (1 - closeEase)) +
-                       (-30 * r * closeEase) +
-                       (8 * exitEase) + mx * (spreadEase > 0.5 && closeEase === 0 ? 5 : 8);
+                       (-30 * r * closeEase) + mx * (spreadEase > 0.5 && closeEase === 0 ? 5 : 8)) * (1 - zoomEase);
 
-          const wrapScale = (1 + 0.1 * r + pop + 0.05 * tiltEase + 0.04 * spreadEase - 0.04 * closeEase) * (1 - 0.22 * exitEase);
-          const wrapOpacity = 1 - exitEase;
+          // Immersive forward zoom scale up to 3.2x!
+          const baseScale = 1 + 0.1 * r + pop + 0.05 * tiltEase + 0.04 * spreadEase - 0.04 * closeEase;
+          const wrapScale = baseScale + zoomEase * 2.2;
+          // Smooth fade-out near peak of zoom
+          const wrapOpacity = 1 - sg(zoomT, 0.55, 0.96);
 
           if (bookWrapRef.current) {
             bookWrapRef.current.style.transform = `translate3d(${wrapX.toFixed(1)}px, ${wrapY.toFixed(1)}px, ${wrapZ.toFixed(1)}px) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg) scale(${wrapScale.toFixed(3)})`;
@@ -1060,8 +1063,8 @@ export const App: React.FC = () => {
           // Dynamic Floor Shadow
           if (bookShadowRef.current) {
             const shadowLeft = 50 - 50 * (spreadEase * (1 - closeEase));
-            const shadowScaleX = 1 + 0.35 * tiltEase + 0.35 * spreadEase - 0.35 * closeEase;
-            const shadowOpacity = (sg(p, 0.35, 0.40) * 0.8) * (1 - exitEase);
+            const shadowScaleX = (1 + 0.35 * tiltEase + 0.35 * spreadEase - 0.35 * closeEase) * (1 + zoomEase * 0.8);
+            const shadowOpacity = (sg(p, 0.35, 0.40) * 0.8) * (1 - zoomT);
             bookShadowRef.current.style.left = `${shadowLeft.toFixed(1)}%`;
             bookShadowRef.current.style.transform = `translateX(-50%) rotateX(85deg) scale(${shadowScaleX.toFixed(2)}, 1)`;
             bookShadowRef.current.style.opacity = `${shadowOpacity.toFixed(2)}`;
@@ -1115,7 +1118,7 @@ export const App: React.FC = () => {
 
           // Minimalist Bottom Controls & Dynamic Direct DOM Updates (Zero React Re-renders!)
           if (bookControlsRef.current) {
-            const ctrlOp = (tiltEase > 0 ? 1 : 0) * (1 - exitEase);
+            const ctrlOp = (tiltEase > 0 ? 1 : 0) * (1 - zoomT);
             bookControlsRef.current.style.opacity = `${ctrlOp.toFixed(2)}`;
             bookControlsRef.current.style.pointerEvents = ctrlOp > 0.5 ? 'auto' : 'none';
           }
@@ -1155,8 +1158,9 @@ export const App: React.FC = () => {
       const momentsVisible = p > 0.64 && p < 0.88;
       if (p4Ref.current) {
         p4Ref.current.style.display = momentsVisible ? 'block' : 'none';
+        p4Ref.current.style.zIndex = p < 0.685 ? '3' : '4';
         if (momentsVisible) {
-          // Entrance begins cleanly AFTER Wins has exited completely
+          // Entrance begins smoothly as the closed book zooms in (0.64 -> 0.72)
           const momIn = io(sg(p, 0.64, 0.72));
           // Clean forward zoom into blank space (starts at 0.76, fully clears by 0.86)
           const momFly = io(sg(p, 0.76, 0.86));
@@ -1176,7 +1180,9 @@ export const App: React.FC = () => {
           const baseZoom = 480 * K;
           const slotZoom = io(sg(p, 0.71, 0.78)) * 160 * K;
           const transitionZoom = momFly * 850 * K;
-          const dz = -160 * (1 - en) + baseZoom + slotZoom + transitionZoom;
+          // Globe swoops forward from depth (-420px) to full baseZoom, expanding outward from behind the zooming book
+          const entranceZoom = (1 - en) * -420 * K;
+          const dz = entranceZoom + baseZoom + slotZoom + transitionZoom;
 
           if (!domeState.current.drag && activeCardRef.current === null) {
             domeState.current.ry += domeState.current.vy * 0.94;
@@ -1187,14 +1193,17 @@ export const App: React.FC = () => {
           const ry = -tt * 0.7 + sr * 50 + mx * 8 + domeState.current.ry;
           const rx = 0 + 4 * io(sr) - my * 5 + domeState.current.rx;
 
+          // Globe expands from scale 0.60 to 1.0 as the book zooms past
+          const domeScale = lp(0.60, 1.0, en);
+
           // Entire inside 3D cyclorama rotates as a single hardware-accelerated 4x4 matrix
           if (domeRef.current) {
-            domeRef.current.style.transform = `translateZ(${dz}px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+            domeRef.current.style.transform = `translateZ(${dz.toFixed(1)}px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) scale(${domeScale.toFixed(3)})`;
           }
 
           // MOMENTS heading: fades in cleanly, exits cleanly before transition
           if (mtlRef.current) {
-            const mo2 = sg(p, 0.65, 0.72) * (1 - io(sg(p, 0.75, 0.81)));
+            const mo2 = sg(p, 0.66, 0.73) * (1 - io(sg(p, 0.75, 0.81)));
             mtlRef.current.style.opacity = `${mo2}`;
             mtlRef.current.style.transform = `translateX(${-(p - 0.74) * 45}px) skewY(${sk * 0.3}deg) scale(1)`;
           }
