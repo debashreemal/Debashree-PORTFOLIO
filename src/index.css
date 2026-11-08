@@ -260,22 +260,23 @@ body {
   z-index: 1;
 }
 
-/* Split Name Row: DEBASHREE on Left, MAL on Right */
+/* Hero Split Name: Positioned ABOVE at the top, centered (matching reference) */
 .hero-split-name {
   position: absolute;
-  top: clamp(65px, 16vh, 145px);
+  top: clamp(55px, 9.5vh, 105px);
   left: 0;
   right: 0;
+  width: 100%;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  padding: 0 clamp(24px, 5.5vw, 90px);
-  z-index: 10;
+  gap: clamp(16px, 2.5vw, 42px);
+  z-index: 2;
+  /* Recessed behind robot if any slight overlap */
   pointer-events: none;
-  font-family: var(--bn, 'Bebas Neue', 'Anton', sans-serif);
-  font-size: clamp(60px, 11vw, 175px);
-  line-height: 0.82;
-  letter-spacing: 0.02em;
+  font-family: var(--bn);
+  font-size: clamp(58px, 10vw, 160px);
+  line-height: 0.88;
   text-transform: uppercase;
   font-weight: 700;
   user-select: none;
@@ -285,7 +286,7 @@ body {
   color: #EFEAE0;
   letter-spacing: 0.02em;
   padding: 0;
-  filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.95));
+  filter: drop-shadow(0 15px 35px rgba(0, 0, 0, 0.95));
   white-space: nowrap;
 }
 
@@ -293,100 +294,39 @@ body {
   color: var(--rd, #EE3B1F);
   letter-spacing: clamp(0.04em, 0.8vw, 0.08em);
   padding: 0;
-  filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.95));
+  filter: drop-shadow(0 15px 35px rgba(0, 0, 0, 0.95));
   white-space: nowrap;
 }
 
-/* 3D Robot Container anchored in center */
+/* 3D Robot Container anchored in front (z-index: 10) */
 .hero-robot-wrap {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  z-index: 5;
+  z-index: 10;
+  /* Strictly IN FRONT of typography */
   display: flex;
   align-items: flex-end;
   justify-content: center;
   pointer-events: auto;
   cursor: grab;
-  will-change: transform, clip-path;
 }
 
 .hero-robot-wrap:active {
   cursor: grabbing;
 }
 
-/* Robot Floor Hatch: The base border square */
-.robot-floor-hatch {
-  position: absolute;
-  left: 50%;
-  bottom: clamp(16px, 4vh, 46px);
-  width: clamp(280px, 34vw, 480px);
-  height: clamp(80px, 12vh, 136px);
-  transform: translateX(-50%) perspective(700px) rotateX(65deg);
-  transform-origin: 50% 60%;
-  border: 2.5px solid #EFEAE0;
-  border-radius: 8px;
-  background: radial-gradient(ellipse at center, rgba(14, 14, 16, 0.92) 0%, rgba(20, 20, 24, 0.98) 100%);
-  box-shadow: 
-    0 0 25px rgba(239, 234, 224, 0.35),
-    0 10px 30px rgba(0, 0, 0, 0.8),
-    inset 0 0 24px rgba(0, 0, 0, 0.95);
-  pointer-events: none;
-  z-index: 6;
-  opacity: 0;
-  will-change: transform, opacity, background-color, border-color;
-}
-
-.robot-floor-hatch::after {
-  content: '';
-  position: absolute;
-  inset: 4px;
-  border: 1px dashed rgba(238, 59, 31, 0.6);
-  border-radius: 5px;
-  pointer-events: none;
-}
-
 /* =========================================================
    PANEL 1: ABOUT (FULL SCREEN)
    ========================================================= */
-.p1 {
-  perspective: 1400px;
-}
-
 .sheet {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, #FAF7F0 0%, #F3EEE3 35%, #EBE4D5 100%);
-  border-top: 1px solid rgba(255, 255, 255, 0.85);
-  box-shadow: 0 -35px 100px rgba(0, 0, 0, 0.8), 0 -6px 24px rgba(0, 0, 0, 0.35), inset 0 2px 0 rgba(255, 255, 255, 0.95), inset 0 -1px 2px rgba(0, 0, 0, 0.08);
-  will-change: transform, border-radius, box-shadow;
+  background: var(--cr);
+  box-shadow: 0 -25px 70px rgba(0, 0, 0, 0.55), 0 35px 80px rgba(0, 0, 0, 0.65);
+  will-change: transform;
   clip-path: none !important;
-  transform-style: preserve-3d;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-
-.sheet-handle {
-  position: absolute;
-  top: 14px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  pointer-events: none;
-  z-index: 2;
-  will-change: opacity;
-}
-
-.sheet-pill {
-  width: 52px;
-  height: 5px;
-  border-radius: 99px;
-  background: rgba(18, 18, 22, 0.25);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25), 0 1px 0 rgba(255, 255, 255, 0.85);
 }
 
 .rv {
@@ -614,43 +554,19 @@ body {
   display: none;
 }
 
-/* 3D Paper Fore-Edge on Right */
+/* 3D Paper Fore-Edge on Right - Disabled to eliminate blurry edges */
 .book-fore-edge {
-  position: absolute;
-  width: var(--t);
-  height: var(--h);
-  top: calc(var(--h) / -2);
-  left: calc(var(--t) / -2);
-  background: repeating-linear-gradient(90deg, #f4efe3 0 2px, #cfc7b4 2px 3px);
-  transform: translateX(calc(var(--w) / 2)) rotateY(90deg);
-  opacity: 0;
-  will-change: opacity;
+  display: none !important;
 }
 
-/* 3D Paper Top Edge */
+/* 3D Paper Top Edge - Disabled to eliminate blurry edges */
 .book-top-edge {
-  position: absolute;
-  width: var(--w);
-  height: var(--t);
-  left: calc(var(--w) / -2);
-  top: calc(var(--t) / -2);
-  background: repeating-linear-gradient(180deg, #f4efe3 0 2px, #cfc7b4 2px 3px);
-  transform: translateY(calc(var(--h) / -2)) rotateX(90deg);
-  opacity: 0;
-  will-change: opacity;
+  display: none !important;
 }
 
-/* 3D Paper Bottom Edge */
+/* 3D Paper Bottom Edge - Disabled to eliminate blurry edges */
 .book-bot-edge {
-  position: absolute;
-  width: var(--w);
-  height: var(--t);
-  left: calc(var(--w) / -2);
-  top: calc(var(--t) / -2);
-  background: repeating-linear-gradient(180deg, #e4ddcc 0 2px, #bdb4a0 2px 3px);
-  transform: translateY(calc(var(--h) / 2)) rotateX(-90deg);
-  opacity: 0;
-  will-change: opacity;
+  display: none !important;
 }
 
 /* Stacked Paper Edge block - Hidden */
@@ -666,12 +582,13 @@ body {
   width: var(--w);
   height: var(--h);
   background: #EAE4D5;
-  transform: translateZ(calc(var(--t) / -2));
-  border-radius: 4px 18px 18px 4px;
+  transform: translateZ(-12px);
+  border-radius: 4px 14px 14px 4px;
   opacity: 0;
   will-change: opacity;
   z-index: 5;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+  box-shadow: none;
+  border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 /* Front Hardback Cover - Swings open around its spine */
@@ -686,7 +603,7 @@ body {
   will-change: transform;
   cursor: pointer;
   z-index: 50;
-  border-radius: 4px 18px 18px 4px;
+  border-radius: 4px 14px 14px 4px;
 }
 
 /* The Front Face: Cream sheet that folds from full-screen into the book cover */
@@ -702,7 +619,7 @@ body {
   flex-direction: column;
   justify-content: space-between;
   padding: 0;
-  border-radius: 4px 18px 18px 4px;
+  border-radius: 4px 14px 14px 4px;
 }
 
 /* Left spine overlay on cover front */
@@ -876,13 +793,8 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  border-right: 1px solid rgba(0, 0, 0, 0.08);
-  border-top: 1px solid rgba(255, 255, 255, 0.7);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow:
-    inset 20px 0 24px -10px rgba(0, 0, 0, 0.09),
-    0 4px 12px rgba(0, 0, 0, 0.08),
-    0 1px 3px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.09);
+  box-shadow: inset 20px 0 24px -10px rgba(0, 0, 0, 0.09);
   overflow: hidden;
   color: #111111;
   user-select: none;
@@ -1052,13 +964,8 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  border-left: 1px solid rgba(0, 0, 0, 0.08);
-  border-top: 1px solid rgba(255, 255, 255, 0.7);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow:
-    inset -20px 0 24px -10px rgba(0, 0, 0, 0.09),
-    0 4px 12px rgba(0, 0, 0, 0.08),
-    0 1px 3px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.09);
+  box-shadow: inset -20px 0 24px -10px rgba(0, 0, 0, 0.09);
   overflow: hidden;
   color: #111111;
   user-select: none;
