@@ -975,7 +975,7 @@ export const App: React.FC = () => {
           const isClosedBefore = (1 - tiltEase) * (1 - spreadEase);
           const isClosedAfter = closeEase;
           const closedFactor = cl(isClosedBefore + isClosedAfter);
-          const closedEdgeOp = cl(sg(p, 0.33, 0.365) * closedFactor * (1 - zoomT));
+          const closedEdgeOp = cl(sg(p, 0.33, 0.365) * closedFactor * (1 - sg(zoomT, 0.70, 0.98)));
 
           const closedEdges = [bookForeRef.current, bookTopEdgeRef.current, bookBotEdgeRef.current];
           closedEdges.forEach((el) => {
@@ -992,7 +992,7 @@ export const App: React.FC = () => {
 
           // Real Back Cover remains present and solid behind pages throughout the 3D book experience!
           if (bookBackRef.current) {
-            const backOp = sg(p, 0.33, 0.365) * (1 - zoomT);
+            const backOp = sg(p, 0.33, 0.365) * (1 - sg(zoomT, 0.70, 0.98));
             bookBackRef.current.style.opacity = `${backOp.toFixed(3)}`;
             if (closedFactor > 0.4) {
               bookBackRef.current.style.boxShadow = '0 20px 45px rgba(0, 0, 0, 0.65), -4px 0 12px rgba(0, 0, 0, 0.35)';
@@ -1003,7 +1003,7 @@ export const App: React.FC = () => {
 
           if (bookSpineRef.current) {
             // Spine is 100% visible when book is closed, smoothly tucks away when book is flat open
-            const spineOp = cl(sg(p, 0.33, 0.365) * (closedFactor + (1 - closedFactor) * 0.3) * (1 - zoomT));
+            const spineOp = cl(sg(p, 0.33, 0.365) * (closedFactor + (1 - closedFactor) * 0.3) * (1 - sg(zoomT, 0.70, 0.98)));
             bookSpineRef.current.style.opacity = `${spineOp.toFixed(3)}`;
           }
 
@@ -1016,27 +1016,31 @@ export const App: React.FC = () => {
           } else if (tiltT > 0) {
             targetWrapX = (bw * 0.38) * tiltEase; // Balanced center in 3D accordion fan
           }
-          const wrapX = targetWrapX * (1 - zoomEase);
+          // Zoom forward in 3D while maintaining perspective
+          const wrapX = targetWrapX - (bw * 0.15) * zoomEase;
           const wrapY = fl * (1 - zoomEase);
-          // Zoom forward towards camera!
-          const wrapZ = zoomEase * 750;
+          const wrapZ = zoomEase * 680;
 
-          // Rotation: Rotates from -30deg Y / -14deg X to square up with camera (0deg) as it zooms
-          const rotX = ((-14 * r * (1 - tiltEase)) +
-                       (7 * tiltEase * (1 - spreadEase)) +
-                       (3 * spreadEase * (1 - closeEase)) +
-                       (-14 * r * closeEase) - my * (spreadEase > 0.5 && closeEase === 0 ? 3 : 5)) * (1 - zoomEase * 0.7);
+          // 3D Angle: Keep the book authentically tilted towards the left (approx 25deg to 28deg) so the entire 3D volume zooms, NOT a flat face-on cover zoom!
+          const baseRotX = (-14 * r * (1 - tiltEase)) +
+                           (7 * tiltEase * (1 - spreadEase)) +
+                           (3 * spreadEase * (1 - closeEase)) +
+                           (-14 * r * closeEase) - my * (spreadEase > 0.5 && closeEase === 0 ? 3 : 5);
 
-          const rotY = ((-30 * r * (1 - tiltEase)) +
-                       (-14 * tiltEase * (1 - spreadEase)) +
-                       (-2 * spreadEase * (1 - closeEase)) +
-                       (-30 * r * closeEase) + mx * (spreadEase > 0.5 && closeEase === 0 ? 5 : 8)) * (1 - zoomEase);
+          const baseRotY = (-30 * r * (1 - tiltEase)) +
+                           (-14 * tiltEase * (1 - spreadEase)) +
+                           (-2 * spreadEase * (1 - closeEase)) +
+                           (-28 * r * closeEase) + mx * (spreadEase > 0.5 && closeEase === 0 ? 5 : 8);
 
-          // Immersive forward zoom scale up to 3.2x!
+          // Maintain the 25deg - 28deg 3D tilt towards the left throughout the entire zoom
+          const rotX = baseRotX - (zoomEase * 3);
+          const rotY = baseRotY + (zoomEase * 2);
+
+          // 3D scale expansion
           const baseScale = 1 + 0.1 * r + pop + 0.05 * tiltEase + 0.04 * spreadEase - 0.04 * closeEase;
-          const wrapScale = baseScale + zoomEase * 2.2;
+          const wrapScale = baseScale + zoomEase * 1.8;
           // Smooth fade-out near peak of zoom
-          const wrapOpacity = 1 - sg(zoomT, 0.55, 0.96);
+          const wrapOpacity = 1 - sg(zoomT, 0.60, 0.98);
 
           if (bookWrapRef.current) {
             bookWrapRef.current.style.transform = `translate3d(${wrapX.toFixed(1)}px, ${wrapY.toFixed(1)}px, ${wrapZ.toFixed(1)}px) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg) scale(${wrapScale.toFixed(3)})`;
