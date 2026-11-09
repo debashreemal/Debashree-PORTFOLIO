@@ -229,7 +229,8 @@ export const FoldText: React.FC<FoldTextProps> = ({
         const progress = unfoldEase(piece.t) * (1 - foldEase(piece.f));
         const rise = lift * Math.sin(Math.PI * clamp(progress, 0, 1));
         const turn = `${axis}(${sign * ((1 - progress) * angle + tilt)}deg)`;
-        piece.element.style.transform = rise > 0.001 ? `translateZ(${rise}em) ${turn}` : turn;
+        const z = rise > 0.001 ? `${rise}em` : '0px';
+        piece.element.style.transform = `translate3d(0, 0, ${z}) ${turn}`;
         piece.element.style.opacity = String(clamp(progress, 0, 1));
         piece.element.style.setProperty('--fold-crease', shade(progress, tilt));
       });
@@ -340,18 +341,28 @@ export const FoldText: React.FC<FoldTextProps> = ({
       }
     };
 
+    let aimRafId: number | null = null;
+    const requestAim = () => {
+      if (aimRafId === null) {
+        aimRafId = requestAnimationFrame(() => {
+          aimRafId = null;
+          aim();
+        });
+      }
+    };
+
     const handleMove = (event: PointerEvent) => {
       pointer = { x: event.clientX, y: event.clientY };
-      aim();
+      requestAim();
     };
 
     const handleLeave = () => {
       pointer = null;
-      aim();
+      requestAim();
     };
 
     const handleScroll = () => {
-      if (pointer) aim();
+      if (pointer) requestAim();
     };
 
     if (refold) {
@@ -361,6 +372,7 @@ export const FoldText: React.FC<FoldTextProps> = ({
     }
 
     return () => {
+      if (aimRafId !== null) cancelAnimationFrame(aimRafId);
       root.removeEventListener('mouseenter', handleEnter);
       window.removeEventListener('pointermove', handleMove as EventListener);
       window.removeEventListener('scroll', handleScroll, { capture: true });

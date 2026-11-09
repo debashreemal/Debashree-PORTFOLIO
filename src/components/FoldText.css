@@ -31,12 +31,15 @@
 .fold-text-word {
   display: inline-block;
   white-space: nowrap;
+  transform-style: preserve-3d;
 }
 
 .fold-text-segment {
   display: inline-block;
   perspective: var(--fold-perspective, 700px);
   vertical-align: baseline;
+  transform-style: preserve-3d;
+  will-change: transform;
 }
 
 .fold-text-segment[data-fold-split='line'] {
@@ -53,7 +56,11 @@
   position: relative;
   display: inline-block;
   backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   transform-origin: 50% 0%;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+  contain: layout paint;
 }
 
 .fold-text-piece[data-fold-hinge='bottom'] {

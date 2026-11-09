@@ -5,7 +5,8 @@ import FoldText from './components/FoldText';
 import { FaLinkedin, FaGithub, FaEnvelope } from 'react-icons/fa6';
 import { LinkedInBrandIcon, GitHubBrandIcon, GmailBrandIcon } from './components/BrandIcons';
 
-// Lazy-load heavy 3D WebGL canvas to keep initial page load instantaneous
+// Pre-warm 3D WebGL chunk immediately on page parse for instantaneous, stutter-free render
+import('./components/canvas/HeroRobot');
 const HeroRobot = lazy(() => import('./components/canvas/HeroRobot'));
 
 // Mathematical easing helpers from v10
@@ -109,7 +110,7 @@ const MOMENTS_ITEMS = [
     tag: 'AI Project Manager',
     desc: 'FlowMind took 1st place among 120+ teams, recognized for automated workflow intelligence.',
     date: '2025',
-    color: '#EE3B1F',
+    color: '#8F9BFF',
     img: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&q=80&auto=format&fit=crop',
   },
   {
@@ -129,7 +130,7 @@ const MOMENTS_ITEMS = [
     tag: 'Autonomous AI',
     desc: 'Live multi-agent execution framework with zero-latency task routing and dependency graphs.',
     date: '2026',
-    color: '#EE3B1F',
+    color: '#8F9BFF',
     img: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&q=80&auto=format&fit=crop',
   },
   {
@@ -149,7 +150,7 @@ const MOMENTS_ITEMS = [
     tag: 'Sulajh AI',
     desc: 'Autonomous AI team member simulation built for India-scale merchant onboarding.',
     date: '2025',
-    color: '#EE3B1F',
+    color: '#8F9BFF',
     img: 'https://images.unsplash.com/photo-1556742049-0a67e5572293?w=800&q=80&auto=format&fit=crop',
   },
   {
@@ -169,7 +170,7 @@ const MOMENTS_ITEMS = [
     tag: 'Vernacular LLMs',
     desc: 'Building localized AI tools tailored for non-metro Indian merchants and students.',
     date: '2026',
-    color: '#EE3B1F',
+    color: '#8F9BFF',
     img: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&q=80&auto=format&fit=crop',
   },
   {
@@ -189,7 +190,7 @@ const MOMENTS_ITEMS = [
     tag: 'Team Sprint',
     desc: '36 hours of non-stop caffeinated coding, rapid prototyping, and pitch iteration.',
     date: '2025',
-    color: '#EE3B1F',
+    color: '#8F9BFF',
     img: 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=800&q=80&auto=format&fit=crop',
   },
   {
@@ -209,7 +210,7 @@ const MOMENTS_ITEMS = [
     tag: 'LangGraph & Python',
     desc: 'Hierarchical multi-agent delegation system with deterministic state validation.',
     date: '2025',
-    color: '#EE3B1F',
+    color: '#8F9BFF',
     img: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=800&q=80&auto=format&fit=crop',
   },
   {
@@ -229,7 +230,7 @@ const MOMENTS_ITEMS = [
     tag: 'Developer CLI',
     desc: 'CLI-based cloud container orchestrator with instant zero-downtime deployment pipelines.',
     date: '2026',
-    color: '#EE3B1F',
+    color: '#8F9BFF',
     img: 'https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?w=800&q=80&auto=format&fit=crop',
   },
   {
@@ -1605,15 +1606,15 @@ export const App: React.FC = () => {
               hinge="top"
               trigger="mount"
               foldAngle={92}
-              duration={0.65}
-              stagger={0.045}
+              duration={0.72}
+              stagger={0.038}
               staggerFrom="start"
-              ease="power3.out"
+              ease="power2.out"
               perspective={700}
-              creaseShading={0.55}
+              creaseShading={0.48}
               hoverRefold={true}
               refoldRadius={140}
-              refoldAngle={45}
+              refoldAngle={40}
               color="#EFEAE0"
             />
           </span>
@@ -1624,18 +1625,18 @@ export const App: React.FC = () => {
               splitBy="char"
               hinge="top"
               trigger="mount"
-              delay={0.405}
+              delay={0.34}
               foldAngle={92}
-              duration={0.65}
-              stagger={0.045}
+              duration={0.72}
+              stagger={0.038}
               staggerFrom="start"
-              ease="power3.out"
+              ease="power2.out"
               perspective={700}
-              creaseShading={0.55}
+              creaseShading={0.48}
               hoverRefold={true}
               refoldRadius={140}
-              refoldAngle={45}
-              color="var(--rd, #EE3B1F)"
+              refoldAngle={40}
+              color="var(--rd, #8F9BFF)"
             />
           </span>
         </div>
@@ -2225,7 +2226,7 @@ export const App: React.FC = () => {
             ramp={false}
             buttonAlign="right"
             buttonRight={() => Math.round(Math.max(40, Math.min(68, window.innerWidth * 0.025 + 32)))}
-            thrustColor="#EE3B1F"
+            thrustColor="#8F9BFF"
             smokeColor="#EFEAE0"
             buttonColor="#18181b"
             textColor="#EFEAE0"

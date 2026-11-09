@@ -3,6 +3,9 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { useGLTF, OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 
+// Preload 3D Robot model immediately to avoid initial shader compile / parse jank
+useGLTF.preload('/robot_opt.glb');
+
 // Global spatial cursor tracking algorithm (strictly horizontal / left-to-right only)
 const cursorState = { x: 0 };
 const interactionState = { isInteracting: false };
@@ -27,23 +30,27 @@ function RobotModel() {
     });
   }, [scene]);
 
-  // Exact 3D Mouse Tracking sequence: Left-to-Right ONLY
+  // Exact 3D Mouse Tracking sequence: Left-to-Right ONLY (butter-smooth dampening)
   useFrame((_, delta) => {
     if (groupRef.current) {
+      // Clamp delta to prevent sudden jumps on heavy initial frames
+      const dt = Math.min(delta, 0.033);
+
       if (interactionState.isInteracting) {
         // While user is actively holding & turning 360 degrees, relax local yaw
-        groupRef.current.rotation.y = THREE.MathUtils.damp(groupRef.current.rotation.y, 0, 4, delta);
+        groupRef.current.rotation.y = THREE.MathUtils.damp(groupRef.current.rotation.y, 0, 8, dt);
       } else {
         // Cursor tracking ONLY moves left to right (yaw only, clamped to ~35 deg glance)
         let targetX = cursorState.x * (Math.PI / 3.0);
         const maxAngle = Math.PI / 5.2;
         targetX = Math.max(-maxAngle, Math.min(maxAngle, targetX));
 
-        groupRef.current.rotation.y = THREE.MathUtils.damp(groupRef.current.rotation.y, targetX, 4, delta);
+        // Butter-smooth, zero-lag tracking with optimal 8.0 dampening
+        groupRef.current.rotation.y = THREE.MathUtils.damp(groupRef.current.rotation.y, targetX, 8, dt);
       }
 
       // Strictly zero vertical tilt / pitch (only left to right movement)
-      groupRef.current.rotation.x = THREE.MathUtils.damp(groupRef.current.rotation.x, 0, 6, delta);
+      groupRef.current.rotation.x = THREE.MathUtils.damp(groupRef.current.rotation.x, 0, 8, dt);
       groupRef.current.rotation.z = 0;
     }
   });
@@ -69,16 +76,9 @@ export default function HeroRobot({ isVisible = true }: HeroRobotProps) {
   useEffect(() => {
     if (!isVisible) return;
 
-    let robotTicking = false;
     const handleMove = (e: MouseEvent) => {
-      if (!robotTicking) {
-        window.requestAnimationFrame(() => {
-          const robotCenterX = window.innerWidth * 0.5;
-          cursorState.x = ((e.clientX - robotCenterX) / window.innerWidth) * 0.85;
-          robotTicking = false;
-        });
-        robotTicking = true;
-      }
+      const robotCenterX = window.innerWidth * 0.5;
+      cursorState.x = ((e.clientX - robotCenterX) / window.innerWidth) * 0.85;
     };
 
     window.addEventListener('mousemove', handleMove, { passive: true });
