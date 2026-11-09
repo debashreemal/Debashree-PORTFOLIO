@@ -362,6 +362,20 @@ export const App: React.FC = () => {
   const prevProgressRef = useRef(0);
   const lastTimeRef = useRef(performance.now());
 
+  // Continuous constant-pace scroll driver
+  // Decoupled from wheel speed: If user continuously scrolls, website moves at the same steady pace
+  const scrollDriveRef = useRef({
+    activeDir: 0,
+    lastInputTime: 0,
+    currentVelocity: 0,
+  });
+
+  const resetScrollDrive = useCallback(() => {
+    scrollDriveRef.current.activeDir = 0;
+    scrollDriveRef.current.currentVelocity = 0;
+    scrollDriveRef.current.lastInputTime = 0;
+  }, []);
+
   // 3D Canvas dynamic pause state (stops WebGL loop when outside Hero to save 100% GPU)
   const [heroActive, setHeroActive] = useState(true);
   const heroActiveRef = useRef(true);
@@ -372,14 +386,16 @@ export const App: React.FC = () => {
 
   // Smooth Navigation to section milestone
   const goTo = useCallback((n: number) => {
+    resetScrollDrive();
     const targetIdx = Math.max(0, Math.min(4, n));
     tgtRef.current = MILESTONES[targetIdx];
     momentsArrivalRef.current = null;
     momentsAutoTriggeredRef.current = false;
-  }, []);
+  }, [resetScrollDrive]);
 
   // 3D Book Page Turning Callbacks (exact, obstacle-free page targets)
   const turnNext = useCallback(() => {
+    resetScrollDrive();
     if (tgtRef.current < 0.44) {
       tgtRef.current = 0.48; // Open to Page 1
     } else if (tgtRef.current < 0.48) {
@@ -398,9 +414,10 @@ export const App: React.FC = () => {
         goTo(3);
       }
     }
-  }, [goTo]);
+  }, [goTo, resetScrollDrive]);
 
   const turnPrev = useCallback(() => {
+    resetScrollDrive();
     if (tgtRef.current <= 0.425) {
       tgtRef.current = 0.38; // Return to closed 3D book cover
     } else if (tgtRef.current <= 0.485) {
@@ -417,9 +434,10 @@ export const App: React.FC = () => {
         tgtRef.current = 0.42;
       }
     }
-  }, []);
+  }, [resetScrollDrive]);
 
   const handleLeafClick = useCallback((idx: number) => {
+    resetScrollDrive();
     if (tgtRef.current < 0.48) {
       tgtRef.current = 0.48;
       return;
@@ -436,9 +454,10 @@ export const App: React.FC = () => {
     } else if (idx > curPage) {
       tgtRef.current = 0.48 + idx * (0.12 / 5);
     }
-  }, []);
+  }, [resetScrollDrive]);
 
   const handleCoverClick = useCallback(() => {
+    resetScrollDrive();
     if (tgtRef.current < 0.44) {
       tgtRef.current = 0.48;
     } else if (tgtRef.current >= 0.61) {
@@ -446,7 +465,7 @@ export const App: React.FC = () => {
     } else {
       tgtRef.current = 0.42;
     }
-  }, []);
+  }, [resetScrollDrive]);
 
   // Window resize & mouse tilt
   useEffect(() => {
@@ -467,28 +486,40 @@ export const App: React.FC = () => {
     };
     window.addEventListener('mousemove', handleMouseMove);
 
-    // Continuous scroll progress wheel handler (velvety smooth, unhurried, no artificial snapping)
-    const handleWheel = (e: WheelEvent) => {
-      const d = e.deltaY * (e.deltaMode === 1 ? 32 : 1);
-      if ((d > 0 && tgtRef.current >= 1) || (d < 0 && tgtRef.current <= 0)) return;
-      e.preventDefault();
+    const registerScroll = (dir: number) => {
+      // If already at boundary trying to push further, ignore
+      if ((dir > 0 && tgtRef.current >= 1) || (dir < 0 && tgtRef.current <= 0)) {
+        scrollDriveRef.current.activeDir = 0;
+        return;
+      }
+      scrollDriveRef.current.activeDir = dir;
+      scrollDriveRef.current.lastInputTime = performance.now();
+    };
 
-      // In the Moments round gallery zone (0.68 - 0.82), keep wheel increments comfortable
-      // so the round gallery view is experienced for ample time (~2 seconds of scrolling)
-      const inRoundGallery = tgtRef.current >= 0.68 && tgtRef.current <= 0.82;
-      const wheelFactor = inRoundGallery ? 0.00045 : 0.00068;
-      tgtRef.current = cl(tgtRef.current + d * wheelFactor);
+    // Continuous scroll progress wheel handler:
+    // Captures scroll intent direction and sustains continuous constant-speed progression
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const d = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+      if (Math.abs(d) < 0.1) return;
+      registerScroll(d > 0 ? 1 : -1);
     };
 
     // Keyboard navigation
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
         const next = MILESTONES.find((a) => a > tgtRef.current + 0.01);
-        if (next !== undefined) tgtRef.current = next;
+        if (next !== undefined) {
+          resetScrollDrive();
+          tgtRef.current = next;
+        }
         e.preventDefault();
       } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
         const prev = [...MILESTONES].reverse().find((a) => a < tgtRef.current - 0.01);
-        if (prev !== undefined) tgtRef.current = prev;
+        if (prev !== undefined) {
+          resetScrollDrive();
+          tgtRef.current = prev;
+        }
         e.preventDefault();
       }
     };
@@ -504,7 +535,10 @@ export const App: React.FC = () => {
 
     const handlePointerMove = (e: PointerEvent) => {
       if (dragStart) {
-        tgtRef.current = cl(dragStart.t - (e.clientY - dragStart.y) * 0.0008);
+        const diff = dragStart.y - e.clientY;
+        if (Math.abs(diff) > 2) {
+          registerScroll(diff > 0 ? 1 : -1);
+        }
       }
     };
 
@@ -522,8 +556,7 @@ export const App: React.FC = () => {
       const diff = touchStartY - touchY;
       touchStartY = touchY;
       if (Math.abs(diff) < 2) return;
-
-      tgtRef.current = cl(tgtRef.current + diff * 0.0007);
+      registerScroll(diff > 0 ? 1 : -1);
     };
 
     window.addEventListener('wheel', handleWheel, { passive: false });
@@ -590,9 +623,37 @@ export const App: React.FC = () => {
       const dt = Math.min(0.05, (now - lastTimeRef.current) / 1000);
       lastTimeRef.current = now;
 
-      // Exponential progress damping:
-      // Snappy and responsive across the page, gentle during card pop-out for cinematic elegance
-      const damping = (tgtRef.current >= 0.80 && tgtRef.current <= 0.86) ? 7.5 : 11.5;
+      // =========================================================
+      // CONTINUOUS UNIFORM-PACE SCROLL ENGINE
+      // Decoupled from physical wheel speed: Continuous scrolling maintains
+      // the exact same steady pace and speed throughout the entire site!
+      // =========================================================
+      const CONST_SPEED = 0.055; // Deliberate, smooth, slow cruising velocity (progress units/sec)
+      const isScrollActive = (now - scrollDriveRef.current.lastInputTime) < 280;
+      const dir = isScrollActive ? scrollDriveRef.current.activeDir : 0;
+
+      let targetVel = 0;
+      if (dir > 0 && tgtRef.current < 1) {
+        targetVel = CONST_SPEED;
+      } else if (dir < 0 && tgtRef.current > 0) {
+        targetVel = -CONST_SPEED;
+      }
+
+      // Smooth velocity interpolation:
+      // Gentle acceleration into cruising speed and velvety glide when scrolling stops
+      const accelRate = targetVel !== 0 ? 8 : 5;
+      scrollDriveRef.current.currentVelocity += (targetVel - scrollDriveRef.current.currentVelocity) * (1 - Math.exp(-dt * accelRate));
+
+      if (targetVel === 0 && Math.abs(scrollDriveRef.current.currentVelocity) < 0.0002) {
+        scrollDriveRef.current.currentVelocity = 0;
+      }
+
+      if (scrollDriveRef.current.currentVelocity !== 0) {
+        tgtRef.current = cl(tgtRef.current + scrollDriveRef.current.currentVelocity * dt);
+      }
+
+      // Smooth, unified progress tracking across the entire site with zero artificial slowdowns
+      const damping = 12.0;
       curProgressRef.current += (tgtRef.current - curProgressRef.current) * (1 - Math.exp(-dt * damping));
       const p = curProgressRef.current;
 
@@ -609,22 +670,22 @@ export const App: React.FC = () => {
       const tt = now / 1000;
 
       // Dwell timer for Moments:
-      // When arriving at Moments round gallery zone (0.71 <= p <= 0.77), keep gallery round for 1 second
-      // before cards emerge to center focus!
+      // When arriving at Moments round gallery zone (0.71 <= p <= 0.77), keep gallery round for 2.5 seconds
+      // while it moves & rotates, before cards emerge to center focus!
       if (p >= 0.71 && p <= 0.77 && Math.abs(tgtRef.current - 0.74) < 0.035) {
         if (momentsArrivalRef.current === null && !momentsAutoTriggeredRef.current) {
           momentsArrivalRef.current = now;
         } else if (
           momentsArrivalRef.current !== null &&
           !momentsAutoTriggeredRef.current &&
-          now - momentsArrivalRef.current >= 1000 &&
+          now - momentsArrivalRef.current >= 2500 &&
           !domeState.current.drag &&
           activeCardRef.current === null
         ) {
           momentsAutoTriggeredRef.current = true;
           tgtRef.current = 0.85; // Gently bring card out into center hero focus!
         }
-      } else if (p < 0.66 || p > 0.81) {
+      } else if (p < 0.64 || p > 0.89) {
         // Reset when leaving Moments so user can experience it again when returning
         momentsArrivalRef.current = null;
         momentsAutoTriggeredRef.current = false;
