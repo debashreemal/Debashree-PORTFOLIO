@@ -122,6 +122,7 @@ uniform vec4 uCraftMotion;
 uniform vec2 uTurb;
 uniform float uTime;
 uniform float uObstacle;
+uniform float uGround;
 ${JETS}
 ${NOISE}
 vec2 curlNoise(vec2 p) {
@@ -142,8 +143,12 @@ void main() {
   v += turb * uTurb.x * smokeHere * uDt;
   v.y += (uBuoyancy * d.y + uLift * d.x) * uDt;
   v /= 1.0 + uDamping * uDt;
-  v.x /= 1.0 + uFriction * exp(-p.y / 18.0) * uDt;
-  v.x += (uWind - v.x) * (1.0 - exp(-0.35 * uDt)) * smoothstep(0.0, 60.0, p.y);
+  v.x /= 1.0 + uFriction * exp(-max(p.y - uGround, 0.0) / 18.0) * uDt;
+  v.x += (uWind - v.x) * (1.0 - exp(-0.35 * uDt)) * smoothstep(uGround, uGround + 60.0, p.y);
+  if (p.y < uGround) {
+    v.y = max(v.y, 0.0);
+    v.x *= 0.95;
+  }
   for (int i = 0; i < ${MAX_JETS}; i++) {
     vec4 b = uJetB[i];
     if (b.w <= 0.0) continue;
@@ -151,7 +156,8 @@ void main() {
     vec2 rel = p - a.xy;
     float along = dot(rel, a.zw);
     float across = dot(rel, vec2(-a.w, a.z));
-    float reach = a.w < -0.2 ? a.y / -a.w : max(b.z, 1.0);
+    float distToGround = max(a.y - uGround, 0.0);
+    float reach = a.w < -0.2 ? distToGround / -a.w : max(b.z, 1.0);
     float bn = clamp(along / max(reach, 1.0), 0.0, 1.0);
     across -= uJetBend[i] * bn * bn;
     vec2 dir = normalize(a.zw + vec2(-a.w, a.z) * (2.0 * uJetBend[i] * bn / max(reach, 1.0)));
@@ -320,6 +326,7 @@ uniform float uJetX[${MAX_JETS}];
 uniform float uJetN;
 uniform float uFloor;
 uniform float uTime;
+uniform float uGround;
 ${JETS}
 ${NOISE}
 void main() {
@@ -359,7 +366,8 @@ void main() {
     float pulse = 0.6 + 0.8 * noise(vec2(uTime * 6.0 + float(i) * 13.1, along * 0.06 + float(i)));
     val.x += uRate.x * jb.w * wn * pulse * uDt;
     val.y += uRate.y * jb.w * wn * uDt;
-    float reach = ja.w < -0.2 ? ja.y / -ja.w : 1e4;
+    float distToGround = max(ja.y - uGround, 0.0);
+    float reach = ja.w < -0.2 ? distToGround / -ja.w : 1e4;
     float sN = clamp(along / max(reach, 1.0), 0.0, 1.0);
     across -= uJetBend[i] * sN * sN;
     float R = uCol.y + uCol.x * clamp(along, 0.0, reach);
@@ -372,12 +380,15 @@ void main() {
       float near = exp(-reach / uKick.x);
       float spread = uKick.y + reach * 0.25;
       float kx = (p.x - gx) / spread;
-      float ky = p.y / uKick.z;
+      float ky = max(p.y - uGround, 0.0) / uKick.z;
       float k = exp(-kx * kx - ky * ky);
       float g2 = 0.5 + noise(vec2(p.x * 0.08, uTime * 4.0 + float(i) * 9.0));
       val.x += uRate.z * jb.w * near * k * g2 * uDt;
       val.y += uRate.y * 0.4 * jb.w * near * k * uDt;
     }
+  }
+  if (p.y < uGround - 15.0) {
+    val *= exp(-6.0 * uDt);
   }
   if (!(val.x < 1e3 && val.y < 1e3 && val.x >= 0.0 && val.y >= 0.0)) val = vec2(0.0);
   outColor = vec4(val, 0.0, 1.0);
@@ -631,6 +642,7 @@ function createEngine({ root, canvas, button, cursor, ramp, props }) {
     dpr: 1,
     bw: 0,
     bh: 0,
+    ground: 0,
     x: 0,
     vx: 0,
     y: -REST,
@@ -790,7 +802,15 @@ function createEngine({ root, canvas, button, cursor, ramp, props }) {
     const [lo, hi] = xLimits();
     if (!rampOn()) {
       const align = props.current.buttonAlign;
-      if (align === 'right') return clamp(s.W - s.bw / 2 - 32, lo, hi);
+      if (align === 'right') {
+        const br = props.current.buttonRight;
+        const pad = typeof br === 'function'
+          ? br()
+          : typeof br === 'number'
+            ? br
+            : Math.round(Math.max(40, Math.min(68, s.W * 0.025 + 32)));
+        return clamp(s.W - s.bw / 2 - pad, lo, hi);
+      }
       if (align === 'left') return clamp(s.bw / 2 + 28, lo, hi);
       if (typeof align === 'number') {
         if (align > 0 && align <= 1) return clamp(s.W * align, lo, hi);
@@ -804,7 +824,7 @@ function createEngine({ root, canvas, button, cursor, ramp, props }) {
 
   const craftCenter = () => ({
     x: s.x,
-    y: podH() + s.bh / 2 + s.y + REST
+    y: s.ground + podH() + s.bh / 2 + s.y + REST
   });
 
   const nozzles = () => {
@@ -1034,7 +1054,8 @@ function createEngine({ root, canvas, button, cursor, ramp, props }) {
     const k = scale();
     list.forEach((q, i) => {
       const str = clamp(s.thrust[i] * n, 0, 2);
-      const reach = q.dy < -0.2 ? q.y / -q.dy : K.forceMax;
+      const dist = Math.max(0, q.y - s.ground);
+      const reach = q.dy < -0.2 ? dist / -q.dy : K.forceMax;
       a.set([q.x, q.y, q.dx, q.dy], i * 4);
       b.set(
         [K.speed * Math.sqrt(str), K.radius * k, Math.min(K.forceMax, reach * K.reach), str > 0.004 ? str : 0],
@@ -1067,6 +1088,7 @@ function createEngine({ root, canvas, button, cursor, ramp, props }) {
         calm,
         scale: k,
         activity: s.activity,
+        ground: s.ground,
         jetX: [0, 1, 2, 3].map(i => (i < xs.length ? xs[i] : 0)),
         jetN: xs.length,
         spacing: xs.length > 1 ? xs[1] - xs[0] : 0,
@@ -1098,6 +1120,8 @@ function createEngine({ root, canvas, button, cursor, ramp, props }) {
     s.H = Math.max(1, r.height);
     s.bw = button.offsetWidth;
     s.bh = button.offsetHeight;
+    const gy = props.current.groundY;
+    s.ground = typeof gy === 'function' ? gy() : (typeof gy === 'number' ? gy : 0);
     if (!s.placed || s.phase === 'rest') {
       s.x = home();
       s.placed = true;
@@ -1146,7 +1170,7 @@ function createEngine({ root, canvas, button, cursor, ramp, props }) {
     begin();
     s.phase = 'ignite';
     s.delay = s.delay.map(() => Math.random() * 0.07);
-    const top = s.H - s.bh - podH() - 30 - REST;
+    const top = s.H - s.ground - s.bh - podH() - 30 - REST;
     s.alt = clamp(s.y + num(P.altitude, 170), s.y + 24, Math.max(s.y + 24, top));
     s.climbT = 1.15 + (s.alt - s.y) / 420;
     s.hold = Math.max(0, num(P.hoverTime, 2.4));
@@ -1398,7 +1422,7 @@ function createEngine({ root, canvas, button, cursor, ramp, props }) {
         const ox = rx * csn - ry * sn;
         const oy = rx * sn + ry * csn;
         const footY = c.y + oy;
-        const pen = REST - footY;
+        const pen = (s.ground + REST) - footY;
         if (pen > 0) {
           contact = true;
           const vpy = s.vy + s.w * ox;
@@ -1548,7 +1572,7 @@ function createEngine({ root, canvas, button, cursor, ramp, props }) {
     if (!s.drag) return;
     const f = pointerAt();
     const [lo, hi] = xLimits();
-    const low = podH() + s.bh / 2;
+    const low = s.ground + podH() + s.bh / 2;
     s.target.x = clamp(f.x - s.drag.gx, lo, hi);
     s.target.y = clamp(s.H - (f.y - s.drag.gy), low, Math.max(low, s.H - s.bh / 2 - 6));
   };
@@ -1876,6 +1900,7 @@ function createSim(gl) {
         uKick: [K.kickNear * o.scale, K.kickW * o.scale, K.kickH * o.scale],
         uCraft: o.craft,
         uCraftMotion: o.motion,
+        uGround: o.ground || 0.0,
         uJetA: o.jets.a,
         uJetB: o.jets.b,
         uJetBend: { f1: o.jets.bend }
@@ -1922,6 +1947,7 @@ function createSim(gl) {
         uDispV: K.dispV,
         uCraft: o.craft,
         uCraftMotion: o.motion,
+        uGround: o.ground || 0.0,
         uGap: [o.spacing, K.gap * o.calm],
         uJetX: { f1: o.jetX },
         uJetN: o.jetN,
@@ -2025,6 +2051,8 @@ export default function FlyingButton({
   buttonColor,
   textColor,
   buttonAlign,
+  buttonRight,
+  groundY,
   className = '',
   style
 }) {
@@ -2065,6 +2093,8 @@ export default function FlyingButton({
     smokeColor: smokeTone,
     theme,
     buttonAlign,
+    buttonRight,
+    groundY,
     onClick
   };
 

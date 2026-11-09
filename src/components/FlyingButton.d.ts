@@ -21,6 +21,8 @@ export interface FlyingButtonProps {
   buttonColor?: string;
   textColor?: string;
   buttonAlign?: 'left' | 'center' | 'right' | number;
+  buttonRight?: number | (() => number);
+  groundY?: number | (() => number);
   className?: string;
   style?: React.CSSProperties;
   onClick?: (e?: React.MouseEvent) => void;

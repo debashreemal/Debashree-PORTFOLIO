@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo, lazy, Suspense } from 'react';
 import debashreePhoto from './assets/debashree.png';
 import FlyingButton from './components/FlyingButton';
+import FoldText from './components/FoldText';
 import { AiFillLinkedin, AiFillGithub, AiFillMail } from 'react-icons/ai';
 
 // Lazy-load heavy 3D WebGL canvas to keep initial page load instantaneous
@@ -494,7 +495,7 @@ export const App: React.FC = () => {
     // Drag to scroll on stage (excluding clickable items)
     let dragStart: { y: number; t: number } | null = null;
     const handlePointerDown = (e: PointerEvent) => {
-      if ((e.target as HTMLElement)?.closest('.nav, .dots, .hero-robot-wrap, .domew, .contact-footer-bar, button, a')) {
+      if ((e.target as HTMLElement)?.closest('.nav, .hero-robot-wrap, .domew, .contact-footer-bar, button, a')) {
         return;
       }
       dragStart = { y: e.clientY, t: tgtRef.current };
@@ -1524,26 +1525,53 @@ export const App: React.FC = () => {
         </div>
       </nav>
 
-      {/* Side Indicator Dots */}
-      <div className="dots" id="dots">
-        {MILESTONES.map((_, i) => (
-          <i
-            key={i}
-            className={cur === i ? 'on' : ''}
-            onClick={() => goTo(i)}
-            title={`Slide ${i + 1}`}
-          />
-        ))}
-      </div>
-
       {/* =========================================================
           Panel 0: HERO
           ========================================================= */}
       <section ref={p0Ref} className="pn p0" style={{ zIndex: 1 }}>
         {/* Split Name: DEBASHREE on Left, MAL on Right in exact #EFEAE0 (Recessed BEHIND Robot, Z-Index: 2) */}
         <div className="hero-split-name">
-          <span ref={hLeftRef} className="hero-name-left l">DEBASHREE</span>
-          <span ref={hRightRef} className="hero-name-right l">MAL</span>
+          <span ref={hLeftRef} className="hero-name-left l">
+            <FoldText
+              text="DEBASHREE"
+              foldStyle="paper"
+              splitBy="char"
+              hinge="top"
+              trigger="mount"
+              foldAngle={92}
+              duration={0.65}
+              stagger={0.045}
+              staggerFrom="start"
+              ease="power3.out"
+              perspective={700}
+              creaseShading={0.55}
+              hoverRefold={true}
+              refoldRadius={140}
+              refoldAngle={45}
+              color="#EFEAE0"
+            />
+          </span>
+          <span ref={hRightRef} className="hero-name-right l">
+            <FoldText
+              text="MAL"
+              foldStyle="paper"
+              splitBy="char"
+              hinge="top"
+              trigger="mount"
+              delay={0.405}
+              foldAngle={92}
+              duration={0.65}
+              stagger={0.045}
+              staggerFrom="start"
+              ease="power3.out"
+              perspective={700}
+              creaseShading={0.55}
+              hoverRefold={true}
+              refoldRadius={140}
+              refoldAngle={45}
+              color="var(--rd, #EE3B1F)"
+            />
+          </span>
         </div>
 
         {/* Left Bottom Corner: Vertical Social Icons (Filled LinkedIn, GitHub, Mail) */}
@@ -2102,24 +2130,24 @@ export const App: React.FC = () => {
           </div>
         </div>
 
-        {/* SAY HELLO Flying Rocket Button - Original place resting on right above beige sheet */}
+        {/* SAY HELLO Flying Rocket Button - Original place resting on right above beige sheet & icons */}
         <div
           ref={cSayHelloRef}
           style={{
             position: 'absolute',
-            right: 'clamp(8px, 2.5vw, 36px)',
+            left: 0,
+            right: 0,
+            top: 0,
             bottom: 'calc(clamp(260px, 42vh, 440px) + 6px)',
-            width: 'clamp(440px, 54vw, 760px)',
-            height: 'clamp(280px, 36vh, 420px)',
             zIndex: 15,
             opacity: 0,
-            pointerEvents: 'auto',
+            pointerEvents: 'none',
           }}
         >
           <FlyingButton
             theme="dark"
             size="medium"
-            altitude={210}
+            altitude={220}
             hoverTime={2.4}
             jets={2}
             thrusters
@@ -2130,6 +2158,7 @@ export const App: React.FC = () => {
             wobble={1}
             ramp={false}
             buttonAlign="right"
+            buttonRight={() => Math.round(Math.max(40, Math.min(68, window.innerWidth * 0.025 + 32)))}
             thrustColor="#EE3B1F"
             smokeColor="#EFEAE0"
             buttonColor="#18181b"
@@ -2143,7 +2172,39 @@ export const App: React.FC = () => {
         </div>
 
         {/* Clean Beige Color Block Below */}
-        <div ref={cSheetRef} className="contact-bottom-sheet" />
+        <div ref={cSheetRef} className="contact-bottom-sheet">
+          {/* Horizontal Social Icons placed directly below the SAY HELLO Rocket */}
+          <div className="contact-social-row">
+            <a
+              href="https://www.linkedin.com/in/debashree-mal-118837269/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="contact-social-btn"
+              title="LinkedIn • Debashree Mal"
+              aria-label="LinkedIn Profile"
+            >
+              <AiFillLinkedin />
+            </a>
+            <a
+              href="https://github.com/debashree-08"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="contact-social-btn"
+              title="GitHub • @debashree-08"
+              aria-label="GitHub Profile"
+            >
+              <AiFillGithub />
+            </a>
+            <a
+              href="mailto:debashreee87@gmail.com"
+              className="contact-social-btn"
+              title="Email • debashreee87@gmail.com"
+              aria-label="Send Direct Email"
+            >
+              <AiFillMail />
+            </a>
+          </div>
+        </div>
       </section>
 
       {/* Hero Flying Coin-to-Sticker Card (Transitions from Moments Zoom -> Contact Sticker) */}
