@@ -2,7 +2,8 @@ import React, { useEffect, useRef, useState, useCallback, useMemo, lazy, Suspens
 import debashreePhoto from './assets/debashree.png';
 import FlyingButton from './components/FlyingButton';
 import FoldText from './components/FoldText';
-import { AiFillLinkedin, AiFillGithub, AiFillMail } from 'react-icons/ai';
+import { FaLinkedin, FaGithub, FaEnvelope } from 'react-icons/fa6';
+import { LinkedInBrandIcon, GitHubBrandIcon, GmailBrandIcon } from './components/BrandIcons';
 
 // Lazy-load heavy 3D WebGL canvas to keep initial page load instantaneous
 const HeroRobot = lazy(() => import('./components/canvas/HeroRobot'));
@@ -643,9 +644,9 @@ export const App: React.FC = () => {
       }
 
       // =========================================================
-      // PANEL 0: HERO (p < 0.22)
+      // PANEL 0: HERO (p < 0.09)
       // =========================================================
-      const heroVisible = p < 0.22;
+      const heroVisible = p < 0.09;
       if (heroVisible !== heroActiveRef.current) {
         heroActiveRef.current = heroVisible;
         setHeroActive(heroVisible);
@@ -653,30 +654,33 @@ export const App: React.FC = () => {
       if (p0Ref.current) {
         p0Ref.current.style.display = heroVisible ? 'block' : 'none';
         if (heroVisible) {
-          const hs = sg(p, 0.005, 0.12);
+          const uLeft = io(sg(p, 0.002, 0.026));
+          const uRight = io(sg(p, 0.004, 0.032));
+          const distLeft = Math.max(windowWidth * 0.75, 800);
+          const distRight = Math.max(windowWidth * 0.95 + 300, 1250);
 
-          // Name parallax exit with velocity skew & dynamic spread
+          // Name horizontal slide exit: Both DEBASHREE and MAL slide off to the LEFT swiftly
           if (hLeftRef.current) {
-            hLeftRef.current.style.transform = `translate3d(${-240 * hs}px, ${-180 * hs - p * 60}px, 0) rotate(${-8 * hs}deg) skewX(${-sk}deg)`;
-            hLeftRef.current.style.opacity = `${1 - cl(hs * 1.5)}`;
+            hLeftRef.current.style.transform = `translate3d(${-distLeft * uLeft}px, 0, 0)`;
+            hLeftRef.current.style.opacity = `${1 - cl((uLeft - 0.7) / 0.3)}`;
           }
           if (hRightRef.current) {
-            hRightRef.current.style.transform = `translate3d(${240 * hs}px, ${-180 * hs - p * 60}px, 0) rotate(${8 * hs}deg) skewX(${-sk}deg)`;
-            hRightRef.current.style.opacity = `${1 - cl(hs * 1.5)}`;
+            hRightRef.current.style.transform = `translate3d(${-distRight * uRight}px, 0, 0)`;
+            hRightRef.current.style.opacity = `${1 - cl((uRight - 0.7) / 0.3)}`;
           }
 
           // 3D Robot model smooth sink straight down below screen (zero scaling, original length preserved)
           if (hRobotRef.current) {
-            const robotSink = io(sg(p, 0.005, 0.12));
+            const robotSink = io(sg(p, 0.002, 0.032));
             hRobotRef.current.style.transform = `translate3d(0, ${robotSink * 115}vh, 0)`;
             hRobotRef.current.style.opacity = `${1 - cl(robotSink * 1.5)}`;
           }
 
           // Left-bottom social column smooth fade out on scroll
           if (hSocialRef.current) {
-            const hsOut = sg(p, 0.005, 0.10);
-            hSocialRef.current.style.transform = `translate3d(${-35 * hsOut}px, 0, 0)`;
-            hSocialRef.current.style.opacity = `${1 - cl(hsOut * 1.6)}`;
+            const hsOut = io(sg(p, 0.002, 0.026));
+            hSocialRef.current.style.transform = `translate3d(${-45 * hsOut}px, 0, 0)`;
+            hSocialRef.current.style.opacity = `${1 - cl(hsOut * 1.5)}`;
           }
         }
       }
@@ -698,16 +702,17 @@ export const App: React.FC = () => {
       document.documentElement.style.setProperty('--t', `${T}px`);
 
       // =========================================================
-      // PANEL 1: ABOUT ME (0.008 < p < 0.34)
+      // PANEL 1: ABOUT ME (0.030 < p < 0.34)
       // Master Choreography:
-      // 1. Cream sheet foundation arrives FIRST (p: 0.01 -> 0.085)
-      //    establishing the pristine archival canvas with zero visual leaks.
-      // 2. Orange circle appears SMALL, then smoothly blooms into
-      //    BIG ORIGINAL size (p: 0.085 -> 0.155).
-      // 3. Cutout portrait glides up into circle (p: 0.145 -> 0.205).
-      // 4. Floating tags & pills pop into place (p: 0.185 -> 0.235).
+      // 1. Debashree Mal text completely slides horizontally off-screen (p: 0.002 -> 0.032)
+      // 2. Cream sheet foundation arrives from LEFT side with ZERO delay & faster slide (p: 0.032 -> 0.070)
+      //    establishing the pristine archival canvas across the screen
+      // 3. Orange circle appears SMALL, then smoothly blooms into
+      //    BIG ORIGINAL size (p: 0.070 -> 0.140).
+      // 4. Cutout portrait glides up into circle (p: 0.120 -> 0.185).
+      // 5. Floating tags & pills pop into place (p: 0.160 -> 0.235).
       // =========================================================
-      const aboutVisible = p > 0.008 && p < 0.34;
+      const aboutVisible = p > 0.030 && p < 0.34;
       if (p1Ref.current) {
         p1Ref.current.style.display = aboutVisible ? 'block' : 'none';
         p1Ref.current.style.zIndex = p > 0.28 ? '2' : '4';
@@ -718,13 +723,13 @@ export const App: React.FC = () => {
           p1Ref.current.style.transform = 'none';
 
           // -----------------------------------------------------
-          // 1. CREAM SHEET FOUNDATION ARRIVES FIRST! (p: 0.01 -> 0.085)
-          // Rises gracefully from below, fully covering dark hero before circle emerges
+          // 1. CREAM SHEET FOUNDATION ARRIVES FROM LEFT SIDE! (p: 0.032 -> 0.070)
+          // Slides fast across from the left side with ZERO delay right as MAL disappears!
           // -----------------------------------------------------
           if (sheetRef.current) {
-            const sheetIn = io(sg(p, 0.01, 0.085));
+            const sheetIn = io(sg(p, 0.032, 0.070));
             if (p < 0.26) {
-              sheetRef.current.style.transform = `translateY(${(100 * (1 - sheetIn)).toFixed(1)}%)`;
+              sheetRef.current.style.transform = `translateX(${(-100 * (1 - sheetIn)).toFixed(2)}%)`;
               sheetRef.current.style.opacity = '1';
             } else {
               sheetRef.current.style.transform = 'none';
@@ -757,17 +762,17 @@ export const App: React.FC = () => {
           }
 
           // -----------------------------------------------------
-          // 2. ORANGE CIRCLE: STARTS SMALL, THEN BLOOMS TO BIG ORIGINAL! (p: 0.085 -> 0.155)
-          // Emerges strictly after cream sheet has arrived. Starts as a compact glowing seed,
+          // 2. ORANGE CIRCLE: STARTS SMALL, THEN BLOOMS TO BIG ORIGINAL! (p: 0.070 -> 0.140)
+          // Emerges strictly after cream sheet has arrived from the left. Starts as a compact glowing seed,
           // then blossoms smoothly and organically into full original scale.
           // -----------------------------------------------------
           if (aCircRef.current) {
             if (p < 0.25) {
-              if (p < 0.085) {
+              if (p < 0.070) {
                 aCircRef.current.style.opacity = '0';
                 aCircRef.current.style.transform = 'translate3d(0, 140px, 0) scale(0)';
               } else {
-                const uCirc = sg(p, 0.085, 0.155);
+                const uCirc = sg(p, 0.070, 0.140);
                 // Starts small (scale ~0.10) and grows with smooth cubic progression to 1.0 (big original)
                 const circGrowth = Math.pow(uCirc, 1.25);
                 const circScale = lp(0.10, 1.0, circGrowth);
@@ -787,16 +792,16 @@ export const App: React.FC = () => {
           }
 
           // -----------------------------------------------------
-          // 3. CUTOUT PORTRAIT: ENTERS AFTER CIRCLE IS BIG ORIGINAL! (p: 0.145 -> 0.205)
+          // 3. CUTOUT PORTRAIT: ENTERS AFTER CIRCLE IS BIG ORIGINAL! (p: 0.120 -> 0.185)
           // Glides up from below into the glowing circle with gentle tilt
           // -----------------------------------------------------
           if (aPhRef.current) {
             if (p < 0.25) {
-              if (p < 0.145) {
+              if (p < 0.120) {
                 aPhRef.current.style.opacity = '0';
                 aPhRef.current.style.transform = 'translate3d(0, 340px, 0) rotate(-4deg) scale(0.88)';
               } else {
-                const uPh = sg(p, 0.145, 0.205);
+                const uPh = sg(p, 0.120, 0.185);
                 const phEase = eo(uPh);
                 const phLift = (1 - phEase) * 340;
                 const phRot = (1 - phEase) * -4;
@@ -889,8 +894,8 @@ export const App: React.FC = () => {
           aRevealsRef.current.forEach((el, i) => {
             if (!el) return;
             if (p < 0.25) {
-              const starts = [0.085, 0.105, 0.125, 0.145, 0.16, 0.175];
-              const ends = [0.155, 0.175, 0.195, 0.21, 0.225, 0.235];
+              const starts = [0.072, 0.092, 0.112, 0.130, 0.150, 0.170];
+              const ends = [0.130, 0.150, 0.170, 0.185, 0.205, 0.225];
               const u = io(sg(p, starts[i], ends[i]));
               el.style.transform = `translateY(${(115 * (1 - u)).toFixed(1)}%)`;
             } else {
@@ -903,7 +908,7 @@ export const App: React.FC = () => {
           // Red underline bar
           if (aBarRef.current) {
             if (p < 0.25) {
-              aBarRef.current.style.transform = `scaleX(${eo(sg(p, 0.13, 0.19)).toFixed(3)})`;
+              aBarRef.current.style.transform = `scaleX(${eo(sg(p, 0.095, 0.155)).toFixed(3)})`;
             } else {
               aBarRef.current.style.transform = `scaleX(${(1 - eo(sg(p, 0.26, 0.285))).toFixed(3)})`;
             }
@@ -1574,7 +1579,7 @@ export const App: React.FC = () => {
           </span>
         </div>
 
-        {/* Left Bottom Corner: Vertical Social Icons (Filled LinkedIn, GitHub, Mail) */}
+        {/* Left Bottom Corner: Vertical Social Icons (Portfolio Cream #EFEAE0 with Red Hover) */}
         <div ref={hSocialRef} className="hero-social-col">
           <a
             href="https://www.linkedin.com/in/debashree-mal-118837269/"
@@ -1584,7 +1589,7 @@ export const App: React.FC = () => {
             title="LinkedIn • Debashree Mal"
             aria-label="LinkedIn Profile"
           >
-            <AiFillLinkedin />
+            <FaLinkedin />
           </a>
           <a
             href="https://github.com/debashree-08"
@@ -1594,7 +1599,7 @@ export const App: React.FC = () => {
             title="GitHub • @debashree-08"
             aria-label="GitHub Profile"
           >
-            <AiFillGithub />
+            <FaGithub />
           </a>
           <a
             href="mailto:debashreee87@gmail.com"
@@ -1602,7 +1607,7 @@ export const App: React.FC = () => {
             title="Email • debashreee87@gmail.com"
             aria-label="Send Direct Email"
           >
-            <AiFillMail />
+            <FaEnvelope />
           </a>
         </div>
 
@@ -2183,7 +2188,7 @@ export const App: React.FC = () => {
               title="LinkedIn • Debashree Mal"
               aria-label="LinkedIn Profile"
             >
-              <AiFillLinkedin />
+              <LinkedInBrandIcon />
             </a>
             <a
               href="https://github.com/debashree-08"
@@ -2193,7 +2198,7 @@ export const App: React.FC = () => {
               title="GitHub • @debashree-08"
               aria-label="GitHub Profile"
             >
-              <AiFillGithub />
+              <GitHubBrandIcon />
             </a>
             <a
               href="mailto:debashreee87@gmail.com"
@@ -2201,7 +2206,7 @@ export const App: React.FC = () => {
               title="Email • debashreee87@gmail.com"
               aria-label="Send Direct Email"
             >
-              <AiFillMail />
+              <GmailBrandIcon />
             </a>
           </div>
         </div>
