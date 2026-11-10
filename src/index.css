@@ -67,6 +67,7 @@ body {
   --mk: 'Permanent Marker', cursive;
   --mo: 'JetBrains Mono', monospace;
   --in: 'Inter', system-ui, sans-serif;
+  --ks: 'Kaushan Script', 'Kalam', cursive;
 }
 
 /* Fullscreen Stage Container */
@@ -79,6 +80,7 @@ body {
   --mk: 'Permanent Marker', cursive;
   --mo: 'JetBrains Mono', monospace;
   --in: 'Inter', system-ui, sans-serif;
+  --ks: 'Kaushan Script', 'Kalam', cursive;
   position: fixed;
   inset: 0;
   width: 100vw;
@@ -1288,10 +1290,6 @@ body {
   box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.9);
   will-change: transform;
   clip-path: none !important;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding: clamp(24px, 4.5vh, 48px) clamp(24px, 5vw, 72px) clamp(20px, 3vh, 36px);
   z-index: 8;
   color: #111;
   box-sizing: border-box;
@@ -1300,16 +1298,29 @@ body {
 /* Horizontal Social Icons placed directly below the SAY HELLO Rocket */
 .contact-social-row {
   position: absolute;
-  top: clamp(16px, 2.4vh, 26px);
-  right: clamp(40px, calc(2.5vw + 32px), 68px);
+  top: clamp(20px, 3vh, 32px);
+  right: clamp(34px, calc(2.5vw + 20px), 56px);
   width: auto;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: clamp(18px, 2vw, 26px);
+  gap: clamp(18px, 1.8vw, 24px);
   z-index: 20;
   pointer-events: auto;
+}
+
+/* Center Quote Line Aligned with SAY HELLO Rocket */
+.contact-shipping-quote {
+  font-family: var(--ks, 'Kaushan Script', 'Kalam', cursive);
+  font-size: clamp(26px, 2.8vw, 42px);
+  font-weight: 400;
+  line-height: 1.25;
+  color: var(--rd, #8F9BFF);
+  letter-spacing: 0.015em;
+  text-shadow: none;
+  user-select: none;
+  white-space: nowrap;
 }
 
 .contact-social-btn {
@@ -1333,14 +1344,14 @@ body {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  transform: translateY(-3px) scale(1.08) !important;
-  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.25)) brightness(1.12) !important;
+  transform: translateY(-5px) scale(1.1) !important;
+  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.22)) brightness(1.08) !important;
 }
 
 .contact-social-btn svg {
   display: block;
-  width: clamp(24px, 2.1vw, 28px);
-  height: clamp(24px, 2.1vw, 28px);
+  width: clamp(50px, 4.2vw, 64px);
+  height: clamp(50px, 4.2vw, 64px);
 }
 
 /* Services Tagline Strip */
@@ -1498,10 +1509,10 @@ body {
 }
 
 .moments-modal-card-3d {
-  width: clamp(310px, 30vw, 440px);
-  min-height: clamp(400px, 50vh, 530px);
-  border-radius: 20px;
-  padding: clamp(24px, 3vw, 36px);
+  width: clamp(340px, 34vw, 490px);
+  min-height: clamp(430px, 52vh, 560px);
+  border-radius: 22px;
+  padding: clamp(26px, 3.2vw, 40px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -1631,22 +1642,22 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 13px;
+  padding: clamp(15px, 1.2vw, 19px);
   box-sizing: border-box;
   transform-style: preserve-3d;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   transform: translateZ(0);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 16px;
+  border-radius: 18px;
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.65);
   transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
 }
 
 .portrait-card-3d:hover {
-  background: #1b1b22 !important;
-  border-color: rgba(255, 255, 255, 0.35) !important;
-  box-shadow: 0 24px 54px rgba(0, 0, 0, 0.95) !important;
+  background: #16161c !important;
+  border-color: rgba(255, 255, 255, 0.16) !important;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.85) !important;
   outline: none !important;
 }
 
@@ -1699,7 +1710,7 @@ body {
 
 .portrait-card-title {
   margin: 0;
-  font: 700 13px/1.2 var(--in, sans-serif);
+  font: 700 clamp(14px, 1.1vw, 16.5px)/1.2 var(--in, sans-serif);
   color: #FFFFFF;
   letter-spacing: -0.01em;
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95);
@@ -1710,14 +1721,14 @@ body {
 }
 
 .portrait-card-sub {
-  font: 600 9px/1.2 var(--mo, monospace);
+  font: 600 clamp(9.5px, 0.75vw, 11px)/1.2 var(--mo, monospace);
   color: rgba(255, 255, 255, 0.82);
-  margin-top: 4px;
+  margin-top: 5px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   background: rgba(255, 255, 255, 0.12);
-  padding: 2.5px 6.5px;
-  border-radius: 4px;
+  padding: 3px 7px;
+  border-radius: 5px;
   backdrop-filter: blur(4px);
   white-space: nowrap;
   overflow: hidden;
@@ -1735,14 +1746,14 @@ body {
 }
 
 .portrait-card-seemore {
-  font: 500 9.5px/1.2 var(--in, sans-serif);
+  font: 500 clamp(10px, 0.8vw, 11.5px)/1.2 var(--in, sans-serif);
   color: rgba(255, 255, 255, 0.8);
   letter-spacing: 0.03em;
   display: inline-flex;
   align-items: center;
   background: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(8px);
-  padding: 3.5px 9px;
+  padding: 4px 10px;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   transition: all 0.2s ease;
@@ -1750,8 +1761,8 @@ body {
 
 .portrait-card-3d:hover .portrait-card-seemore {
   color: #FFFFFF;
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.18);
 }
 
 .mm-card-img-wrap {
@@ -1798,9 +1809,50 @@ body {
   cursor: pointer;
 }
 
+/* Safe hit area to prevent edge-hover flickering */
+.coin-sticker-wrap[data-stuck="true"]::before {
+  content: '';
+  position: absolute;
+  inset: -14px;
+  pointer-events: auto;
+  border-radius: 22px;
+}
+
+/* Smooth bidirectional transform transition when resting */
+.coin-sticker-wrap[data-stuck="true"] .coin-flipper {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Preserve rotateY(360deg) so the card never spins backwards / flips through the reverse coin */
 .coin-sticker-wrap[data-stuck="true"]:hover .coin-flipper {
-  transform: rotate(-2deg) scale(1.05) translateY(-6px) !important;
-  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: rotateY(360deg) translateY(-5px) scale(1.04) rotate(-2deg) !important;
+}
+
+/* Hide back face once docked so it can never flash or Z-fight */
+.coin-sticker-wrap[data-stuck="true"] .coin-back {
+  display: none !important;
+}
+
+.coin-sticker-wrap[data-stuck="true"]:hover .coin-face,
+.coin-sticker-wrap:hover .portrait-card-3d,
+.coin-sticker-wrap .portrait-card-3d:hover {
+  background: #141418 !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.75) !important;
+  outline: none !important;
+}
+
+/* Prevent internal image double-scaling shimmer */
+.coin-sticker-wrap .portrait-card-3d:hover .portrait-img {
+  transform: none !important;
+}
+
+/* Eliminate GPU backdrop-filter invalidation flashes inside the 3D card */
+.coin-sticker-wrap .portrait-card-sub,
+.coin-sticker-wrap .portrait-card-seemore {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: rgba(14, 14, 18, 0.82) !important;
 }
 
 .coin-flipper {
@@ -1809,24 +1861,25 @@ body {
   height: 100%;
   transform-style: preserve-3d;
   will-change: transform;
-  border-radius: 16px;
+  border-radius: 18px;
 }
 
 .coin-face {
   position: absolute;
   inset: 0;
-  border-radius: 16px;
+  border-radius: 18px;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   overflow: hidden;
-  box-shadow: 0 0 0 3px #FAF7F2, 0 16px 36px rgba(0, 0, 0, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.65);
 }
 
 /* Front Face: The Moment Card */
 .coin-front {
   background: #141418;
   border: 1px solid rgba(255, 255, 255, 0.16);
-  padding: 10px 10px 12px;
+  padding: 12px 12px 14px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -1989,9 +2042,5 @@ body {
 }
 
 .coin-sheen {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0) 48%, rgba(255, 255, 255, 0.06) 100%);
-  border-radius: inherit;
+  display: none !important;
 }

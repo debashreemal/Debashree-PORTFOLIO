@@ -333,23 +333,23 @@ export const App: React.FC = () => {
 
   const domeConfig = useMemo(() => {
     const k = K;
-    // Larger square cards (228px x 228px at base scale)
-    const tileSize = Math.round(228 * k);
+    // Larger square cards (288px x 288px at base scale)
+    const tileSize = Math.round(288 * k);
     const tileWidth = tileSize;
     const tileHeight = tileSize;
     const cols = 24;
-    // Radius calculated so horizontal pitch gives clean, elegant ~28px gap
-    const R = Math.round((cols * (tileWidth + 28)) / (2 * Math.PI));
+    // Radius calculated so horizontal pitch gives clean, elegant ~32px gap
+    const R = Math.round((cols * (tileWidth + 32)) / (2 * Math.PI));
     return {
-      perspective: Math.round(820 * k),
+      perspective: Math.round(960 * k),
       R,
       cols,
       tileWidth,
       tileHeight,
       marginLeft: Math.round(-tileWidth / 2),
       marginTop: Math.round(-tileHeight / 2),
-      fontSize: Math.max(10, Math.round(12 * k)),
-      borderRadius: Math.max(14, Math.round(18 * k)),
+      fontSize: Math.max(11, Math.round(13 * k)),
+      borderRadius: Math.max(16, Math.round(20 * k)),
     };
   }, [K]);
 
@@ -1291,7 +1291,7 @@ export const App: React.FC = () => {
           const sr = sg(p, 0.65, 0.82);
 
           // Resting zoom keeps cards large and immersive; transition flies forward into blank space
-          const baseZoom = 430 * K;
+          const baseZoom = 485 * K;
           const slotZoom = io(sg(p, 0.81, 0.87)) * 160 * K;
           const transitionZoom = momFly * 850 * K;
           // Globe gently floats forward from depth (-160px) to full baseZoom, expanding outward behind the zooming book
@@ -1386,7 +1386,7 @@ export const App: React.FC = () => {
           const vh = window.innerHeight;
 
           // Card dimensions (responsive square sticker size matching 3-row square tiles)
-          const cardSize = Math.max(170, Math.min(230, vw * 0.16));
+          const cardSize = Math.max(200, Math.min(275, vw * 0.19));
           const cardW = cardSize;
           const cardH = cardSize;
 
@@ -1516,7 +1516,7 @@ export const App: React.FC = () => {
               marginLeft: `${domeConfig.marginLeft}px`,
               marginTop: `${domeConfig.marginTop}px`,
               transform: isSelected
-                ? `rotateY(${lo}deg) rotateX(${la}deg) translateZ(${-R + 260}px) scale(1.35)`
+                ? `rotateY(${lo}deg) rotateX(${la}deg) translateZ(${-R + 290}px) scale(1.35)`
                 : `rotateY(${lo}deg) rotateX(${la}deg) translateZ(${-R}px)`,
               cursor: 'pointer',
               zIndex: isSelected ? 70 : 1,
@@ -1644,14 +1644,12 @@ export const App: React.FC = () => {
         {/* Left Bottom Corner: Vertical Social Icons (Portfolio Cream #EFEAE0 with Red Hover) */}
         <div ref={hSocialRef} className="hero-social-col">
           <a
-            href="https://www.linkedin.com/in/debashree-mal-118837269/"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="mailto:debashreee87@gmail.com"
             className="hero-social-btn"
-            title="LinkedIn • Debashree Mal"
-            aria-label="LinkedIn Profile"
+            title="Email • debashreee87@gmail.com"
+            aria-label="Send Direct Email"
           >
-            <FaLinkedin />
+            <FaEnvelope />
           </a>
           <a
             href="https://github.com/debashree-08"
@@ -1664,12 +1662,14 @@ export const App: React.FC = () => {
             <FaGithub />
           </a>
           <a
-            href="mailto:debashreee87@gmail.com"
+            href="https://www.linkedin.com/in/debashree-mal-118837269/"
+            target="_blank"
+            rel="noopener noreferrer"
             className="hero-social-btn"
-            title="Email • debashreee87@gmail.com"
-            aria-label="Send Direct Email"
+            title="LinkedIn • Debashree Mal"
+            aria-label="LinkedIn Profile"
           >
-            <FaEnvelope />
+            <FaLinkedin />
           </a>
         </div>
 
@@ -2197,7 +2197,7 @@ export const App: React.FC = () => {
           </div>
         </div>
 
-        {/* SAY HELLO Flying Rocket Button - Original place resting on right above beige sheet & icons */}
+        {/* SAY HELLO Flying Rocket Button & Center Quote */}
         <div
           ref={cSayHelloRef}
           style={{
@@ -2211,6 +2211,22 @@ export const App: React.FC = () => {
             pointerEvents: 'none',
           }}
         >
+          {/* Centered Quote line aligned with SAY HELLO rocket */}
+          <div
+            className="contact-shipping-quote"
+            style={{
+              position: 'absolute',
+              bottom: '10px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              pointerEvents: 'auto',
+              whiteSpace: 'nowrap',
+              zIndex: 2,
+            }}
+          >
+            “Let’s build something worth shipping.”
+          </div>
+
           <FlyingButton
             theme="dark"
             size="medium"
@@ -2243,14 +2259,12 @@ export const App: React.FC = () => {
           {/* Horizontal Social Icons placed directly below the SAY HELLO Rocket */}
           <div className="contact-social-row">
             <a
-              href="https://www.linkedin.com/in/debashree-mal-118837269/"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="mailto:debashreee87@gmail.com"
               className="contact-social-btn"
-              title="LinkedIn • Debashree Mal"
-              aria-label="LinkedIn Profile"
+              title="Email • debashreee87@gmail.com"
+              aria-label="Send Direct Email"
             >
-              <LinkedInBrandIcon />
+              <GmailBrandIcon />
             </a>
             <a
               href="https://github.com/debashree-08"
@@ -2263,12 +2277,14 @@ export const App: React.FC = () => {
               <GitHubBrandIcon />
             </a>
             <a
-              href="mailto:debashreee87@gmail.com"
+              href="https://www.linkedin.com/in/debashree-mal-118837269/"
+              target="_blank"
+              rel="noopener noreferrer"
               className="contact-social-btn"
-              title="Email • debashreee87@gmail.com"
-              aria-label="Send Direct Email"
+              title="LinkedIn • Debashree Mal"
+              aria-label="LinkedIn Profile"
             >
-              <GmailBrandIcon />
+              <LinkedInBrandIcon />
             </a>
           </div>
         </div>
