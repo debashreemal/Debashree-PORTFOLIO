@@ -1630,19 +1630,19 @@ body {
 }
 
 /* =========================================================
-   3D Cards in Moments (3-Row Panoramic Cylinder - Aesthetic Square Format)
+   3D Cards in Moments (3-Row Panoramic Cylinder - Cinematic 4:3 Ratio)
    ========================================================= */
 .portrait-card-3d {
   position: relative;
   width: 100%;
   height: 100%;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 4 / 3;
   overflow: hidden;
   background: #131317;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  padding: clamp(15px, 1.2vw, 19px);
+  justify-content: flex-end;
+  padding: clamp(12px, 1.1vw, 16px);
   box-sizing: border-box;
   transform-style: preserve-3d;
   backface-visibility: hidden;
@@ -1677,92 +1677,60 @@ body {
   object-position: center;
   display: block;
   transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease;
-  filter: contrast(1.08) brightness(0.92);
+  filter: contrast(1.08) brightness(0.95);
 }
 
 .portrait-card-3d:hover .portrait-img {
   transform: scale(1.05);
-  filter: contrast(1.08) brightness(0.92);
+  filter: contrast(1.08) brightness(1.0);
 }
 
 .portrait-vignette {
   position: absolute;
   inset: 0;
   background: linear-gradient(to bottom,
-      rgba(10, 10, 14, 0.82) 0%,
-      rgba(10, 10, 14, 0.38) 28%,
-      rgba(10, 10, 14, 0.08) 50%,
-      rgba(10, 10, 14, 0.42) 74%,
-      rgba(10, 10, 14, 0.90) 100%);
+      transparent 0%,
+      transparent 45%,
+      rgba(10, 10, 14, 0.35) 70%,
+      rgba(10, 10, 14, 0.88) 100%);
   pointer-events: none;
 }
 
-/* Top-Left: Title & Subtitle */
-.portrait-card-header {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-  max-width: 100%;
-}
-
-.portrait-card-title {
-  margin: 0;
-  font: 700 clamp(14px, 1.1vw, 16.5px)/1.2 var(--in, sans-serif);
-  color: #FFFFFF;
-  letter-spacing: -0.01em;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-}
-
-.portrait-card-sub {
-  font: 600 clamp(9.5px, 0.75vw, 11px)/1.2 var(--mo, monospace);
-  color: rgba(255, 255, 255, 0.82);
-  margin-top: 5px;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  background: rgba(255, 255, 255, 0.12);
-  padding: 3px 7px;
-  border-radius: 5px;
-  backdrop-filter: blur(4px);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-}
-
-/* Bottom-Left: See more » */
+/* Bottom: Heading in place of See more button */
 .portrait-card-footer {
   position: relative;
   z-index: 2;
+  margin-top: auto;
   display: flex;
   align-items: flex-end;
   justify-content: flex-start;
+  width: 100%;
 }
 
-.portrait-card-seemore {
-  font: 500 clamp(10px, 0.8vw, 11.5px)/1.2 var(--in, sans-serif);
-  color: rgba(255, 255, 255, 0.8);
-  letter-spacing: 0.03em;
-  display: inline-flex;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(8px);
-  padding: 4px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  transition: all 0.2s ease;
-}
-
-.portrait-card-3d:hover .portrait-card-seemore {
+.portrait-card-bottom-title {
+  margin: 0;
+  font: 700 clamp(12.5px, 1.0vw, 15px)/1.2 var(--in, sans-serif);
   color: #FFFFFF;
-  background: rgba(255, 255, 255, 0.14);
-  border-color: rgba(255, 255, 255, 0.18);
+  letter-spacing: -0.01em;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  background: rgba(14, 14, 18, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 5px 11px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  transition: all 0.25s ease;
+}
+
+.portrait-card-3d:hover .portrait-card-bottom-title {
+  color: #FFFFFF;
+  background: rgba(22, 22, 30, 0.85);
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
 }
 
 .mm-card-img-wrap {
@@ -1848,11 +1816,10 @@ body {
 }
 
 /* Eliminate GPU backdrop-filter invalidation flashes inside the 3D card */
-.coin-sticker-wrap .portrait-card-sub,
-.coin-sticker-wrap .portrait-card-seemore {
+.coin-sticker-wrap .portrait-card-bottom-title {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-  background: rgba(14, 14, 18, 0.82) !important;
+  background: rgba(14, 14, 18, 0.85) !important;
 }
 
 .coin-flipper {
@@ -1926,17 +1893,7 @@ body {
 }
 
 .coin-sticker-tape {
-  position: absolute;
-  top: 4px;
-  right: -16px;
-  background: rgba(250, 247, 242, 0.95);
-  color: #111;
-  font: 800 7px var(--mo);
-  letter-spacing: 0.12em;
-  padding: 2px 20px;
-  transform: rotate(32deg);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
-  pointer-events: none;
+  display: none !important;
 }
 
 .coin-card-body {
@@ -1976,69 +1933,9 @@ body {
   margin-top: 2px;
 }
 
-/* Back Face: Collector's Reverse Coin */
+/* Back Face: Identical to Front Face (Rotated 180deg) */
 .coin-back {
-  background: radial-gradient(circle at center, #1c1c24 0%, #0d0d10 100%);
-  border: 1px solid rgba(255, 255, 255, 0.2);
   transform: rotateY(180deg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 12px;
-}
-
-.coin-back-inner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-}
-
-.coin-back-ring {
-  width: 68px;
-  height: 68px;
-  border-radius: 50%;
-  border: 2px dashed rgba(143, 155, 255, 0.55);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(143, 155, 255, 0.08);
-  box-shadow: inset 0 0 16px rgba(143, 155, 255, 0.18), 0 0 12px rgba(143, 155, 255, 0.18);
-  margin-bottom: 12px;
-}
-
-.coin-back-monogram {
-  font: 700 24px var(--bn, sans-serif);
-  color: #FAF7F2;
-  letter-spacing: 0.1em;
-}
-
-.coin-back-label {
-  font: 700 9.5px var(--mo);
-  color: var(--rd);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.coin-back-sub {
-  font: 600 8px var(--mo);
-  color: rgba(255, 255, 255, 0.5);
-  letter-spacing: 0.08em;
-  margin-top: 3px;
-}
-
-.coin-back-stamp {
-  margin-top: 10px;
-  font: 700 7.5px var(--mo);
-  color: #FAF7F2;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  padding: 2px 8px;
-  border-radius: 999px;
-  letter-spacing: 0.12em;
 }
 
 .coin-sheen {

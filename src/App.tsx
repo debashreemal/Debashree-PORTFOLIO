@@ -42,7 +42,7 @@ const W5_DATA = [
     tag: 'AI Project Manager',
     desc: 'FlowMind, an autonomous multi-agent project manager, outcompeted 120+ teams with end-to-end task graph routing.',
     icon: 'ti-trophy',
-    img: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&q=80&auto=format&fit=crop',
+    img: '/moments/m8 - WON  AXION Hackathon.jpeg',
     metric: '120+ Teams',
     stack: ['LangGraph', 'Python', 'FastAPI'],
     quote: 'Recognized for automated workflow intelligence & deterministic task execution.',
@@ -55,7 +55,7 @@ const W5_DATA = [
     tag: 'Computer Vision',
     desc: 'Engineered NHAIFaceID with Piyush Yenorkar — an offline edge facial recognition SDK for remote highway toll inspection.',
     icon: 'ti-scan',
-    img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80&auto=format&fit=crop',
+    img: '/moments/m2 - Pluto Campus.jpeg',
     metric: '<18ms Latency',
     stack: ['WebAssembly', 'C++', 'OpenCV'],
     quote: 'Complete on-device biometrics running locally at edge toll booths with zero cloud reliance.',
@@ -68,7 +68,7 @@ const W5_DATA = [
     tag: 'Autonomous AI',
     desc: 'FlowMind placed at the centre of build: a live multi-agent execution framework with zero-latency task routing.',
     icon: 'ti-flame',
-    img: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&q=80&auto=format&fit=crop',
+    img: '/moments/m3 - Pitching ZOKU.jpeg',
     metric: 'Swarm Engine',
     stack: ['LangGraph', 'Multi-Agent', 'Next.js'],
     quote: 'Self-orchestrating task dependency graphs with real-time exception recovery.',
@@ -81,7 +81,7 @@ const W5_DATA = [
     tag: 'MoSPI Ministry',
     desc: 'Developed national Airfare Price Index forecasting algorithm using real-time flight telemetry for Ministry of Statistics.',
     icon: 'ti-award',
-    img: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=800&q=80&auto=format&fit=crop',
+    img: '/moments/m15 - SIH Presentation.jpeg',
     metric: 'Ministry Finalist',
     stack: ['Telemetry', 'Python', 'MoSPI API'],
     quote: 'National-scale inflation monitoring model for domestic aviation ticket fares.',
@@ -94,7 +94,7 @@ const W5_DATA = [
     tag: 'Sulajh AI',
     desc: 'Sulajh AI: autonomous AI teammates simulating merchant onboarding workflows, automated KYC exception resolution.',
     icon: 'ti-rocket',
-    img: 'https://images.unsplash.com/photo-1556742049-0a67e5572293?w=800&q=80&auto=format&fit=crop',
+    img: '/moments/m1 - Paytm Headquaters.jpeg',
     metric: 'India Scale',
     stack: ['LLM Agents', 'FastAPI', 'FinTech SDK'],
     quote: 'Scaling merchant acquisition through interactive autonomous agent simulation.',
@@ -105,145 +105,259 @@ const W5_DATA = [
 const MOMENTS_ITEMS = [
   {
     id: 1,
-    title: 'Axion Hackathon',
-    category: '1ST PLACE',
-    tag: 'AI Project Manager',
-    desc: 'FlowMind took 1st place among 120+ teams, recognized for automated workflow intelligence.',
+    title: 'Paytm Headquaters',
+    category: 'MOMENT #01',
+    tag: 'Paytm Headquaters',
+    desc: 'Paytm Headquarters moment with product leadership and engineering teams.',
     date: '2025',
-    color: '#8F9BFF',
-    img: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&q=80&auto=format&fit=crop',
+    color: '#EFEAE0',
+    img: '/moments/m1 - Paytm Headquaters.jpeg',
   },
   {
     id: 2,
-    title: 'NHAI Hackathon 7.0',
-    category: 'OFFLINE FACE SDK',
-    tag: 'Computer Vision',
-    desc: 'Engineered NHAIFaceID with offline edge facial recognition for highway toll inspection.',
+    title: 'Pluto Campus',
+    category: 'MOMENT #02',
+    tag: 'Pluto Campus',
+    desc: 'Campus initiatives and engineering sprints building developer tooling.',
     date: '2025',
     color: '#EFEAE0',
-    img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80&auto=format&fit=crop',
+    img: '/moments/m2 - Pluto Campus.jpeg',
   },
   {
     id: 3,
-    title: 'HackHazards 2026',
-    category: 'FLOWMIND',
-    tag: 'Autonomous AI',
-    desc: 'Live multi-agent execution framework with zero-latency task routing and dependency graphs.',
+    title: 'Pitching ZOKU',
+    category: 'MOMENT #03',
+    tag: 'Pitching ZOKU',
+    desc: 'Live onstage pitch for ZOKU, showcasing architecture and market vision.',
     date: '2026',
     color: '#8F9BFF',
-    img: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&q=80&auto=format&fit=crop',
+    img: '/moments/m3 - Pitching ZOKU.jpeg',
   },
   {
     id: 4,
-    title: 'Smart India Hackathon',
-    category: 'SIH 2026',
-    tag: 'MoSPI Ministry',
-    desc: 'Developed national Airfare Price Index forecasting algorithm using real-time flight telemetry.',
+    title: 'Connections',
+    category: 'MOMENT #04',
+    tag: 'Connections',
+    desc: 'Networking with fellow builders, founders, and engineers at tech summits.',
     date: '2026',
     color: '#EFEAE0',
-    img: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=800&q=80&auto=format&fit=crop',
+    img: '/moments/m4 - Connections.jpeg',
   },
   {
     id: 5,
-    title: 'Paytm Build for India',
-    category: 'AI TEAMMATES',
-    tag: 'Sulajh AI',
-    desc: 'Autonomous AI team member simulation built for India-scale merchant onboarding.',
+    title: 'Team STARCY',
+    category: 'MOMENT #05',
+    tag: 'Team STARCY',
+    desc: 'Building together with Team STARCY during intense hackathon sprints.',
     date: '2025',
     color: '#8F9BFF',
-    img: 'https://images.unsplash.com/photo-1556742049-0a67e5572293?w=800&q=80&auto=format&fit=crop',
+    img: '/moments/m5 - Team STARCY.jpeg',
   },
   {
     id: 6,
-    title: 'Mumbai CE Cohort',
-    category: 'CLASS OF 2028',
-    tag: 'Computer Engineering',
-    desc: 'Campus community lead, organizing hackathons, open-source sprints, and peer build nights.',
+    title: 'Saavishkar',
+    category: 'MOMENT #06',
+    tag: 'Saavishkar',
+    desc: 'Showcasing innovations and technical research at Saavishkar expo.',
     date: '2025',
     color: '#EFEAE0',
-    img: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80&auto=format&fit=crop',
+    img: '/moments/m6 - Saavishkar.jpeg',
   },
   {
     id: 7,
-    title: 'AI for Bharat',
-    category: 'PRODUCT INITIATIVE',
-    tag: 'Vernacular LLMs',
-    desc: 'Building localized AI tools tailored for non-metro Indian merchants and students.',
+    title: 'Hack with Mumbai',
+    category: 'MOMENT #07',
+    tag: 'Hack with Mumbai',
+    desc: 'Hacking through the weekend at Hack with Mumbai with the builder community.',
     date: '2026',
     color: '#8F9BFF',
-    img: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&q=80&auto=format&fit=crop',
+    img: '/moments/m7 - Hack with Mumbai.jpeg',
   },
   {
     id: 8,
-    title: 'Edge SDK Architecture',
-    category: 'SYSTEM DESIGN',
-    tag: 'WebAssembly / C++',
-    desc: 'Lightweight on-device model serving with under 28MB memory footprint.',
+    title: 'WON  AXION Hackathon',
+    category: '1ST PLACE',
+    tag: 'WON  AXION Hackathon',
+    desc: 'Taking 1st place at Axion Hackathon with FlowMind multi-agent workflow intelligence.',
     date: '2025',
     color: '#EFEAE0',
-    img: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80&auto=format&fit=crop',
+    img: '/moments/m8 - WON  AXION Hackathon.jpeg',
   },
   {
     id: 9,
-    title: 'Late Night Hack Lab',
-    category: 'DEV NIGHTS',
-    tag: 'Team Sprint',
-    desc: '36 hours of non-stop caffeinated coding, rapid prototyping, and pitch iteration.',
+    title: 'SIH Internal Round',
+    category: 'MOMENT #09',
+    tag: 'SIH Internal Round',
+    desc: 'Qualifying rounds for Smart India Hackathon solving ministry problem statements.',
     date: '2025',
     color: '#8F9BFF',
-    img: 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=800&q=80&auto=format&fit=crop',
+    img: '/moments/m9 - SIH Internal Round.jpeg',
   },
   {
     id: 10,
-    title: 'Final Pitch Stage',
-    category: 'PRESENTATION',
-    tag: 'Grand Finale',
-    desc: 'Pitching live to industry jury, tech founders, and venture partners at national summits.',
+    title: 'Official Participant',
+    category: 'MOMENT #10',
+    tag: 'Official Participant',
+    desc: 'Accredited participant at premier developer conferences and hackathons.',
     date: '2026',
     color: '#EFEAE0',
-    img: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=800&q=80&auto=format&fit=crop',
+    img: '/moments/m10 - Official Participant.jpeg',
   },
   {
     id: 11,
-    title: 'FlowMind Architecture',
-    category: 'AGENTIC PIPELINES',
-    tag: 'LangGraph & Python',
-    desc: 'Hierarchical multi-agent delegation system with deterministic state validation.',
+    title: 'Live Coding',
+    category: 'MOMENT #11',
+    tag: 'Live Coding',
+    desc: 'In the zone: live architectural execution and debugging during 36hr hackathon.',
     date: '2025',
     color: '#8F9BFF',
-    img: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=800&q=80&auto=format&fit=crop',
+    img: '/moments/m11 - Live Coding.jpeg',
   },
   {
     id: 12,
-    title: 'Zwiggy Prototype',
-    category: 'SOLO BUILD',
-    tag: 'React & FastAPI',
-    desc: 'Dynamic food delivery logistics simulation with microsecond delivery dispatching.',
+    title: 'Live Pitch',
+    category: 'MOMENT #12',
+    tag: 'Live Pitch',
+    desc: 'Defending technical architecture and live product demo in front of jury.',
     date: '2025',
     color: '#EFEAE0',
-    img: 'https://images.unsplash.com/photo-1526367790999-0150786686a2?w=800&q=80&auto=format&fit=crop',
+    img: '/moments/m12- Live Pitch.jpeg',
   },
   {
     id: 13,
-    title: 'PLUTO Automation',
-    category: 'TOOLING',
-    tag: 'Developer CLI',
-    desc: 'CLI-based cloud container orchestrator with instant zero-downtime deployment pipelines.',
+    title: '1st Rank at Enterprenuership Quest',
+    category: 'CHAMPION',
+    tag: '1st Rank at Enterprenuership Quest',
+    desc: 'Securing top honours and standing 1st on the podium among 120+ teams.',
     date: '2026',
     color: '#8F9BFF',
-    img: 'https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?w=800&q=80&auto=format&fit=crop',
+    img: '/moments/m13 - 1st Rank at Enterprenuership Quest.jpeg',
   },
   {
     id: 14,
-    title: 'Debashree Mal',
-    category: 'FOUNDER & BUILDER',
-    tag: 'Vision 2026+',
-    desc: 'Continuing to build resilient, accessible AI systems for the next billion users in India.',
+    title: 'Open Discussion',
+    category: 'FEATURED MOMENT',
+    tag: 'Open Discussion',
+    desc: 'Panel discussions, Q&A, and technical deep-dives with mentors.',
+    date: '2026',
+    color: '#8F9BFF',
+    img: '/moments/m14 - Open Discussion.jpeg',
+  },
+  {
+    id: 15,
+    title: 'SIH Presentation',
+    category: 'FINALIST',
+    tag: 'SIH Presentation',
+    desc: 'Presenting Ministry of Statistics telemetry solutions on national stage.',
+    date: '2025',
+    color: '#8F9BFF',
+    img: '/moments/m15 - SIH Presentation.jpeg',
+  },
+  {
+    id: 16,
+    title: 'Paytm Collaborative Coding',
+    category: 'MOMENT #16',
+    tag: 'Paytm Collaborative Coding',
+    desc: 'Pair programming and sprint execution at Paytm Build for India.',
     date: '2026',
     color: '#EFEAE0',
-    img: debashreePhoto,
+    img: '/moments/m16 - Paytm Collaborative Coding.jpeg',
+  },
+  {
+    id: 17,
+    title: 'Paytm Hackathon',
+    category: 'MOMENT #17',
+    tag: 'Paytm Hackathon',
+    desc: 'FinTech agent hackathon sprints creating autonomous merchant solutions.',
+    date: '2026',
+    color: '#8F9BFF',
+    img: '/moments/m17 - Paytm Hackathon.jpeg',
+  },
+  {
+    id: 18,
+    title: 'Audience Agreement',
+    category: 'MOMENT #18',
+    tag: 'Audience Agreement',
+    desc: 'Engaging audience reactions during live product demonstrations.',
+    date: '2025',
+    color: '#EFEAE0',
+    img: '/moments/m18 - Audience Agreement.jpeg',
+  },
+  {
+    id: 19,
+    title: 'Paytm AI Hackathon',
+    category: 'MOMENT #19',
+    tag: 'Paytm AI Hackathon',
+    desc: 'AI teammates and autonomous agent systems at Paytm AI Hackathon.',
+    date: '2025',
+    color: '#8F9BFF',
+    img: '/moments/m19 - Paytm AI Hackathon.jpeg',
+  },
+  {
+    id: 20,
+    title: 'Enterpreneurship Quest',
+    category: 'MOMENT #20',
+    tag: 'Enterpreneurship Quest',
+    desc: 'Exploring product market fit and venture building challenges.',
+    date: '2026',
+    color: '#EFEAE0',
+    img: '/moments/m20 - Enterpreneurship Quest.jpeg',
+  },
+  {
+    id: 21,
+    title: 'Waterstone Co-operate Campus',
+    category: 'MOMENT #21',
+    tag: 'Waterstone Co-operate Campus',
+    desc: 'Tech summit and cohort workshops at Waterstone Corporate Campus.',
+    date: '2025',
+    color: '#8F9BFF',
+    img: '/moments/m21 - Waterstone Co-operate Campus.jpeg',
+  },
+  {
+    id: 22,
+    title: 'Calm Confidence',
+    category: 'MOMENT #22',
+    tag: 'Calm Confidence',
+    desc: 'Behind the scenes: focused preparation before the grand finale pitch.',
+    date: '2026',
+    color: '#EFEAE0',
+    img: '/moments/m22 - Calm Confidence.jpeg',
+  },
+  {
+    id: 23,
+    title: 'Paytm Innovators',
+    category: 'MOMENT #23',
+    tag: 'Paytm Innovators',
+    desc: 'Celebrating with fellow Paytm innovators at the hackathon conclusion.',
+    date: '2025',
+    color: '#8F9BFF',
+    img: '/moments/m23 - Paytm Innovators.jpeg',
   },
 ];
+
+const MOMENTS_MAP: Record<number, (typeof MOMENTS_ITEMS)[0]> = {};
+MOMENTS_ITEMS.forEach((item) => {
+  MOMENTS_MAP[item.id] = item;
+});
+
+// Mathematically optimal 3-row x 23-column cyclorama mapping:
+// Shifts of 8 columns between tiers ensure that for EVERY 7-column viewport window,
+// all 21 visible slots contain 100% UNIQUE images with ZERO redundancy on initial open or when scrolling!
+// - Col 3:             m1 (Paytm Headquaters), m5 (Team STARCY), m6 (Saavishkar)
+// - Col 2 (mid-left):  m10 (Official Participant), m4 (Connections), m21 (Waterstone)
+// - Col 1 (near-left): m16 (Paytm Collab Coding), m13 (1st Rank at Ent Quest), m22 (Calm Confidence)
+// - Col 0 (center):    m3 (Pitching ZOKU), m14 (Open Discussion hero), m2 (Pluto Campus)
+// - Col 22 (near-right): m15 (SIH Presentation), m8 (WON AXION Hackathon), m17 (Paytm Hackathon)
+// - Col 21 (mid-right):  m19 (Paytm AI Hackathon), m20 (Enterpreneurship Quest), m9 (SIH Internal Round)
+// - Col 20:            m18 (Audience Agreement), m23 (Paytm Innovators), m7 (Hack with Mumbai)
+const MOMENTS_GRID: number[][] = [
+  [3, 16, 10, 1, 11, 23, 20, 8, 14, 13, 4, 5, 12, 7, 9, 17, 2, 22, 21, 6, 18, 19, 15],
+  [14, 13, 4, 5, 12, 7, 9, 17, 2, 22, 21, 6, 18, 19, 15, 3, 16, 10, 1, 11, 23, 20, 8],
+  [2, 22, 21, 6, 18, 19, 15, 3, 16, 10, 1, 11, 23, 20, 8, 14, 13, 4, 5, 12, 7, 9, 17],
+];
+
+// The hero moment card in slot (Row 1, Col 0):
+const HERO_MOMENT = MOMENTS_MAP[MOMENTS_GRID[1][0]];
 
 const MILESTONES = [0, 0.24, 0.48, 0.74, 1.0];
 const THRESHOLDS = [0, 0.12, 0.31, 0.65, 0.88];
@@ -333,11 +447,10 @@ export const App: React.FC = () => {
 
   const domeConfig = useMemo(() => {
     const k = K;
-    // Larger square cards (288px x 288px at base scale)
-    const tileSize = Math.round(288 * k);
-    const tileWidth = tileSize;
-    const tileHeight = tileSize;
-    const cols = 24;
+    // 4:3 Aspect Ratio cards (e.g. 336px wide x 252px high at base scale)
+    const tileWidth = Math.round(336 * k);
+    const tileHeight = Math.round(252 * k); // exactly 4:3 (336 * 3 / 4 = 252)
+    const cols = MOMENTS_ITEMS.length;
     // Radius calculated so horizontal pitch gives clean, elegant ~32px gap
     const R = Math.round((cols * (tileWidth + 32)) / (2 * Math.PI));
     return {
@@ -349,7 +462,7 @@ export const App: React.FC = () => {
       marginLeft: Math.round(-tileWidth / 2),
       marginTop: Math.round(-tileHeight / 2),
       fontSize: Math.max(11, Math.round(13 * k)),
-      borderRadius: Math.max(16, Math.round(20 * k)),
+      borderRadius: Math.max(14, Math.round(18 * k)),
     };
   }, [K]);
 
@@ -635,9 +748,12 @@ export const App: React.FC = () => {
 
       let targetVel = 0;
       if (dir > 0 && tgtRef.current < 1) {
-        targetVel = CONST_SPEED;
+        // Extended scroll runway in Moments (+2s of exploration before card pop)
+        const inMoments = tgtRef.current >= 0.72 && tgtRef.current < 0.83;
+        targetVel = inMoments ? CONST_SPEED * 0.45 : CONST_SPEED;
       } else if (dir < 0 && tgtRef.current > 0) {
-        targetVel = -CONST_SPEED;
+        const inMoments = tgtRef.current > 0.72 && tgtRef.current <= 0.83;
+        targetVel = inMoments ? -CONST_SPEED * 0.45 : -CONST_SPEED;
       }
 
       // Smooth velocity interpolation:
@@ -671,7 +787,7 @@ export const App: React.FC = () => {
       const tt = now / 1000;
 
       // Dwell timer for Moments:
-      // When arriving at Moments round gallery zone (0.71 <= p <= 0.77), keep gallery round for 2.5 seconds
+      // When arriving at Moments round gallery zone (0.71 <= p <= 0.77), keep gallery round for 4.5 seconds (added 2s)
       // while it moves & rotates, before cards emerge to center focus!
       if (p >= 0.71 && p <= 0.77 && Math.abs(tgtRef.current - 0.74) < 0.035) {
         if (momentsArrivalRef.current === null && !momentsAutoTriggeredRef.current) {
@@ -679,7 +795,7 @@ export const App: React.FC = () => {
         } else if (
           momentsArrivalRef.current !== null &&
           !momentsAutoTriggeredRef.current &&
-          now - momentsArrivalRef.current >= 2500 &&
+          now - momentsArrivalRef.current >= 4500 &&
           !domeState.current.drag &&
           activeCardRef.current === null
         ) {
@@ -1385,10 +1501,9 @@ export const App: React.FC = () => {
           const vw = window.innerWidth;
           const vh = window.innerHeight;
 
-          // Card dimensions (responsive square sticker size matching 3-row square tiles)
-          const cardSize = Math.max(200, Math.min(275, vw * 0.19));
-          const cardW = cardSize;
-          const cardH = cardSize;
+          // Card dimensions (responsive 4:3 aspect ratio matching panoramic tiles)
+          const cardW = Math.max(240, Math.min(320, vw * 0.21));
+          const cardH = Math.round(cardW * (3 / 4));
 
           // Screen Center Destination for Sub-phase 1
           const startX = vw * 0.5 - cardW * 0.5;
@@ -1486,20 +1601,19 @@ export const App: React.FC = () => {
 
   // Pre-generate 3D Globe Gallery (Inside view: 3 rows with clean ~36px vertical gap, concave curvature)
   const domeTiles = useMemo(() => {
-    // 3 tiers: Top (-16°), Middle eye-level (0°), Bottom (+16°)
-    const lats = [-16, 0, 16];
+    // 3 tiers: Top (-14°), Middle eye-level (0°), Bottom (+14°)
+    const lats = [-14, 0, 14];
     const cols = domeConfig.cols;
     const R = domeConfig.R;
     const tiles: React.ReactNode[] = [];
     let idx = 0;
-    const heroIdx = cols; // row 1, col 0 (eye-level center)
 
     lats.forEach((la, r) => {
       for (let i = 0; i < cols; i++) {
         const currentIdx = idx++;
-        // Aligned in sequence across rows
         const lo = (i * 360) / cols;
-        const item = currentIdx === heroIdx ? MOMENTS_ITEMS[0] : MOMENTS_ITEMS[(i + r * 5) % MOMENTS_ITEMS.length];
+        const mId = MOMENTS_GRID[r][i];
+        const item = MOMENTS_MAP[mId];
         const isSelected = activeCard === currentIdx;
 
         tiles.push(
@@ -1551,15 +1665,9 @@ export const App: React.FC = () => {
                 <div className="portrait-vignette" />
               </div>
 
-              {/* Top-Left: Title & Subtitle */}
-              <div className="portrait-card-header">
-                <h4 className="portrait-card-title">{item.title}</h4>
-                <span className="portrait-card-sub">{item.tag}</span>
-              </div>
-
-              {/* Bottom-Left: See more » */}
+              {/* Bottom: Heading extracted from image filename in place of See more */}
               <div className="portrait-card-footer">
-                <span className="portrait-card-seemore">See more »</span>
+                <h4 className="portrait-card-bottom-title">{item.title}</h4>
               </div>
             </div>
           </div>
@@ -2099,65 +2207,72 @@ export const App: React.FC = () => {
         </div>
 
         {/* 3D Pop-Out Expanded Card (1st click pops out, 2nd click docks back to place) */}
-        {activeCard !== null && (
-          <div
-            className="moments-modal-backdrop"
-            onClick={() => setActiveCard(null)}
-          >
+        {activeCard !== null && (() => {
+          const r = Math.floor(activeCard / domeConfig.cols);
+          const i = activeCard % domeConfig.cols;
+          const mId = MOMENTS_GRID[r]?.[i] ?? 14;
+          const activeItem = MOMENTS_MAP[mId] || MOMENTS_ITEMS[0];
+
+          return (
             <div
-              className="moments-modal-card-3d"
-              onClick={(e) => {
-                e.stopPropagation();
-                setActiveCard(null); // 2nd click on the card returns it back to its place!
-              }}
-              style={{
-                background: MOMENTS_ITEMS[activeCard % MOMENTS_ITEMS.length].color,
-                color: MOMENTS_ITEMS[activeCard % MOMENTS_ITEMS.length].color === '#171719' ? '#EFEAE0' : '#111',
-                border: MOMENTS_ITEMS[activeCard % MOMENTS_ITEMS.length].color === '#171719' ? '1px solid rgba(255, 255, 255, 0.2)' : '2px solid #111',
-              }}
+              className="moments-modal-backdrop"
+              onClick={() => setActiveCard(null)}
             >
-              {/* Card Header */}
-              <div className="mm-card-head">
-                <span className="mm-badge">
-                  {MOMENTS_ITEMS[activeCard % MOMENTS_ITEMS.length].category}
-                </span>
-                <span className="mm-num">
-                  #{('0' + ((activeCard % MOMENTS_ITEMS.length) + 1)).slice(-2)}
-                </span>
-              </div>
+              <div
+                className="moments-modal-card-3d"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveCard(null); // 2nd click on the card returns it back to its place!
+                }}
+                style={{
+                  background: activeItem.color,
+                  color: activeItem.color === '#171719' ? '#EFEAE0' : '#111',
+                  border: activeItem.color === '#171719' ? '1px solid rgba(255, 255, 255, 0.2)' : '2px solid #111',
+                }}
+              >
+                {/* Card Header */}
+                <div className="mm-card-head">
+                  <span className="mm-badge">
+                    {activeItem.category}
+                  </span>
+                  <span className="mm-num">
+                    #{('0' + activeItem.id).slice(-2)}
+                  </span>
+                </div>
 
-              {/* Card Center Visual: High-res Portrait Photograph */}
-              <div className="mm-card-img-wrap">
-                <img
-                  src={MOMENTS_ITEMS[activeCard % MOMENTS_ITEMS.length].img}
-                  alt={MOMENTS_ITEMS[activeCard % MOMENTS_ITEMS.length].title}
-                  className="mm-card-img"
-                />
-              </div>
+                {/* Card Center Visual: High-res Portrait Photograph */}
+                <div className="mm-card-img-wrap">
+                  <img
+                    src={activeItem.img}
+                    alt={activeItem.title}
+                    className="mm-card-img"
+                  />
+                </div>
 
-              {/* Card Body */}
-              <div className="mm-card-body">
-                <div className="mm-tag">{MOMENTS_ITEMS[activeCard % MOMENTS_ITEMS.length].tag}</div>
-                <h3 className="mm-title">{MOMENTS_ITEMS[activeCard % MOMENTS_ITEMS.length].title}</h3>
-                <p className="mm-desc">{MOMENTS_ITEMS[activeCard % MOMENTS_ITEMS.length].desc}</p>
-              </div>
+                {/* Card Body */}
+                <div className="mm-card-body">
+                  <div className="mm-tag">{activeItem.tag}</div>
+                  <h3 className="mm-title">{activeItem.title}</h3>
+                  <p className="mm-desc">{activeItem.desc}</p>
+                </div>
 
-              {/* Card Footer */}
-              <div className="mm-card-foot">
-                <span className="mm-year">{MOMENTS_ITEMS[activeCard % MOMENTS_ITEMS.length].date} • MUMBAI</span>
-                <button
-                  className="mm-close-btn"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setActiveCard(null);
-                  }}
-                >
-                  CLICK TO DOCK ✕
-                </button>
+                {/* Card Footer */}
+                <div className="mm-card-foot">
+                  <span className="mm-year">{activeItem.date} • MUMBAI</span>
+                  <button
+                    className="mm-close-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveCard(null);
+                    }}
+                  >
+                    CLICK TO DOCK ✕
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
       </section>
 
       {/* =========================================================
@@ -2307,36 +2422,34 @@ export const App: React.FC = () => {
           <div className="coin-face coin-front portrait-card-3d" style={{ padding: '12px 10px' }}>
             <div className="portrait-img-box">
               <img
-                src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&q=80&auto=format&fit=crop"
-                alt="Axion Hackathon"
+                src={HERO_MOMENT.img}
+                alt={HERO_MOMENT.title}
                 className="portrait-img"
               />
               <div className="portrait-vignette" />
-              <div className="coin-sticker-tape">STICKER</div>
             </div>
 
-            {/* Top-Left: Title & Subtitle */}
-            <div className="portrait-card-header">
-              <h4 className="portrait-card-title">Axion Hackathon</h4>
-              <span className="portrait-card-sub">AI Project Manager</span>
-            </div>
-
-            {/* Bottom-Left: See more » */}
+            {/* Bottom: Heading from image filename */}
             <div className="portrait-card-footer">
-              <span className="portrait-card-seemore">See more »</span>
+              <h4 className="portrait-card-bottom-title">{HERO_MOMENT.title}</h4>
             </div>
             <div className="coin-sheen" />
           </div>
 
-          {/* BACK FACE: Collector's Reverse Obsidian Coin */}
-          <div className="coin-face coin-back">
-            <div className="coin-back-inner">
-              <div className="coin-back-ring">
-                <span className="coin-back-monogram">DM</span>
-              </div>
-              <span className="coin-back-label">VERIFIED ARCHIVE</span>
-              <span className="coin-back-sub">DEBASHREE MAL • 2025</span>
-              <span className="coin-back-stamp">★ COLLECTED ★</span>
+          {/* BACK FACE: Identical to Front Face */}
+          <div className="coin-face coin-back portrait-card-3d" style={{ padding: '12px 10px' }}>
+            <div className="portrait-img-box">
+              <img
+                src={HERO_MOMENT.img}
+                alt={HERO_MOMENT.title}
+                className="portrait-img"
+              />
+              <div className="portrait-vignette" />
+            </div>
+
+            {/* Bottom: Heading from image filename */}
+            <div className="portrait-card-footer">
+              <h4 className="portrait-card-bottom-title">{HERO_MOMENT.title}</h4>
             </div>
             <div className="coin-sheen" />
           </div>
