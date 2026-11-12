@@ -482,8 +482,9 @@ export const App: React.FC = () => {
   const bookBotEdgeRef = useRef<HTMLDivElement>(null);
   const bookCoverRef = useRef<HTMLDivElement>(null);
   const bookFrontRef = useRef<HTMLDivElement>(null);
-  const bookCoverTopRef = useRef<HTMLDivElement>(null);
-  const bookCoverBottomRef = useRef<HTMLDivElement>(null);
+  const bookCoverFrameRef = useRef<HTMLDivElement>(null);
+  const bookSpineStripRef = useRef<HTMLDivElement>(null);
+  const bookScrollHintRef = useRef<HTMLParagraphElement>(null);
   const bookTitleWrapRef = useRef<HTMLDivElement>(null);
   const bookLetterRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const bookShineRef = useRef<HTMLDivElement>(null);
@@ -1107,13 +1108,23 @@ export const App: React.FC = () => {
         }
       }
 
-      // Dimensions calculated for generous, readable spread
+      // Safe dimensions strictly bounded to never cross laptop screen borders
       const vw = windowWidth;
       const vh = windowHeight;
       const isMobile = vw < 760;
-      const bw = isMobile ? Math.min(360, vw * 0.90) : Math.min(430, vw * 0.47, vh * 0.65);
-      const bh = bw * 1.34;
-      const T = bw * 0.13;
+
+      // Responsive, commanding book dimensions tuned to be comfortably larger while staying safely within screen bounds
+      const maxH = isMobile
+        ? Math.min(570, vh * 0.82, vh - 70)
+        : Math.min(640, vh * 0.82, vh - 70);
+      const bh = Math.max(380, maxH);
+
+      // Book width: 2-page spread fits comfortably within horizontal screen bounds
+      const maxW = isMobile
+        ? Math.min(410, vw * 0.94)
+        : Math.min(485, (vw * 0.90) / 2);
+      const bw = Math.min(maxW, bh / 1.32);
+      const T = bw * 0.12;
       const D = isMobile ? Math.min(vw * 0.62, vh * 0.3) : Math.min(vw * 0.31, vh * 0.66);
       const cx0 = isMobile ? vw * 0.5 : vw * 0.76;
       const cy0 = isMobile ? vh * 0.7 : vh * 0.48;
@@ -1372,12 +1383,12 @@ export const App: React.FC = () => {
           }
 
           // -----------------------------------------------------
-          // Step 2: WINS letters tumble out from the red dot
+          // Step 2: Cover frame & BUILDS letters tumble animation
           // p: 0.32 -> 0.355
           // -----------------------------------------------------
           const metaOp = sg(p, 0.325, 0.36);
-          if (bookCoverTopRef.current) bookCoverTopRef.current.style.opacity = `${metaOp}`;
-          if (bookCoverBottomRef.current) bookCoverBottomRef.current.style.opacity = `${metaOp}`;
+          if (bookCoverFrameRef.current) bookCoverFrameRef.current.style.opacity = `${metaOp}`;
+          if (bookSpineStripRef.current) bookSpineStripRef.current.style.opacity = `${metaOp}`;
 
           bookLetterRefs.current.forEach((l, i) => {
             if (!l) return;
@@ -1504,9 +1515,9 @@ export const App: React.FC = () => {
           const rotX = isSpreadFlat ? 0 : baseRotX - (zoomEase * 2.5);
           const rotY = isSpreadFlat ? 0 : baseRotY + (zoomEase * 1.8);
 
-          // Render at exact 1.0x native scale during flat spread for maximum crispness (zero blur)
-          const baseScale = isSpreadFlat ? 1.0 : (1 + 0.1 * r + pop + 0.05 * tiltEase - 0.04 * closeEase);
-          const wrapScale = isSpreadFlat ? 1.0 : (baseScale + zoomEase * 0.42);
+          // Controlled scale strictly bounded around 1.0 to prevent 3D pages from expanding out of screen bounds
+          const baseScale = isSpreadFlat ? 1.0 : (1 + 0.02 * pop - 0.02 * closeEase);
+          const wrapScale = isSpreadFlat ? 1.0 : (baseScale + zoomEase * 0.35);
           // Smooth, gradual fade-out into Moments
           const wrapOpacity = 1 - io(sg(zoomT, 0.45, 0.96));
 
@@ -1520,7 +1531,7 @@ export const App: React.FC = () => {
           }
 
           if (bookStageRef.current) {
-            bookStageRef.current.style.perspective = isSpreadFlat ? 'none' : '1600px';
+            bookStageRef.current.style.perspective = isSpreadFlat ? 'none' : '2200px';
           }
 
           // -----------------------------------------------------
@@ -1554,7 +1565,7 @@ export const App: React.FC = () => {
           // -----------------------------------------------------
           // Step 11: 5 Leaves (Thick, Smooth, Zero-Blinking Turns & Complete Close)
           // -----------------------------------------------------
-          const fanAngles = [-66, -48, -34, -20, -5];
+          const fanAngles = [-48, -36, -25, -14, -4];
           const leafSpacing = 2.4; // Real tactile paper thickness, eliminates GPU Z-fighting and blinking
 
           bookLeafRefs.current.forEach((leaf, i) => {
@@ -1596,6 +1607,13 @@ export const App: React.FC = () => {
               }
             }
           });
+
+          // Scroll to open hint (visible when book cover is closed, fades as it opens)
+          if (bookScrollHintRef.current) {
+            const hintOp = sg(p, 0.33, 0.36) * (1 - sg(p, 0.38, 0.42));
+            bookScrollHintRef.current.style.opacity = `${hintOp.toFixed(3)}`;
+            bookScrollHintRef.current.style.pointerEvents = hintOp > 0.3 ? 'auto' : 'none';
+          }
 
           // Minimalist Bottom Controls & Dynamic Direct DOM Updates (Zero React Re-renders!)
           if (bookControlsRef.current) {
@@ -2303,14 +2321,11 @@ export const App: React.FC = () => {
             >
               {/* Front Face: The cream sheet that scales from full-screen down to the book */}
               <div ref={bookFrontRef} className="book-cover-front">
-                <div className="book-cover-spine-crease" />
+                <div ref={bookSpineStripRef} className="book-cover-spine-strip" aria-hidden="true" />
 
-                <div ref={bookCoverTopRef} className="book-cover-top">
-                  <span className="book-cover-meta">PROOF OF WORK</span>
-                  <span className="book-cover-sub">Debashree Mal • CE '28</span>
-                </div>
-
-                <div className="book-cover-center">
+                <div ref={bookCoverFrameRef} className="book-cover-frame">
+                  <p className="book-cover-eyebrow">Proof of work</p>
+                  <div className="book-cover-spacer" />
                   <div ref={bookTitleWrapRef} className="book-cover-title-wrap">
                     {['B', 'U', 'I', 'L', 'D', 'S'].map((ch, i) => (
                       <span
@@ -2322,11 +2337,13 @@ export const App: React.FC = () => {
                       </span>
                     ))}
                   </div>
-                </div>
-
-                <div ref={bookCoverBottomRef} className="book-cover-bottom">
-                  <span>HACKATHON WINS &amp; SHIPPED SYSTEMS</span>
-                  <span>2024–2026</span>
+                  <div className="book-cover-bar" />
+                  <p className="book-cover-desc">Hackathon wins &amp; shipped systems</p>
+                  <p className="book-cover-script">Think. Build. Launch.</p>
+                  <div className="book-cover-foot">
+                    <p className="book-cover-who">DEBASHREE MAL<span>CE ’28</span></p>
+                    <p className="book-cover-yr">2024–2026</p>
+                  </div>
                 </div>
 
                 {/* Specular sheen gliding across the cover */}
@@ -2339,6 +2356,15 @@ export const App: React.FC = () => {
               </div>
             </div>
           </div>
+
+          {/* Scroll to open hint */}
+          <p
+            ref={bookScrollHintRef}
+            className="book-scroll-hint"
+            onClick={() => handleCoverClick()}
+          >
+            Scroll to open ↓
+          </p>
 
           {/* Bottom Floating Controls */}
           <div ref={bookControlsRef} className="book-controls">
