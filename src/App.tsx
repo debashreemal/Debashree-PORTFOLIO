@@ -34,73 +34,139 @@ function lp(a: number, b: number, t: number) {
   return a + (b - a) * t;
 }
 
-const W5_DATA = [
+export interface ProjectItem {
+  index: number;
+  badge: string;
+  title: string;
+  tagline: string;
+  metaTeam: string;
+  metaDuration: string;
+  metaYear: string;
+  tabs: string[];
+  screenshots: string[];
+  role: string;
+  problem: string;
+  solution: string;
+  stack: string[];
+  quote: string;
+  liveUrl: string;
+  githubUrl: string;
+}
+
+const PROJECTS_DATA: ProjectItem[] = [
   {
-    title: 'Axion Hackathon',
-    sub: '1ST PLACE',
-    category: '1ST PLACE • 2025',
-    tag: 'AI Project Manager',
-    desc: 'FlowMind, an autonomous multi-agent project manager, outcompeted 120+ teams with end-to-end task graph routing.',
-    icon: 'ti-trophy',
-    img: '/moments/m8 - WON  AXION Hackathon.jpeg',
-    metric: '120+ Teams',
-    stack: ['LangGraph', 'Python', 'FastAPI'],
-    quote: 'Recognized for automated workflow intelligence & deterministic task execution.',
-    year: '2025',
+    index: 1,
+    badge: '1st place at Axion Hackathon',
+    title: 'FLOWMIND',
+    tagline: 'An autonomous multi-agent workflow engine',
+    metaTeam: 'Team of 4 people',
+    metaDuration: '36 hours',
+    metaYear: '2025',
+    tabs: ['Dashboard', 'Workflow', 'Screen 3'],
+    screenshots: [
+      '/Flowmind/flowmind1.png',
+      '/Flowmind/flowmind2.jpeg',
+      '/Flowmind/flowmind3.jpeg',
+    ],
+    role: 'Designed the DAG compiler, the dynamic dependency scheduler and the agent communication protocol.',
+    problem: 'Linear LLM chains break when a sub-tool fails. The run loses its context and someone has to restart it by hand.',
+    solution: 'A team project: a state-graph orchestrator that checks its own intermediate steps and re-routes failed tasks, so the workflow keeps going.',
+    stack: ['LangGraph', 'Python', 'FastAPI', 'Next.js', 'Tailwind CSS'],
+    quote: '“FlowMind never forgets – so your team doesn\'t have to.”',
+    liveUrl: 'https://flowmind.vercel.app',
+    githubUrl: 'https://github.com/debashree-08/flowmind',
   },
   {
-    title: 'NHAI Hackathon 7.0',
-    sub: 'OFFLINE FACE SDK',
-    category: 'OFFLINE FACE SDK • 2025',
-    tag: 'Computer Vision',
-    desc: 'Engineered NHAIFaceID with Piyush Yenorkar — an offline edge facial recognition SDK for remote highway toll inspection.',
-    icon: 'ti-scan',
-    img: '/moments/m2 - Pluto Campus.jpeg',
-    metric: '<18ms Latency',
-    stack: ['WebAssembly', 'C++', 'OpenCV'],
-    quote: 'Complete on-device biometrics running locally at edge toll booths with zero cloud reliance.',
-    year: '2025',
+    index: 2,
+    badge: 'National Finalist • Paytm HQ 2025',
+    title: 'SULAJH AI',
+    tagline: 'Autonomous merchant simulation & KYC exception resolution',
+    metaTeam: 'Team of 3 people',
+    metaDuration: '48 hours',
+    metaYear: '2025',
+    tabs: ['Simulation', 'KYC Engine', 'Exceptions'],
+    screenshots: [
+      '/moments/m19 - Paytm AI Hackathon.jpeg',
+      '/moments/m16 - Paytm Collaborative Coding.jpeg',
+      '/moments/m1 - Paytm Headquaters.jpeg',
+    ],
+    role: 'Architected multilingual OCR pipeline, automated merchant exception classification, and webhook dispatch.',
+    problem: 'Indian merchant onboarding has high drop-offs due to ambiguous Hindi/regional document scans and complex GST exception handling queues.',
+    solution: 'Built autonomous AI teammates simulating merchant onboarding, parsing noisy physical KYC paperwork, and auto-generating corrective tasks.',
+    stack: ['LLM Agents', 'FastAPI', 'FinTech SDK', 'React', 'Python'],
+    quote: '“Turning merchant onboarding exceptions into zero-touch resolution.”',
+    liveUrl: 'https://paytm-hackathon.vercel.app',
+    githubUrl: 'https://github.com/debashree-08/sulajh-ai',
   },
   {
-    title: "HackHazards '26",
-    sub: 'FLOWMIND',
-    category: 'GRAND FINALE • 2026',
-    tag: 'Autonomous AI',
-    desc: 'FlowMind placed at the centre of build: a live multi-agent execution framework with zero-latency task routing.',
-    icon: 'ti-flame',
-    img: '/moments/m3 - Pitching ZOKU.jpeg',
-    metric: 'Swarm Engine',
-    stack: ['LangGraph', 'Multi-Agent', 'Next.js'],
-    quote: 'Self-orchestrating task dependency graphs with real-time exception recovery.',
-    year: '2026',
+    index: 3,
+    badge: 'Production Full-Stack Architecture',
+    title: 'ZWIGGY',
+    tagline: 'High-concurrency hyperlocal food ordering & dispatch engine',
+    metaTeam: 'Solo Architect',
+    metaDuration: '3 weeks',
+    metaYear: '2025',
+    tabs: ['Order Feed', 'Live Tracking', 'Dispatch'],
+    screenshots: [
+      '/Zwiggy/screenshot-1.png',
+      '/Zwiggy/screenshot-2.png',
+      '/Zwiggy/screenshot-3.png',
+    ],
+    role: 'Designed distributed order state-machine, geospatial proximity querying, and real-time bidirectional socket tracking.',
+    problem: 'Hyperlocal delivery platforms buckle during flash order spikes, creating severe inventory race conditions and dispatch stalls.',
+    solution: 'Engineered an event-driven microservices architecture with optimistic concurrency control, Redis geospatial indexing, and WebSocket pub/sub live order updates.',
+    stack: ['React', 'Node.js', 'MongoDB', 'Redis', 'Socket.io', 'Tailwind CSS'],
+    quote: '“Sub-15ms spatial query dispatch under peak concurrent flash loads.”',
+    liveUrl: 'https://zwiggy.vercel.app',
+    githubUrl: 'https://github.com/debashree-08/zwiggy',
   },
   {
-    title: 'Smart India Hackathon',
-    sub: 'SIH 2026',
-    category: 'SIH 2026 FINALIST • 2026',
-    tag: 'MoSPI Ministry',
-    desc: 'Developed national Airfare Price Index forecasting algorithm using real-time flight telemetry for Ministry of Statistics.',
-    icon: 'ti-award',
-    img: '/moments/m15 - SIH Presentation.jpeg',
-    metric: 'Ministry Finalist',
-    stack: ['Telemetry', 'Python', 'MoSPI API'],
-    quote: 'National-scale inflation monitoring model for domestic aviation ticket fares.',
-    year: '2026',
+    index: 4,
+    badge: 'National Finalist • NHAI Hackathon 7.0',
+    title: 'NHAI FACE ID',
+    tagline: 'Offline edge toll facial recognition SDK for remote highways',
+    metaTeam: 'Team of 2 people',
+    metaDuration: '36 hours',
+    metaYear: '2025',
+    tabs: ['Edge SDK', 'WASM Runtime', 'Telemetry'],
+    screenshots: [
+      '/moments/m10 - Official Participant.jpeg',
+      '/moments/m2 - Pluto Campus.jpeg',
+    ],
+    role: 'Built with Piyush Yenorkar — implemented facial landmark quantization, local vector embeddings, and zero-cloud WASM runtime.',
+    problem: 'Remote highway toll plazas suffer frequent network blackouts, rendering cloud-dependent facial inspection systems completely unusable.',
+    solution: 'Engineered a 100% offline edge SDK compiling optimized OpenCV models and INT8 quantized embeddings directly into on-device WebAssembly and C++.',
+    stack: ['WebAssembly', 'C++', 'OpenCV', 'Python', 'ONNX Runtime'],
+    quote: '“Zero cloud dependence. Complete on-device toll inspection at edge.”',
+    liveUrl: 'https://nhai-faceid.vercel.app',
+    githubUrl: 'https://github.com/debashree-08/nhai-faceid',
   },
   {
-    title: 'Paytm Build for India',
-    sub: 'AI TEAMMATES',
-    category: 'AI TEAMMATES • 2025',
-    tag: 'Sulajh AI',
-    desc: 'Sulajh AI: autonomous AI teammates simulating merchant onboarding workflows, automated KYC exception resolution.',
-    icon: 'ti-rocket',
-    img: '/moments/m1 - Paytm Headquaters.jpeg',
-    metric: 'India Scale',
-    stack: ['LLM Agents', 'FastAPI', 'FinTech SDK'],
-    quote: 'Scaling merchant acquisition through interactive autonomous agent simulation.',
-    year: '2025',
+    index: 5,
+    badge: 'Student Innovation Winner 2024',
+    title: 'PLUTO',
+    tagline: 'Next-gen campus collaboration & verified academic resource hub',
+    metaTeam: 'Founding Lead',
+    metaDuration: '2 months',
+    metaYear: '2024',
+    tabs: ['Portal', 'Resource Hub', 'Discussions'],
+    screenshots: [
+      '/Pluto/screenshot-1.png',
+      '/Pluto/screenshot-2.png',
+      '/Pluto/screenshot-3.png',
+    ],
+    role: 'Architected responsive multi-tenant portal, granular RBAC student permissions, and high-throughput asset delivery.',
+    problem: 'University peer collaboration is fractured across disjoint WhatsApp groups, Notion boards, and drives, causing acute resource loss.',
+    solution: 'Built an integrated campus platform consolidating verified academic repositories, peer-to-peer asset exchange, and real-time departmental discussions.',
+    stack: ['React', 'TypeScript', 'Node.js', 'PostgreSQL', 'Tailwind CSS'],
+    quote: '“A unified institutional repository for 1,200+ student collaborators.”',
+    liveUrl: 'https://pluto-campus.vercel.app',
+    githubUrl: 'https://github.com/debashree-08/pluto',
   },
 ];
+
+
+
 
 const MOMENTS_ITEMS = [
   {
@@ -361,7 +427,7 @@ const HERO_MOMENT = MOMENTS_MAP[MOMENTS_GRID[1][0]];
 
 const MILESTONES = [0, 0.24, 0.48, 0.74, 1.0];
 const THRESHOLDS = [0, 0.12, 0.31, 0.65, 0.88];
-const SECTIONS = ['HOME', 'ABOUT', 'WINS', 'MOMENTS', 'CONTACT'];
+const SECTIONS = ['HOME', 'ABOUT', 'BUILDS', 'MOMENTS', 'CONTACT'];
 
 export const App: React.FC = () => {
   const stageRef = useRef<HTMLDivElement>(null);
@@ -436,6 +502,184 @@ export const App: React.FC = () => {
   const mtlRef = useRef<HTMLDivElement>(null);
   const momentsArrivalRef = useRef<number | null>(null);
   const momentsAutoTriggeredRef = useRef(false);
+
+  // Active Project Screenshot Tab state { [projIndex]: tabIndex }
+  const [projectActiveTabs, setProjectActiveTabs] = useState<Record<number, number>>({});
+
+  const renderProjectLeft = (proj: ProjectItem) => {
+    const curTabIdx = projectActiveTabs[proj.index] ?? 0;
+    const curImg = proj.screenshots?.[curTabIdx];
+
+    return (
+      <div className="page left">
+        <div className="ref-badge">{proj.badge}</div>
+        <div>
+          <h1>{proj.title}</h1>
+          <div className="bar-accent" />
+          <p className="sub">{proj.tagline}</p>
+          <p className="meta">
+            {proj.metaTeam}, {proj.metaDuration}, {proj.metaYear}
+          </p>
+        </div>
+        <div className="gallery">
+          <div className="tabs" role="tablist" data-active={curTabIdx}>
+            {proj.tabs.map((tName, tIdx) => {
+              const isActive = curTabIdx === tIdx;
+              return (
+                <button
+                  key={tName}
+                  type="button"
+                  className={isActive ? 'on' : ''}
+                  role="tab"
+                  data-i={tIdx}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setProjectActiveTabs((prev) => ({ ...prev, [proj.index]: tIdx }));
+                  }}
+                >
+                  {tName}
+                </button>
+              );
+            })}
+          </div>
+          <div className="shot">
+            <div className="chrome">
+              <i />
+              <i />
+              <i />
+            </div>
+            <div className="view on">
+              {curImg ? (
+                <img
+                  src={curImg}
+                  alt={`${proj.title} ${proj.tabs[curTabIdx] || ''}`}
+                  loading="eager"
+                  decoding="async"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).style.display = 'none';
+                    const ph = e.currentTarget.nextElementSibling as HTMLElement;
+                    if (ph) ph.style.display = 'grid';
+                  }}
+                />
+              ) : null}
+              <div className="ph" style={{ display: curImg ? 'none' : 'grid' }}>
+                <div>
+                  <b>Add screenshot {curTabIdx + 1}</b>
+                  Click to choose an image. It is shown in full, uncropped.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="role">
+          <p className="label">My role</p>
+          <p>{proj.role}</p>
+        </div>
+      </div>
+    );
+  };
+
+  const renderProjectRight = (proj: ProjectItem) => (
+    <div className="page right">
+      <div className="sec">
+        <p className="label">The problem</p>
+        <p>{proj.problem}</p>
+      </div>
+      <div className="sec">
+        <p className="label">What we built</p>
+        <p>{proj.solution}</p>
+      </div>
+      <div className="sec">
+        <p className="label">Tech stack</p>
+        <div className="chips">
+          {proj.stack.map((st) => (
+            <span key={st}>{st}</span>
+          ))}
+        </div>
+      </div>
+      <div className="foot">
+        <p className="script">{proj.quote}</p>
+        <div className="cta">
+          {proj.liveUrl && (
+            <a
+              className="p"
+              href={proj.liveUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+            >
+              Live demo
+              <span className="ic">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M7 17L17 7M9 7h8v8" />
+                </svg>
+              </span>
+            </a>
+          )}
+          {proj.githubUrl && (
+            <a
+              className="s"
+              href={proj.githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+            >
+              GitHub
+              <span className="ic">
+                <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                  <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
+                </svg>
+              </span>
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderEndplate = () => (
+    <div className="page right" style={{ justifyContent: 'space-between' }}>
+      <div>
+        <div className="ref-badge" style={{ background: '#0e0e11', color: '#ece8df', boxShadow: '4px 4px 0 #5560f0' }}>
+          ARCHIVE VERIFIED
+        </div>
+
+        <h1 style={{ marginTop: '12px', marginBottom: '6px' }}>DEBASHREE MAL</h1>
+        <div className="bar-accent" />
+        <p className="sub" style={{ marginTop: '10px' }}>
+          Hackathon wins &amp; production-grade distributed architectures
+        </p>
+
+        <div className="role" style={{ marginTop: '16px' }}>
+          <p className="label">Curator's Note</p>
+          <p>
+            Engineered for fault-tolerant state orchestration, sub-18ms edge biometrics, and high-concurrency systems across India.
+          </p>
+        </div>
+      </div>
+
+      <div className="foot">
+        <p className="script">“Always shipping. Never finished.”</p>
+        <div className="cta">
+          <a
+            className="s"
+            href="https://github.com/debashree-08"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            style={{ minWidth: '150px' }}
+          >
+            View on GitHub
+            <span className="ic">
+              <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
+              </svg>
+            </span>
+          </a>
+        </div>
+      </div>
+    </div>
+  );
 
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
   const [windowHeight, setWindowHeight] = useState(typeof window !== 'undefined' ? window.innerHeight : 800);
@@ -863,13 +1107,13 @@ export const App: React.FC = () => {
         }
       }
 
-      // Dimensions calculated exactly as in about-to-wins-final.html
+      // Dimensions calculated for generous, readable spread
       const vw = windowWidth;
       const vh = windowHeight;
-      const bw = Math.min(330, vw * 0.7, vh * 0.48);
-      const bh = bw * 1.36;
-      const T = bw * 0.13;
       const isMobile = vw < 760;
+      const bw = isMobile ? Math.min(360, vw * 0.90) : Math.min(430, vw * 0.47, vh * 0.65);
+      const bh = bw * 1.34;
+      const T = bw * 0.13;
       const D = isMobile ? Math.min(vw * 0.62, vh * 0.3) : Math.min(vw * 0.31, vh * 0.66);
       const cx0 = isMobile ? vw * 0.5 : vw * 0.76;
       const cy0 = isMobile ? vh * 0.7 : vh * 0.48;
@@ -1137,8 +1381,8 @@ export const App: React.FC = () => {
 
           bookLetterRefs.current.forEach((l, i) => {
             if (!l) return;
-            const w = eo(sg(p, 0.32 + i * 0.007, 0.355 + i * 0.007));
-            l.style.transform = `translateX(${(1.5 - i) * bw * 0.22 * (1 - w)}px) scale(${0.06 + 0.94 * w}) rotate(${(i % 2 ? 1 : -1) * 40 * (1 - w)}deg)`;
+            const w = eo(sg(p, 0.32 + i * 0.006, 0.355 + i * 0.006));
+            l.style.transform = `translateX(${(2.5 - i) * bw * 0.16 * (1 - w)}px) scale(${0.06 + 0.94 * w}) rotate(${(i % 2 ? 1 : -1) * 35 * (1 - w)}deg)`;
             l.style.opacity = `${cl(w * 3)}`;
           });
 
@@ -1148,7 +1392,6 @@ export const App: React.FC = () => {
           // -----------------------------------------------------
           const r = io(sg(p, 0.35, 0.40));
           const pop = Math.sin(sg(p, 0.33, 0.39) * Math.PI) * 0.04;
-          const fl = Math.sin(now / 900) * 7 * sg(p, 0.39, 0.44);
 
           // -----------------------------------------------------
           // Step 4: Specular Sheen sweep across cover
@@ -1243,49 +1486,58 @@ export const App: React.FC = () => {
           }
           // Zoom forward in 3D with refined, aesthetic moderation (gentle depth glide)
           const wrapX = targetWrapX - (bw * 0.12) * zoomEase;
-          const wrapY = fl * (1 - zoomEase);
           const wrapZ = zoomEase * 320;
 
-          // 3D Angle: Keep the book authentically tilted towards the left (approx 25deg to 28deg) so the entire 3D volume zooms, NOT a flat face-on cover zoom!
+          // Pure static when reading open spread (zero bobbing, zero mouse wiggle!)
+          const isSpreadFlat = spreadEase > 0.5 && closeEase === 0;
           const baseRotX = (-14 * r * (1 - tiltEase)) +
             (7 * tiltEase * (1 - spreadEase)) +
-            (3 * spreadEase * (1 - closeEase)) +
-            (-14 * r * closeEase) - my * (spreadEase > 0.5 && closeEase === 0 ? 3 : 5);
+            (2.5 * spreadEase * (1 - closeEase)) +
+            (-14 * r * closeEase) - (isSpreadFlat ? 0 : my * 5);
 
           const baseRotY = (-30 * r * (1 - tiltEase)) +
             (-14 * tiltEase * (1 - spreadEase)) +
             (-2 * spreadEase * (1 - closeEase)) +
-            (-28 * r * closeEase) + mx * (spreadEase > 0.5 && closeEase === 0 ? 5 : 8);
+            (-28 * r * closeEase) + (isSpreadFlat ? 0 : mx * 8);
 
-          // Maintain the 25deg - 28deg 3D tilt towards the left throughout the entire zoom
-          const rotX = baseRotX - (zoomEase * 2.5);
-          const rotY = baseRotY + (zoomEase * 1.8);
+          // Pure flat 1:1 screen mapping during spread for 100% razor-sharp native font clarity
+          const rotX = isSpreadFlat ? 0 : baseRotX - (zoomEase * 2.5);
+          const rotY = isSpreadFlat ? 0 : baseRotY + (zoomEase * 1.8);
 
-          // Subtle, elegant scale expansion (max ~1.4x instead of massive 2.8x)
-          const baseScale = 1 + 0.1 * r + pop + 0.05 * tiltEase + 0.04 * spreadEase - 0.04 * closeEase;
-          const wrapScale = baseScale + zoomEase * 0.42;
+          // Render at exact 1.0x native scale during flat spread for maximum crispness (zero blur)
+          const baseScale = isSpreadFlat ? 1.0 : (1 + 0.1 * r + pop + 0.05 * tiltEase - 0.04 * closeEase);
+          const wrapScale = isSpreadFlat ? 1.0 : (baseScale + zoomEase * 0.42);
           // Smooth, gradual fade-out into Moments
           const wrapOpacity = 1 - io(sg(zoomT, 0.45, 0.96));
 
           if (bookWrapRef.current) {
-            bookWrapRef.current.style.transform = `translate3d(${wrapX.toFixed(1)}px, ${wrapY.toFixed(1)}px, ${wrapZ.toFixed(1)}px) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg) scale(${wrapScale.toFixed(3)})`;
+            const finalWrapX = isSpreadFlat ? Math.round(targetWrapX) : Number(wrapX.toFixed(1));
+            const finalWrapY = 0;
+            const finalWrapZ = isSpreadFlat ? 0 : Number(wrapZ.toFixed(1));
+            bookWrapRef.current.style.transform = `translate3d(${finalWrapX}px, ${finalWrapY}px, ${finalWrapZ}px) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg) scale(${wrapScale.toFixed(3)})`;
             bookWrapRef.current.style.opacity = `${wrapOpacity.toFixed(3)}`;
+            bookWrapRef.current.style.willChange = isSpreadFlat ? 'auto' : 'transform';
+          }
+
+          if (bookStageRef.current) {
+            bookStageRef.current.style.perspective = isSpreadFlat ? 'none' : '1600px';
           }
 
           // -----------------------------------------------------
           // Step 10: Cover rotation:
-          // Closed (0deg) -> 3D Accordion Fan (-164deg: matches 0315e51d.jpg!) -> Flat Open (-174deg) -> Closes Shut (0deg)
+          // Closed (0deg) -> 3D Accordion Fan (-164deg) -> Flat Open (-180deg) -> Closes Shut (0deg)
           // -----------------------------------------------------
           let coverRotY = 0;
           if (tiltT > 0 && spreadT === 0) {
             coverRotY = -164 * tiltEase;
           } else if (spreadT > 0 && closeT === 0) {
-            coverRotY = -164 - 10 * spreadEase;
+            coverRotY = -164 - 16 * spreadEase;
           } else if (closeT > 0) {
-            coverRotY = -174 * (1 - closeEase);
+            coverRotY = -180 * (1 - closeEase);
           }
           if (bookCoverRef.current) {
-            bookCoverRef.current.style.transform = `translateZ(${(T / 2 * u).toFixed(1)}px) rotateY(${coverRotY.toFixed(1)}deg)`;
+            const coverZ = isSpreadFlat ? 0 : Number((T / 2 * u).toFixed(1));
+            bookCoverRef.current.style.transform = `translateZ(${coverZ}px) rotateY(${coverRotY.toFixed(1)}deg)`;
             bookCoverRef.current.style.zIndex = (spreadEase > 0.85 && closeEase === 0) ? '15' : '45';
           }
 
@@ -1323,7 +1575,7 @@ export const App: React.FC = () => {
               }
             } else if (closeT > 0) {
               // BOOK CLOSING PHASE! All 5 leaves swing shut inside the cover
-              const closedRotY = -174 * (1 - closeEase);
+              const closedRotY = -180 * (1 - closeEase);
               leaf.style.transform = `translate3d(0, 0, ${(-i * leafSpacing).toFixed(1)}px) rotateY(${closedRotY.toFixed(1)}deg)`;
             } else {
               // Active interactive page turns (smooth arc lift, zero collisions, zero blinking)
@@ -1331,13 +1583,13 @@ export const App: React.FC = () => {
                 // Leaf i is currently in flight!
                 const tTurn = turnProgress - i;
                 const easeTurn = 0.5 - 0.5 * Math.cos(tTurn * Math.PI);
-                const leafRotY = -174 * easeTurn;
+                const leafRotY = -180 * easeTurn;
                 const arcZ = Math.sin(tTurn * Math.PI) * 42;
                 const leafLiftZ = (1 - easeTurn) * (-i * leafSpacing) + easeTurn * (10 + (4 - i) * leafSpacing) + arcZ;
                 leaf.style.transform = `translate3d(0, 0, ${leafLiftZ.toFixed(1)}px) rotateY(${leafRotY.toFixed(1)}deg)`;
               } else if (turnProgress >= i + 1) {
                 // Leaf i has flipped to the left stack
-                leaf.style.transform = `translate3d(0, 0, ${(10 + (4 - i) * leafSpacing).toFixed(1)}px) rotateY(-174deg)`;
+                leaf.style.transform = `translate3d(0, 0, ${(10 + (4 - i) * leafSpacing).toFixed(1)}px) rotateY(-180deg)`;
               } else {
                 // Leaf i is resting flat on the right stack
                 leaf.style.transform = `translate3d(0, 0, ${(-i * leafSpacing).toFixed(1)}px) rotateY(0deg)`;
@@ -2022,73 +2274,23 @@ export const App: React.FC = () => {
             <div ref={bookBotEdgeRef} className="book-bot-edge" />
 
             {/* 5 Page Leaves (Rendered in natural order, z-indexes and transforms handled in RAF) */}
-            {W5_DATA.map((win, i) => (
+            {PROJECTS_DATA.map((proj, i) => (
               <div
-                key={win.title}
+                key={proj.title}
                 ref={(el) => { bookLeafRefs.current[i] = el; }}
                 className="book-leaf"
                 onClick={() => handleLeafClick(i)}
               >
-                {/* Front Side: Win Scrapbook Journal Spread */}
+                {/* Front Side: Right Page of Project i */}
                 <div className="page-front">
-                  <div className="page-spine-shadow" />
-
-                  {/* Top Metadata Row */}
-                  <div className="page-top-row">
-                    <span className="page-stamp-pill">{win.sub}</span>
-                    <span className="page-stamp-cat">{win.category}</span>
-                  </div>
-
-                  {/* Photo with Washi Tape */}
-                  <div className="page-photo-card">
-                    <div className="book-tape" />
-                    <img
-                      src={win.img}
-                      alt={win.title}
-                      className="page-photo-img"
-                      loading="eager"
-                      decoding="async"
-                    />
-                  </div>
-
-                  {/* Main Project Story */}
-                  <div className="page-body">
-                    <div className="page-tag">{win.tag}</div>
-                    <h3 className="page-title">{win.title}</h3>
-                    <p className="page-desc">{win.desc}</p>
-                  </div>
-
-                  {/* Bottom Stack & Index Stamp */}
-                  <div className="page-bottom-row">
-                    <div className="page-stack-pills">
-                      {win.stack.map((st) => (
-                        <span key={st} className="page-stack-pill">{st}</span>
-                      ))}
-                    </div>
-                    <span className="page-num-stamp">PAGE 0{i + 1}</span>
-                  </div>
+                  {renderProjectRight(proj)}
                 </div>
 
-                {/* Back Side: Vintage Dev Log & Blueprint Sketch */}
+                {/* Back Side: Left Page of Project i + 1 (or Concluding Archival Summary Plate on Leaf 4) */}
                 <div className="page-back">
-                  <div className="page-back-crease" />
-
-                  <div className="page-back-blueprint">
-                    <div className="page-back-stamp">ARCHIVE #0{i + 1} • FIELD LOG</div>
-                    <div className="page-back-quote">"{win.quote}"</div>
-                  </div>
-
-                  <div className="page-body">
-                    <div className="page-tag" style={{ color: '#555' }}>SYSTEM TELEMETRY</div>
-                    <div className="page-desc" style={{ color: '#444' }}>
-                      Designed for sub-millisecond dispatching, high-load inference, and resilient offline execution.
-                    </div>
-                  </div>
-
-                  <div className="page-back-meta">
-                    <span>STATUS: VERIFIED</span>
-                    <span>METRIC: {win.metric}</span>
-                  </div>
+                  {i + 1 < PROJECTS_DATA.length
+                    ? renderProjectLeft(PROJECTS_DATA[i + 1])
+                    : renderEndplate()}
                 </div>
               </div>
             ))}
@@ -2104,13 +2306,13 @@ export const App: React.FC = () => {
                 <div className="book-cover-spine-crease" />
 
                 <div ref={bookCoverTopRef} className="book-cover-top">
-                  <span className="book-cover-meta">Debashree Mal • CE '28</span>
-                  <span className="book-cover-sub">National build archive</span>
+                  <span className="book-cover-meta">PROOF OF WORK</span>
+                  <span className="book-cover-sub">Debashree Mal • CE '28</span>
                 </div>
 
                 <div className="book-cover-center">
                   <div ref={bookTitleWrapRef} className="book-cover-title-wrap">
-                    {['W', 'I', 'N', 'S'].map((ch, i) => (
+                    {['B', 'U', 'I', 'L', 'D', 'S'].map((ch, i) => (
                       <span
                         key={ch + i}
                         ref={(el) => { bookLetterRefs.current[i] = el; }}
@@ -2123,26 +2325,17 @@ export const App: React.FC = () => {
                 </div>
 
                 <div ref={bookCoverBottomRef} className="book-cover-bottom">
-                  <span>5 awards &amp; hackathons</span>
-                  <span>2025–26</span>
+                  <span>HACKATHON WINS &amp; SHIPPED SYSTEMS</span>
+                  <span>2024–2026</span>
                 </div>
 
                 {/* Specular sheen gliding across the cover */}
                 <div ref={bookShineRef} className="book-shine" />
               </div>
 
-              {/* Back Face of Cover: Cream Archival Endpaper */}
+              {/* Back Face of Cover: Left Page of Project 0 (FlowMind) */}
               <div className="book-cover-back">
-                <div className="book-endpaper-plate">
-                  <h4 className="book-endpaper-title">ARCHIVE OF WINS</h4>
-                  <p className="book-endpaper-desc">
-                    A curated collection of national hackathon victories, offline computer vision SDKs, and autonomous agent systems engineered across India.
-                  </p>
-                </div>
-                <div className="book-cover-bottom" style={{ color: '#444', borderTopColor: 'rgba(0,0,0,0.12)' }}>
-                  <span>EXHIBIT 2025–2026</span>
-                  <span>MUMBAI, INDIA</span>
-                </div>
+                {renderProjectLeft(PROJECTS_DATA[0])}
               </div>
             </div>
           </div>
