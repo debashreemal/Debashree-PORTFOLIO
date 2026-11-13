@@ -44,6 +44,8 @@ export interface ProjectItem {
   metaYear: string;
   tabs: string[];
   screenshots: string[];
+  isPortrait?: boolean;
+  aspectRatio?: string;
   role: string;
   problem: string;
   solution: string;
@@ -62,12 +64,14 @@ const PROJECTS_DATA: ProjectItem[] = [
     metaTeam: 'Team of 4 people',
     metaDuration: '36 hours',
     metaYear: '2025',
-    tabs: ['Dashboard', 'Workflow', 'Screen 3'],
+    tabs: ['Interface', 'Dashboard', 'AI meet', 'AI logs'],
     screenshots: [
-      '/Flowmind/flowmind1.png',
-      '/Flowmind/flowmind2.jpeg',
-      '/Flowmind/flowmind3.jpeg',
+      '/Flowmind/flowmind1- Interface.jpeg',
+      '/Flowmind/flowmind2 - Dashboard.jpeg',
+      '/Flowmind/flowmind3 - AI meet.jpeg',
+      '/Flowmind/flowmind 4 - AI logs.jpeg',
     ],
+    aspectRatio: '1600 / 824',
     role: 'Designed the DAG compiler, the dynamic dependency scheduler and the agent communication protocol.',
     problem: 'Linear LLM chains break when a sub-tool fails. The run loses its context and someone has to restart it by hand.',
     solution: 'A team project: a state-graph orchestrator that checks its own intermediate steps and re-routes failed tasks, so the workflow keeps going.',
@@ -78,40 +82,20 @@ const PROJECTS_DATA: ProjectItem[] = [
   },
   {
     index: 2,
-    badge: 'National Finalist • Paytm HQ 2025',
-    title: 'SULAJH AI',
-    tagline: 'Autonomous merchant simulation & KYC exception resolution',
-    metaTeam: 'Team of 3 people',
-    metaDuration: '48 hours',
-    metaYear: '2025',
-    tabs: ['Simulation', 'KYC Engine', 'Exceptions'],
-    screenshots: [
-      '/moments/m19 - Paytm AI Hackathon.jpeg',
-      '/moments/m16 - Paytm Collaborative Coding.jpeg',
-      '/moments/m1 - Paytm Headquaters.jpeg',
-    ],
-    role: 'Architected multilingual OCR pipeline, automated merchant exception classification, and webhook dispatch.',
-    problem: 'Indian merchant onboarding has high drop-offs due to ambiguous Hindi/regional document scans and complex GST exception handling queues.',
-    solution: 'Built autonomous AI teammates simulating merchant onboarding, parsing noisy physical KYC paperwork, and auto-generating corrective tasks.',
-    stack: ['LLM Agents', 'FastAPI', 'FinTech SDK', 'React', 'Python'],
-    quote: '“Turning merchant onboarding exceptions into zero-touch resolution.”',
-    liveUrl: 'https://paytm-hackathon.vercel.app',
-    githubUrl: 'https://github.com/debashree-08/sulajh-ai',
-  },
-  {
-    index: 3,
     badge: 'Production Full-Stack Architecture',
     title: 'ZWIGGY',
     tagline: 'High-concurrency hyperlocal food ordering & dispatch engine',
     metaTeam: 'Solo Architect',
     metaDuration: '3 weeks',
     metaYear: '2025',
-    tabs: ['Order Feed', 'Live Tracking', 'Dispatch'],
+    tabs: ['Silent Track', 'Audio Map', 'Live SOS', 'Contacts'],
     screenshots: [
-      '/Zwiggy/screenshot-1.png',
-      '/Zwiggy/screenshot-2.png',
-      '/Zwiggy/screenshot-3.png',
+      '/Zwiggy/zwiggy1 - Silent Track.png',
+      '/Zwiggy/zwiggy2 - Audio Map.png',
+      '/Zwiggy/zwiggy3 - Live SOS.png',
+      '/Zwiggy/zwiggy4 - Contacts.png',
     ],
+    aspectRatio: '1918 / 907',
     role: 'Designed distributed order state-machine, geospatial proximity querying, and real-time bidirectional socket tracking.',
     problem: 'Hyperlocal delivery platforms buckle during flash order spikes, creating severe inventory race conditions and dispatch stalls.',
     solution: 'Engineered an event-driven microservices architecture with optimistic concurrency control, Redis geospatial indexing, and WebSocket pub/sub live order updates.',
@@ -121,18 +105,21 @@ const PROJECTS_DATA: ProjectItem[] = [
     githubUrl: 'https://github.com/debashree-08/zwiggy',
   },
   {
-    index: 4,
+    index: 3,
     badge: 'National Finalist • NHAI Hackathon 7.0',
     title: 'NHAI FACE ID',
     tagline: 'Offline edge toll facial recognition SDK for remote highways',
     metaTeam: 'Team of 2 people',
     metaDuration: '36 hours',
     metaYear: '2025',
-    tabs: ['Edge SDK', 'WASM Runtime', 'Telemetry'],
+    tabs: ['Dashboard', 'Enrollement', 'Pipeline'],
     screenshots: [
-      '/moments/m10 - Official Participant.jpeg',
-      '/moments/m2 - Pluto Campus.jpeg',
+      '/nhai/nhai1- Dashboard.jpeg',
+      '/nhai/nhai2 - Enrollement.jpeg',
+      '/nhai/nhai3 - Pipeline.jpeg',
     ],
+    isPortrait: true,
+    aspectRatio: '424 / 900',
     role: 'Built with Piyush Yenorkar — implemented facial landmark quantization, local vector embeddings, and zero-cloud WASM runtime.',
     problem: 'Remote highway toll plazas suffer frequent network blackouts, rendering cloud-dependent facial inspection systems completely unusable.',
     solution: 'Engineered a 100% offline edge SDK compiling optimized OpenCV models and INT8 quantized embeddings directly into on-device WebAssembly and C++.',
@@ -142,19 +129,21 @@ const PROJECTS_DATA: ProjectItem[] = [
     githubUrl: 'https://github.com/debashree-08/nhai-faceid',
   },
   {
-    index: 5,
+    index: 4,
     badge: 'Student Innovation Winner 2024',
     title: 'PLUTO',
     tagline: 'Next-gen campus collaboration & verified academic resource hub',
     metaTeam: 'Founding Lead',
     metaDuration: '2 months',
     metaYear: '2024',
-    tabs: ['Portal', 'Resource Hub', 'Discussions'],
+    tabs: ['Events', 'User Rank', 'Create Event', 'Transactions'],
     screenshots: [
-      '/Pluto/screenshot-1.png',
-      '/Pluto/screenshot-2.png',
-      '/Pluto/screenshot-3.png',
+      '/Pluto/pluto1 - Events.jpeg',
+      '/Pluto/pluto2 - User Rank.jpeg',
+      '/Pluto/pluto3 - Create Event.jpeg',
+      '/Pluto/pluto4 - Transactions.jpeg',
     ],
+    aspectRatio: '1600 / 825',
     role: 'Architected responsive multi-tenant portal, granular RBAC student permissions, and high-throughput asset delivery.',
     problem: 'University peer collaboration is fractured across disjoint WhatsApp groups, Notion boards, and drives, causing acute resource loss.',
     solution: 'Built an integrated campus platform consolidating verified academic repositories, peer-to-peer asset exchange, and real-time departmental discussions.',
@@ -162,6 +151,28 @@ const PROJECTS_DATA: ProjectItem[] = [
     quote: '“A unified institutional repository for 1,200+ student collaborators.”',
     liveUrl: 'https://pluto-campus.vercel.app',
     githubUrl: 'https://github.com/debashree-08/pluto',
+  },
+  {
+    index: 5,
+    badge: 'National Finalist • Paytm HQ 2025',
+    title: 'SULAJH AI',
+    tagline: 'Autonomous merchant simulation & KYC exception resolution',
+    metaTeam: 'Team of 3 people',
+    metaDuration: '48 hours',
+    metaYear: '2025',
+    tabs: ['Merchants', 'Dashboard'],
+    screenshots: [
+      '/paytm/paytm1 - Merchants.png',
+      '/paytm/paytm2 - Dashboard.jpeg',
+    ],
+    aspectRatio: '1919 / 907',
+    role: 'Architected multilingual OCR pipeline, automated merchant exception classification, and webhook dispatch.',
+    problem: 'Indian merchant onboarding has high drop-offs due to ambiguous Hindi/regional document scans and complex GST exception handling queues.',
+    solution: 'Built autonomous AI teammates simulating merchant onboarding, parsing noisy physical KYC paperwork, and auto-generating corrective tasks.',
+    stack: ['LLM Agents', 'FastAPI', 'FinTech SDK', 'React', 'Python'],
+    quote: '“Turning merchant onboarding exceptions into zero-touch resolution.”',
+    liveUrl: 'https://paytm-hackathon.vercel.app',
+    githubUrl: 'https://github.com/debashree-08/sulajh-ai',
   },
 ];
 
@@ -507,6 +518,30 @@ export const App: React.FC = () => {
   // Active Project Screenshot Tab state { [projIndex]: tabIndex }
   const [projectActiveTabs, setProjectActiveTabs] = useState<Record<number, number>>({});
 
+  // Active Project Spread Index (0 to 4: Flowmind, Zwiggy, NHAI, Pluto, Paytm)
+  const [activeProjectIdx, setActiveProjectIdx] = useState(0);
+  const activePageRef = useRef(0);
+
+  // Dynamic Turn Leaf Pages (from page -> to page)
+  const [turnLeafPages, setTurnLeafPages] = useState({ from: 0, to: 1 });
+  const turnLeafPagesRef = useRef({ from: 0, to: 1 });
+
+  // Book Spread Refs
+  const bookSpreadRef = useRef<HTMLDivElement>(null);
+  const bookSpreadLeftRef = useRef<HTMLDivElement>(null);
+  const bookSpreadRightRef = useRef<HTMLDivElement>(null);
+  const turnLeafRef = useRef<HTMLDivElement>(null);
+
+  // Preload all project screenshots for zero-latency instant tab switching
+  useEffect(() => {
+    PROJECTS_DATA.forEach((proj) => {
+      proj.screenshots?.forEach((src) => {
+        const img = new Image();
+        img.src = src;
+      });
+    });
+  }, []);
+
   const renderProjectLeft = (proj: ProjectItem) => {
     const curTabIdx = projectActiveTabs[proj.index] ?? 0;
     const curImg = proj.screenshots?.[curTabIdx];
@@ -534,6 +569,7 @@ export const App: React.FC = () => {
                   role="tab"
                   data-i={tIdx}
                   onClick={(e) => {
+                    e.preventDefault();
                     e.stopPropagation();
                     setProjectActiveTabs((prev) => ({ ...prev, [proj.index]: tIdx }));
                   }}
@@ -543,33 +579,20 @@ export const App: React.FC = () => {
               );
             })}
           </div>
-          <div className="shot">
-            <div className="chrome">
-              <i />
-              <i />
-              <i />
-            </div>
-            <div className="view on">
-              {curImg ? (
-                <img
-                  src={curImg}
-                  alt={`${proj.title} ${proj.tabs[curTabIdx] || ''}`}
-                  loading="eager"
-                  decoding="async"
-                  onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).style.display = 'none';
-                    const ph = e.currentTarget.nextElementSibling as HTMLElement;
-                    if (ph) ph.style.display = 'grid';
-                  }}
-                />
-              ) : null}
-              <div className="ph" style={{ display: curImg ? 'none' : 'grid' }}>
-                <div>
-                  <b>Add screenshot {curTabIdx + 1}</b>
-                  Click to choose an image. It is shown in full, uncropped.
-                </div>
-              </div>
-            </div>
+          <div
+            className={`shot ${proj.isPortrait ? 'shot-portrait' : 'shot-landscape'}`}
+            style={proj.aspectRatio ? { aspectRatio: proj.aspectRatio } : undefined}
+          >
+            {curImg ? (
+              <img
+                key={curImg}
+                src={curImg}
+                alt={`${proj.title} - ${proj.tabs[curTabIdx] || ''}`}
+                className="shot-img"
+                loading="eager"
+                decoding="async"
+              />
+            ) : null}
           </div>
         </div>
         <div className="role">
@@ -638,49 +661,7 @@ export const App: React.FC = () => {
     </div>
   );
 
-  const renderEndplate = () => (
-    <div className="page right" style={{ justifyContent: 'space-between' }}>
-      <div>
-        <div className="ref-badge" style={{ background: '#0e0e11', color: '#ece8df', boxShadow: '4px 4px 0 #5560f0' }}>
-          ARCHIVE VERIFIED
-        </div>
 
-        <h1 style={{ marginTop: '12px', marginBottom: '6px' }}>DEBASHREE MAL</h1>
-        <div className="bar-accent" />
-        <p className="sub" style={{ marginTop: '10px' }}>
-          Hackathon wins &amp; production-grade distributed architectures
-        </p>
-
-        <div className="role" style={{ marginTop: '16px' }}>
-          <p className="label">Curator's Note</p>
-          <p>
-            Engineered for fault-tolerant state orchestration, sub-18ms edge biometrics, and high-concurrency systems across India.
-          </p>
-        </div>
-      </div>
-
-      <div className="foot">
-        <p className="script">“Always shipping. Never finished.”</p>
-        <div className="cta">
-          <a
-            className="s"
-            href="https://github.com/debashree-08"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            style={{ minWidth: '150px' }}
-          >
-            View on GitHub
-            <span className="ic">
-              <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
-              </svg>
-            </span>
-          </a>
-        </div>
-      </div>
-    </div>
-  );
 
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
   const [windowHeight, setWindowHeight] = useState(typeof window !== 'undefined' ? window.innerHeight : 800);
@@ -795,25 +776,7 @@ export const App: React.FC = () => {
     }
   }, [resetScrollDrive]);
 
-  const handleLeafClick = useCallback((idx: number) => {
-    resetScrollDrive();
-    if (tgtRef.current < 0.48) {
-      tgtRef.current = 0.48;
-      return;
-    }
-    const curTurn = sg(tgtRef.current, 0.48, 0.60) * 5;
-    const curPage = Math.min(5, Math.floor(curTurn + 0.1));
-    if (idx < curPage) {
-      tgtRef.current = 0.48 + idx * (0.12 / 5);
-    } else if (idx === curPage && curPage < 4) {
-      tgtRef.current = 0.48 + (curPage + 1) * (0.12 / 5);
-    } else if (idx === 4 && curPage === 4) {
-      // Clicking the last page closes the book!
-      tgtRef.current = 0.62;
-    } else if (idx > curPage) {
-      tgtRef.current = 0.48 + idx * (0.12 / 5);
-    }
-  }, [resetScrollDrive]);
+
 
   const handleCoverClick = useCallback(() => {
     resetScrollDrive();
@@ -1549,7 +1512,8 @@ export const App: React.FC = () => {
           if (bookCoverRef.current) {
             const coverZ = isSpreadFlat ? 0 : Number((T / 2 * u).toFixed(1));
             bookCoverRef.current.style.transform = `translateZ(${coverZ}px) rotateY(${coverRotY.toFixed(1)}deg)`;
-            bookCoverRef.current.style.zIndex = (spreadEase > 0.85 && closeEase === 0) ? '15' : '45';
+            bookCoverRef.current.style.zIndex = (spreadEase > 0.85 && closeEase === 0) ? '1' : '45';
+            bookCoverRef.current.style.pointerEvents = (closeT > 0 || p < 0.36) ? 'auto' : 'none';
           }
 
           // Dynamic Floor Shadow
@@ -1563,21 +1527,22 @@ export const App: React.FC = () => {
           }
 
           // -----------------------------------------------------
-          // Step 11: 5 Leaves (Thick, Smooth, Zero-Blinking Turns & Complete Close)
+          // Step 11: 3D Paper Fan Leaves (Accordion Fan & Closing Phase)
           // -----------------------------------------------------
           const fanAngles = [-48, -36, -25, -14, -4];
-          const leafSpacing = 2.4; // Real tactile paper thickness, eliminates GPU Z-fighting and blinking
+          const leafSpacing = 2.4; // Real tactile paper thickness
 
           bookLeafRefs.current.forEach((leaf, i) => {
             if (!leaf) return;
 
-            if (spreadEase < 1.0) {
+            if (spreadEase < 0.85) {
+              leaf.style.display = 'block';
               if (tiltT > 0 && spreadT === 0) {
                 // ACCORDION FAN IN 3D PERSPECTIVE (MATCHES 0315e51d.jpg!)
                 const ang = fanAngles[i] * tiltEase;
                 leaf.style.transform = `translate3d(0, 0, ${(-i * leafSpacing).toFixed(1)}px) rotateY(${ang.toFixed(1)}deg)`;
               } else if (spreadT > 0) {
-                // Fanning pages settle flat onto the right stack
+                // Fanning pages settle flat onto the stack
                 const ang = fanAngles[i] * (1 - spreadEase);
                 leaf.style.transform = `translate3d(0, 0, ${(-i * leafSpacing).toFixed(1)}px) rotateY(${ang.toFixed(1)}deg)`;
               } else {
@@ -1585,28 +1550,65 @@ export const App: React.FC = () => {
                 leaf.style.transform = `translate3d(0, 0, ${(-i * leafSpacing).toFixed(1)}px) rotateY(0deg)`;
               }
             } else if (closeT > 0) {
-              // BOOK CLOSING PHASE! All 5 leaves swing shut inside the cover
+              // BOOK CLOSING PHASE!
+              leaf.style.display = 'block';
               const closedRotY = -180 * (1 - closeEase);
               leaf.style.transform = `translate3d(0, 0, ${(-i * leafSpacing).toFixed(1)}px) rotateY(${closedRotY.toFixed(1)}deg)`;
             } else {
-              // Active interactive page turns (smooth arc lift, zero collisions, zero blinking)
-              if (turnProgress > i && turnProgress < i + 1) {
-                // Leaf i is currently in flight!
-                const tTurn = turnProgress - i;
-                const easeTurn = 0.5 - 0.5 * Math.cos(tTurn * Math.PI);
-                const leafRotY = -180 * easeTurn;
-                const arcZ = Math.sin(tTurn * Math.PI) * 42;
-                const leafLiftZ = (1 - easeTurn) * (-i * leafSpacing) + easeTurn * (10 + (4 - i) * leafSpacing) + arcZ;
-                leaf.style.transform = `translate3d(0, 0, ${leafLiftZ.toFixed(1)}px) rotateY(${leafRotY.toFixed(1)}deg)`;
-              } else if (turnProgress >= i + 1) {
-                // Leaf i has flipped to the left stack
-                leaf.style.transform = `translate3d(0, 0, ${(10 + (4 - i) * leafSpacing).toFixed(1)}px) rotateY(-180deg)`;
-              } else {
-                // Leaf i is resting flat on the right stack
-                leaf.style.transform = `translate3d(0, 0, ${(-i * leafSpacing).toFixed(1)}px) rotateY(0deg)`;
-              }
+              leaf.style.display = 'none';
             }
           });
+
+          // -----------------------------------------------------
+          // Step 12: Master Open 2-Page Spread & Dynamic 3D Page Turn
+          // -----------------------------------------------------
+          if (bookSpreadRef.current) {
+            if (spreadEase >= 0.85 && closeT === 0) {
+              bookSpreadRef.current.style.display = 'block';
+              bookSpreadRef.current.style.opacity = '1';
+            } else if (closeT > 0) {
+              bookSpreadRef.current.style.display = 'block';
+              bookSpreadRef.current.style.opacity = `${(1 - closeEase).toFixed(2)}`;
+            } else {
+              bookSpreadRef.current.style.display = 'none';
+            }
+          }
+
+          // Dynamic 3D Page Turn (turnProgress: 0.0 -> 5.0)
+          const fromIdx = Math.min(3, Math.max(0, Math.floor(turnProgress)));
+          const toIdx = fromIdx + 1;
+          const frac = turnProgress - fromIdx;
+
+          if (spreadEase >= 0.85 && closeT === 0) {
+            if (frac > 0.06 && frac < 0.94) {
+              // Active page flip in flight!
+              if (turnLeafPagesRef.current.from !== fromIdx || turnLeafPagesRef.current.to !== toIdx) {
+                turnLeafPagesRef.current = { from: fromIdx, to: toIdx };
+                setTurnLeafPages({ from: fromIdx, to: toIdx });
+              }
+              if (turnLeafRef.current) {
+                turnLeafRef.current.style.display = 'block';
+                const easeTurn = 0.5 - 0.5 * Math.cos(frac * Math.PI);
+                const rotY = -180 * easeTurn;
+                const arcZ = Math.sin(frac * Math.PI) * 45;
+                turnLeafRef.current.style.transform = `translate3d(0, 0, ${arcZ.toFixed(1)}px) rotateY(${rotY.toFixed(1)}deg)`;
+              }
+            } else {
+              // Settled flat on active spread
+              if (turnLeafRef.current) {
+                turnLeafRef.current.style.display = 'none';
+              }
+              const restingPage = Math.min(4, Math.max(0, Math.round(turnProgress)));
+              if (restingPage !== activePageRef.current) {
+                activePageRef.current = restingPage;
+                setActiveProjectIdx(restingPage);
+              }
+            }
+          } else {
+            if (turnLeafRef.current) {
+              turnLeafRef.current.style.display = 'none';
+            }
+          }
 
           // Scroll to open hint (visible when book cover is closed, fades as it opens)
           if (bookScrollHintRef.current) {
@@ -1615,7 +1617,7 @@ export const App: React.FC = () => {
             bookScrollHintRef.current.style.pointerEvents = hintOp > 0.3 ? 'auto' : 'none';
           }
 
-          // Minimalist Bottom Controls & Dynamic Direct DOM Updates (Zero React Re-renders!)
+          // Minimalist Bottom Controls & Dynamic Direct DOM Updates
           if (bookControlsRef.current) {
             const ctrlOp = (tiltEase > 0 ? 1 : 0) * (1 - zoomT);
             bookControlsRef.current.style.opacity = `${ctrlOp.toFixed(2)}`;
@@ -1625,20 +1627,19 @@ export const App: React.FC = () => {
           if (bookCounterRef.current) {
             if (p < 0.38) {
               bookCounterRef.current.textContent = 'COVER';
-            } else if (spreadEase < 1.0) {
+            } else if (spreadEase < 0.85) {
               bookCounterRef.current.textContent = '01 / 05';
             } else if (closeT > 0.4) {
               bookCounterRef.current.textContent = 'CLOSED';
             } else {
-              const curP = Math.min(5, Math.floor(turnProgress) + 1);
-              bookCounterRef.current.textContent = `0${curP} / 05`;
+              bookCounterRef.current.textContent = `0${activePageRef.current + 1} / 05`;
             }
           }
 
           if (bookNextBtnRef.current) {
             if (closeT > 0.3) {
               bookNextBtnRef.current.textContent = 'MOMENTS →';
-            } else if (turnProgress >= 4) {
+            } else if (activePageRef.current >= 4) {
               bookNextBtnRef.current.textContent = 'CLOSE BOOK ›';
             } else {
               bookNextBtnRef.current.textContent = 'NEXT ›';
@@ -2291,27 +2292,55 @@ export const App: React.FC = () => {
             {/* 3D Paper Bottom Edge */}
             <div ref={bookBotEdgeRef} className="book-bot-edge" />
 
-            {/* 5 Page Leaves (Rendered in natural order, z-indexes and transforms handled in RAF) */}
-            {PROJECTS_DATA.map((proj, i) => (
+            {/* 3D Paper Fan Leaves (Fanned during accordion fan mode, closed during close) */}
+            {[0, 1, 2, 3, 4].map((i) => (
               <div
-                key={proj.title}
+                key={i}
                 ref={(el) => { bookLeafRefs.current[i] = el; }}
-                className="book-leaf"
-                onClick={() => handleLeafClick(i)}
-              >
-                {/* Front Side: Right Page of Project i */}
-                <div className="page-front">
-                  {renderProjectRight(proj)}
-                </div>
-
-                {/* Back Side: Left Page of Project i + 1 (or Concluding Archival Summary Plate on Leaf 4) */}
-                <div className="page-back">
-                  {i + 1 < PROJECTS_DATA.length
-                    ? renderProjectLeft(PROJECTS_DATA[i + 1])
-                    : renderEndplate()}
-                </div>
-              </div>
+                className="book-fan-leaf"
+                aria-hidden="true"
+              />
             ))}
+
+            {/* Master Open 2-Page Spread Container */}
+            <div
+              ref={bookSpreadRef}
+              className="book-page-spread"
+              style={{ display: 'none' }}
+            >
+              {/* Left Page (Active Project Visuals & Screenshots) */}
+              <div
+                ref={bookSpreadLeftRef}
+                className="book-spread-left"
+                onClick={() => turnPrev()}
+              >
+                {renderProjectLeft(PROJECTS_DATA[activeProjectIdx])}
+              </div>
+
+              {/* Right Page (Active Project Case Study & Specs) */}
+              <div
+                ref={bookSpreadRightRef}
+                className="book-spread-right"
+                onClick={() => turnNext()}
+              >
+                {renderProjectRight(PROJECTS_DATA[activeProjectIdx])}
+              </div>
+            </div>
+
+            {/* Dynamic 3D Page Turn Leaf (During page turns) */}
+            <div
+              ref={turnLeafRef}
+              className="book-leaf-turn"
+              style={{ display: 'none' }}
+              aria-hidden="true"
+            >
+              <div className="leaf-turn-front">
+                {renderProjectRight(PROJECTS_DATA[turnLeafPages.from])}
+              </div>
+              <div className="leaf-turn-back">
+                {renderProjectLeft(PROJECTS_DATA[turnLeafPages.to])}
+              </div>
+            </div>
 
             {/* Front Hardback Cover */}
             <div
@@ -2350,10 +2379,8 @@ export const App: React.FC = () => {
                 <div ref={bookShineRef} className="book-shine" />
               </div>
 
-              {/* Back Face of Cover: Left Page of Project 0 (FlowMind) */}
-              <div className="book-cover-back">
-                {renderProjectLeft(PROJECTS_DATA[0])}
-              </div>
+              {/* Back Face of Cover: Clean Archival Endpaper */}
+              <div className="book-cover-back" aria-hidden="true" />
             </div>
           </div>
 

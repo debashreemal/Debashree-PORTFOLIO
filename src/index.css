@@ -935,6 +935,103 @@ body {
   -webkit-font-smoothing: subpixel-antialiased;
 }
 
+/* Master Open 2-Page Spread Container */
+.book-page-spread {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  pointer-events: auto;
+  z-index: 10;
+}
+
+/* Left Page of Spread */
+.book-spread-left {
+  position: absolute;
+  left: calc(var(--w) * -1.5);
+  top: calc(var(--h) / -2);
+  width: var(--w);
+  height: var(--h);
+  border-radius: 20px 0 0 20px;
+  background: var(--paper, #ece8df);
+  box-shadow: -15px 25px 50px rgba(0, 0, 0, 0.35), inset 0 0 0 1px var(--edge);
+  overflow: hidden;
+  pointer-events: auto !important;
+  z-index: 10;
+  cursor: pointer;
+}
+
+/* Right Page of Spread */
+.book-spread-right {
+  position: absolute;
+  left: calc(var(--w) * -0.5);
+  top: calc(var(--h) / -2);
+  width: var(--w);
+  height: var(--h);
+  border-radius: 0 20px 20px 0;
+  background: var(--paper, #ece8df);
+  box-shadow: 15px 25px 50px rgba(0, 0, 0, 0.35), inset 0 0 0 1px var(--edge);
+  overflow: hidden;
+  pointer-events: auto !important;
+  z-index: 10;
+  cursor: pointer;
+}
+
+/* Dynamic 3D Page Turn Leaf */
+.book-leaf-turn {
+  position: absolute;
+  left: calc(var(--w) * -0.5);
+  top: calc(var(--h) / -2);
+  width: var(--w);
+  height: var(--h);
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  will-change: transform;
+  border-radius: 0 20px 20px 0;
+  pointer-events: none;
+  z-index: 25;
+}
+
+.book-leaf-turn .leaf-turn-front {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 0 20px 20px 0;
+  background: var(--paper, #ece8df);
+  box-shadow: 15px 25px 50px rgba(0, 0, 0, 0.35), inset 0 0 0 1px var(--edge);
+  overflow: hidden;
+}
+
+.book-leaf-turn .leaf-turn-back {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 20px 0 0 20px;
+  background: var(--paper, #ece8df);
+  box-shadow: -15px 25px 50px rgba(0, 0, 0, 0.35), inset 0 0 0 1px var(--edge);
+  overflow: hidden;
+}
+
+/* 3D Paper Fan Leaves (during 3D accordion fan phase) */
+.book-fan-leaf {
+  position: absolute;
+  left: calc(var(--w) * -0.5);
+  top: calc(var(--h) / -2);
+  width: var(--w);
+  height: var(--h);
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  will-change: transform;
+  border-radius: 4px 14px 14px 4px;
+  background: var(--paper, #ece8df);
+  box-shadow: inset 0 0 0 1px var(--edge), 5px 5px 15px rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+}
+
 /* 3D Page Leaves */
 .book-leaf {
   position: absolute;
@@ -1298,40 +1395,26 @@ body {
 .ref-tabs-row {
   position: relative;
   align-self: flex-start;
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 1fr;
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 3px;
   padding: 3px;
   border-radius: 999px;
   background: var(--chip);
   box-shadow: inset 0 0 0 1px var(--edge);
-  gap: 0;
   user-select: none;
 }
 
 .page .tabs::before {
-  content: "";
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  width: calc((100% - 6px) / 3);
-  height: calc(100% - 6px);
-  border-radius: 999px;
-  background: var(--ink);
-  box-shadow: 0 3px 8px rgba(14, 14, 17, .25);
-  transition: transform .28s cubic-bezier(.3, .8, .3, 1);
-  pointer-events: none;
+  display: none !important;
 }
-
-.page .tabs[data-active="0"]::before { transform: translateX(0%); }
-.page .tabs[data-active="1"]::before { transform: translateX(100%); }
-.page .tabs[data-active="2"]::before { transform: translateX(200%); }
 
 .page .tabs button,
 .ref-tab-btn {
   position: relative;
   z-index: 1;
-  font: 600 11px "Inter", system-ui, sans-serif;
+  font: 600 clamp(10.5px, 0.85vw, 11.5px) "Inter", system-ui, sans-serif;
   padding: 4px 11px;
   border-radius: 999px;
   border: 0;
@@ -1339,90 +1422,64 @@ body {
   color: var(--muted);
   cursor: pointer;
   white-space: nowrap;
-  transition: color .28s ease;
-  min-width: 64px;
+  transition: all .2s ease;
   text-align: center;
 }
 
 .page .tabs button.on,
 .ref-tab-btn.active {
-  color: var(--on-dark);
+  background: var(--ink) !important;
+  color: var(--on-dark) !important;
+  box-shadow: 0 2px 6px rgba(14, 14, 17, .25);
 }
 
 .page .tabs button:focus-visible {
-  outline: 3px solid var(--peri-deep);
+  outline: 2px solid var(--peri-deep);
   outline-offset: 2px;
 }
 
-/* Mockup Screenshot Frame */
+/* Exact Screenshot Display (NO IOS Theme) */
 .page .shot,
 .ref-browser-frame {
   position: relative;
-  border-radius: 10px;
+  border-radius: 8px;
   overflow: hidden;
-  background: var(--dark);
-  box-shadow: 0 12px 28px rgba(14, 14, 17, .22);
-  aspect-ratio: 16 / 9;
+  background: #121217;
+  box-shadow: 0 10px 24px rgba(14, 14, 17, .18), 0 0 0 1px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
 }
 
-.page .chrome,
-.ref-browser-header {
-  height: 22px;
-  background: #25242e;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 0 10px;
+.page .shot.shot-landscape {
+  width: 100%;
 }
 
-.page .chrome i,
-.ref-browser-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #4d4c5c;
-  display: inline-block;
+.page .shot.shot-portrait {
+  width: auto;
+  max-width: 135px;
+  height: clamp(170px, 24vh, 220px);
+  margin: 0 auto;
+  border-radius: 12px;
+  box-shadow: 0 12px 28px rgba(14, 14, 17, .24), 0 0 0 1px rgba(0, 0, 0, 0.1);
 }
 
-.page .view,
-.ref-browser-body {
-  position: absolute;
-  inset: 22px 0 0 0;
-  background: var(--dark);
-}
-
-.page .view img,
+.page .shot-img,
+.page .shot img,
 .ref-browser-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: top center;
-  background: var(--dark);
   display: block;
+  border-radius: inherit;
 }
 
-.page .ph,
-.ref-placeholder-box {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-content: center;
-  text-align: center;
-  color: #b9b8c8;
-  font-size: 12px;
-  padding: 12px;
-  line-height: 1.4;
-  font-family: "Inter", system-ui, sans-serif;
+.page .chrome,
+.ref-browser-header {
+  display: none !important;
 }
 
-.page .ph b,
-.ref-placeholder-title {
-  color: #fff;
-  display: block;
-  font-size: 13.5px;
-  margin-bottom: 3px;
-}
 
 /* My Role */
 .page .role,
