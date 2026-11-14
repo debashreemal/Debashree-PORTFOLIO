@@ -46,6 +46,7 @@ export interface ProjectItem {
   screenshots: string[];
   isPortrait?: boolean;
   aspectRatio?: string;
+  roleLabel?: string;
   role: string;
   problem: string;
   solution: string;
@@ -58,13 +59,13 @@ export interface ProjectItem {
 const PROJECTS_DATA: ProjectItem[] = [
   {
     index: 1,
-    badge: '1st place at Axion Hackathon',
+    badge: '1st Prize at Axion Hackathon',
     title: 'FLOWMIND',
-    tagline: 'An autonomous multi-agent workflow engine',
-    metaTeam: 'Team of 4 people',
-    metaDuration: '36 hours',
+    tagline: 'AI project manager that plans, assigns, and tracks work for your team.',
+    metaTeam: 'Team of 2 people',
+    metaDuration: '8 hours',
     metaYear: '2025',
-    tabs: ['Interface', 'Dashboard', 'AI meet', 'AI logs'],
+    tabs: ['Interface', 'Dashboard', 'AI meeting', 'AI logs'],
     screenshots: [
       '/Flowmind/flowmind1- Interface.jpeg',
       '/Flowmind/flowmind2 - Dashboard.jpeg',
@@ -72,23 +73,23 @@ const PROJECTS_DATA: ProjectItem[] = [
       '/Flowmind/flowmind 4 - AI logs.jpeg',
     ],
     aspectRatio: '1600 / 828',
-    role: 'Designed the DAG compiler, the dynamic dependency scheduler and the agent communication protocol.',
-    problem: 'Linear LLM chains break when a sub-tool fails. The run loses its context and someone has to restart it by hand.',
-    solution: 'A team project: a state-graph orchestrator that checks its own intermediate steps and re-routes failed tasks, so the workflow keeps going.',
-    stack: ['LangGraph', 'Python', 'FastAPI', 'Next.js', 'Tailwind CSS'],
+    role: 'Designed the frontend interface, researched and scoped new features, architected the end-to-end workflow, and built the real-time chat backend.',
+    problem: 'Teams waste hours managing work (planning, assigning, chasing updates) instead of actually doing it. Existing tools like Trello, Jira, and Asana only record your plan. You still have to create, assign, and update every task yourself.',
+    solution: 'FlowMind turns your goal into a clear plan, listens to your meetings in any language, automatically assigns tasks from what is discussed to a desired member, and adjusts the plan when things change.',
+    stack: ['React 18', 'TypeScript', 'Vite', 'Express.js', 'Node.js', 'Supabase Realtime', 'Neo4j Aura', 'Groq', 'Gnani Prisma STT', 'Gnani Timbre TTS', 'Agora WebRTC', 'Hindsight Memory API', 'Vercel', 'Render'],
     quote: '“FlowMind never forgets – so your team doesn\'t have to.”',
-    liveUrl: 'https://flowmind.vercel.app',
-    githubUrl: 'https://github.com/debashree-08/flowmind',
+    liveUrl: 'https://flowwithmind.vercel.app/',
+    githubUrl: 'https://github.com/piyushyenorkar/FlowMind',
   },
   {
     index: 2,
-    badge: 'Production Full-Stack Architecture',
+    badge: 'Full-Stack Product Build',
     title: 'ZWIGGY',
-    tagline: 'High-concurrency hyperlocal food ordering & dispatch engine',
+    tagline: 'Looks like food delivery. Three taps, and help is on the way.',
     metaTeam: 'Solo Architect',
-    metaDuration: '3 weeks',
+    metaDuration: '2 weeks',
     metaYear: '2025',
-    tabs: ['Silent Track', 'Audio Map', 'Live SOS', 'Contacts'],
+    tabs: ['Silent Tracking', 'Audio Maps', 'Live SOS', 'Contacts'],
     screenshots: [
       '/Zwiggy/zwiggy1 - Silent Track.png',
       '/Zwiggy/zwiggy2 - Audio Map.png',
@@ -96,13 +97,14 @@ const PROJECTS_DATA: ProjectItem[] = [
       '/Zwiggy/zwiggy4 - Contacts.png',
     ],
     aspectRatio: '1918 / 907',
-    role: 'Designed distributed order state-machine, geospatial proximity querying, and real-time bidirectional socket tracking.',
-    problem: 'Hyperlocal delivery platforms buckle during flash order spikes, creating severe inventory race conditions and dispatch stalls.',
-    solution: 'Engineered an event-driven microservices architecture with optimistic concurrency control, Redis geospatial indexing, and WebSocket pub/sub live order updates.',
-    stack: ['React', 'Node.js', 'MongoDB', 'Redis', 'Socket.io', 'Tailwind CSS'],
-    quote: '“Sub-15ms spatial query dispatch under peak concurrent flash loads.”',
-    liveUrl: 'https://zwiggy.vercel.app',
-    githubUrl: 'https://github.com/debashree-08/zwiggy',
+    roleLabel: 'Solo Architect',
+    role: 'Solo-developed from concept to deployment, covering the design, frontend, backend, and database.',
+    problem: 'In unsafe moments, people often cannot ask for help openly, because opening a normal safety app or calling someone can alert the person causing the danger.',
+    solution: 'Zwiggy looks like a normal food delivery app, so nobody suspects it is a safety tool. A secret PIN opens safety mode, and three taps send an SOS with your live location to your trusted contacts. Your current location and recordings are saved automatically, hidden inside the orders section.',
+    stack: ['React', 'Vite', 'Tailwind CSS', 'JavaScript', 'Capacitor.js', 'Android', 'iOS', 'Supabase', 'React-Leaflet', 'Twilio API', 'Vercel'],
+    quote: '“Real help doesn’t always announce itself.”',
+    liveUrl: 'https://zwiggy-app.vercel.app/',
+    githubUrl: 'https://github.com/debashreemal/Zwiggy',
   },
   {
     index: 3,
@@ -590,7 +592,7 @@ export const App: React.FC = () => {
           </div>
         </div>
         <div className="role">
-          <p className="label">My role</p>
+          <p className="label">{proj.roleLabel || 'My role'}</p>
           <p>{proj.role}</p>
         </div>
       </div>

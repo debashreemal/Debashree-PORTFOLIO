@@ -736,7 +736,7 @@ body {
   box-sizing: border-box;
 }
 
-.book-cover-frame > * {
+.book-cover-frame>* {
   position: relative;
 }
 
@@ -883,35 +883,44 @@ body {
     inset: 5cqw 5cqw 5cqw 13cqw;
     padding: 5cqw;
   }
+
   .book-cover-spine-strip {
     width: 9cqw;
   }
+
   .book-cover-eyebrow {
     font-size: 2.8cqw;
   }
+
   .book-cover-letter {
     font-size: 25cqw;
   }
+
   .book-cover-bar {
     width: 14cqw;
     height: 1.3cqw;
     margin-top: 3.4cqw;
   }
+
   .book-cover-desc {
     margin: 3.2cqw 0 0;
     font-size: 3.7cqw;
   }
+
   .book-cover-script {
     margin: 1.4cqw 0 0;
     font-size: 6cqw;
   }
+
   .book-cover-foot {
     margin-top: 6cqw;
     padding-top: 3.4cqw;
   }
+
   .book-cover-who {
     font-size: 3.6cqw;
   }
+
   .book-cover-who span,
   .book-cover-yr {
     font-size: 2.7cqw;
@@ -1571,7 +1580,7 @@ body {
   font-weight: 450;
 }
 
-.page .sec + .sec,
+.page .sec+.sec,
 .ref-divider {
   border-top: 1px solid var(--edge);
   padding-top: clamp(10px, 1.4vh, 15px);
@@ -1610,7 +1619,7 @@ body {
 .ref-script-quote {
   font-family: "Kaushan Script", "Brush Script MT", cursive;
   color: var(--peri-deep);
-  font-size: clamp(14px, 1.15vw, 16.5px);
+  font-size: clamp(16px, 1.3vw, 18.5px);
   line-height: 1.35;
   margin: 0;
 }
