@@ -688,6 +688,7 @@ body {
 .book-cover-front {
   position: absolute;
   inset: 0;
+  transform: translateZ(1px);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   background: linear-gradient(160deg, #f3f0e8 0%, var(--cream, #ece8df) 50%, var(--cream-2, #e0dbce) 100%);
@@ -918,11 +919,11 @@ body {
   }
 }
 
-/* Inside Cover (Back Face) */
+/* Inside Cover (Back Face: Flowmind Left) */
 .book-cover-back {
   position: absolute;
   inset: 0;
-  transform: rotateY(180deg);
+  transform: rotateY(180deg) translateZ(1px);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   border-radius: 20px 0 0 20px !important;
@@ -932,6 +933,8 @@ body {
   border: none !important;
   box-shadow: -15px 25px 50px rgba(0, 0, 0, 0.35), inset 0 0 0 1px var(--edge) !important;
   overflow: hidden;
+  pointer-events: auto !important;
+  cursor: pointer;
   -webkit-font-smoothing: subpixel-antialiased;
 }
 
@@ -944,9 +947,11 @@ body {
   height: 0;
   pointer-events: auto;
   z-index: 10;
+  transform-style: preserve-3d;
 }
 
-/* Left Page of Spread */
+/* Base Left Page (Project 0 Left) */
+.book-base-left,
 .book-spread-left {
   position: absolute;
   left: calc(var(--w) * -1.5);
@@ -958,11 +963,13 @@ body {
   box-shadow: -15px 25px 50px rgba(0, 0, 0, 0.35), inset 0 0 0 1px var(--edge);
   overflow: hidden;
   pointer-events: auto !important;
-  z-index: 10;
+  z-index: 4;
   cursor: pointer;
+  -webkit-font-smoothing: subpixel-antialiased;
 }
 
-/* Right Page of Spread */
+/* Base Right Page (Project 4 Right) */
+.book-base-right,
 .book-spread-right {
   position: absolute;
   left: calc(var(--w) * -0.5);
@@ -974,12 +981,13 @@ body {
   box-shadow: 15px 25px 50px rgba(0, 0, 0, 0.35), inset 0 0 0 1px var(--edge);
   overflow: hidden;
   pointer-events: auto !important;
-  z-index: 10;
+  z-index: 4;
   cursor: pointer;
+  -webkit-font-smoothing: subpixel-antialiased;
 }
 
-/* Dynamic 3D Page Turn Leaf */
-.book-leaf-turn {
+/* 4 Physical 3D Page Leaves */
+.book-leaf-item {
   position: absolute;
   left: calc(var(--w) * -0.5);
   top: calc(var(--h) / -2);
@@ -989,31 +997,37 @@ body {
   transform-style: preserve-3d;
   will-change: transform;
   border-radius: 0 20px 20px 0;
-  pointer-events: none;
-  z-index: 25;
+  pointer-events: auto;
 }
 
-.book-leaf-turn .leaf-turn-front {
+.book-leaf-item .leaf-face-front {
   position: absolute;
   inset: 0;
+  transform: translateZ(1px);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   border-radius: 0 20px 20px 0;
   background: var(--paper, #ece8df);
   box-shadow: 15px 25px 50px rgba(0, 0, 0, 0.35), inset 0 0 0 1px var(--edge);
   overflow: hidden;
+  cursor: pointer;
+  pointer-events: auto !important;
+  -webkit-font-smoothing: subpixel-antialiased;
 }
 
-.book-leaf-turn .leaf-turn-back {
+.book-leaf-item .leaf-face-back {
   position: absolute;
   inset: 0;
-  transform: rotateY(180deg);
+  transform: rotateY(180deg) translateZ(1px);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   border-radius: 20px 0 0 20px;
   background: var(--paper, #ece8df);
   box-shadow: -15px 25px 50px rgba(0, 0, 0, 0.35), inset 0 0 0 1px var(--edge);
   overflow: hidden;
+  cursor: pointer;
+  pointer-events: auto !important;
+  -webkit-font-smoothing: subpixel-antialiased;
 }
 
 /* 3D Paper Fan Leaves (during 3D accordion fan phase) */
@@ -1255,6 +1269,8 @@ body {
   --on-dark: #ece8df;
   position: relative;
   z-index: 2;
+  transform: translateZ(1px);
+  transform-style: preserve-3d;
   width: 100%;
   height: 100%;
   box-sizing: border-box;

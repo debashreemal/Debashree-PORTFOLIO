@@ -499,7 +499,6 @@ export const App: React.FC = () => {
   const bookTitleWrapRef = useRef<HTMLDivElement>(null);
   const bookLetterRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const bookShineRef = useRef<HTMLDivElement>(null);
-  const bookLeafRefs = useRef<(HTMLDivElement | null)[]>([]);
   const bookShadowRef = useRef<HTMLDivElement>(null);
   const bookCounterRef = useRef<HTMLSpanElement>(null);
   const bookControlsRef = useRef<HTMLDivElement>(null);
@@ -518,19 +517,13 @@ export const App: React.FC = () => {
   // Active Project Screenshot Tab state { [projIndex]: tabIndex }
   const [projectActiveTabs, setProjectActiveTabs] = useState<Record<number, number>>({});
 
-  // Active Project Spread Index (0 to 4: Flowmind, Zwiggy, NHAI, Pluto, Paytm)
-  const [activeProjectIdx, setActiveProjectIdx] = useState(0);
   const activePageRef = useRef(0);
 
-  // Dynamic Turn Leaf Pages (from page -> to page)
-  const [turnLeafPages, setTurnLeafPages] = useState({ from: 0, to: 1 });
-  const turnLeafPagesRef = useRef({ from: 0, to: 1 });
-
-  // Book Spread Refs
+  // Real 3D Book Pages Refs (Base Left, Base Right, and 4 Physical 3D Turning Leaves)
   const bookSpreadRef = useRef<HTMLDivElement>(null);
-  const bookSpreadLeftRef = useRef<HTMLDivElement>(null);
-  const bookSpreadRightRef = useRef<HTMLDivElement>(null);
-  const turnLeafRef = useRef<HTMLDivElement>(null);
+  const baseLeftRef = useRef<HTMLDivElement>(null);
+  const baseRightRef = useRef<HTMLDivElement>(null);
+  const leafRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   // Preload all project screenshots for zero-latency instant tab switching
   useEffect(() => {
@@ -544,7 +537,7 @@ export const App: React.FC = () => {
 
   const renderProjectLeft = (proj: ProjectItem) => {
     const curTabIdx = projectActiveTabs[proj.index] ?? 0;
-    const curImg = proj.screenshots?.[curTabIdx];
+    const curImg = proj.screenshots?.[curTabIdx] || proj.screenshots?.[0];
 
     return (
       <div className="page left">
@@ -568,6 +561,7 @@ export const App: React.FC = () => {
                   className={isActive ? 'on' : ''}
                   role="tab"
                   data-i={tIdx}
+                  onPointerDown={(e) => e.stopPropagation()}
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -736,19 +730,16 @@ export const App: React.FC = () => {
   // 3D Book Page Turning Callbacks (exact, obstacle-free page targets)
   const turnNext = useCallback(() => {
     resetScrollDrive();
-    if (tgtRef.current < 0.44) {
-      tgtRef.current = 0.48; // Open to Page 1
-    } else if (tgtRef.current < 0.48) {
-      tgtRef.current = 0.48;
+    if (tgtRef.current < 0.46) {
+      tgtRef.current = 0.48; // Open cleanly to Page 1
     } else {
-      const curTurn = sg(tgtRef.current, 0.48, 0.60) * 5;
-      const curPage = Math.min(5, Math.floor(curTurn + 0.1));
+      const curTurn = sg(tgtRef.current, 0.48, 0.60) * 4;
+      const curPage = Math.min(4, Math.floor(curTurn + 0.1));
       if (curPage < 4) {
-        // Go to next page (1, 2, 3, 4)
-        tgtRef.current = 0.48 + (curPage + 1) * (0.12 / 5);
+        tgtRef.current = 0.48 + (curPage + 1) * (0.12 / 4);
       } else if (curPage === 4) {
         // At Page 5: CLOSE THE BOOK!
-        tgtRef.current = 0.62;
+        tgtRef.current = 0.64;
       } else {
         // From closed book: GO TO MOMENTS!
         goTo(3);
@@ -758,34 +749,30 @@ export const App: React.FC = () => {
 
   const turnPrev = useCallback(() => {
     resetScrollDrive();
-    if (tgtRef.current <= 0.425) {
-      tgtRef.current = 0.38; // Return to closed 3D book cover
-    } else if (tgtRef.current <= 0.485) {
-      tgtRef.current = 0.42; // Return to 3D accordion fan state
+    if (tgtRef.current <= 0.485) {
+      tgtRef.current = 0.38; // Cleanly close back to cover
     } else if (tgtRef.current >= 0.61) {
       // Re-open from closed book back to Page 5
-      tgtRef.current = 0.48 + 4 * (0.12 / 5);
+      tgtRef.current = 0.60;
     } else {
-      const curTurn = sg(tgtRef.current, 0.48, 0.60) * 5;
-      const curPage = Math.min(5, Math.floor(curTurn + 0.1));
+      const curTurn = sg(tgtRef.current, 0.48, 0.60) * 4;
+      const curPage = Math.min(4, Math.floor(curTurn + 0.1));
       if (curPage > 0) {
-        tgtRef.current = 0.48 + (curPage - 1) * (0.12 / 5);
+        tgtRef.current = 0.48 + (curPage - 1) * (0.12 / 4);
       } else {
-        tgtRef.current = 0.42;
+        tgtRef.current = 0.38; // Cleanly close back to cover
       }
     }
   }, [resetScrollDrive]);
 
-
-
   const handleCoverClick = useCallback(() => {
     resetScrollDrive();
-    if (tgtRef.current < 0.44) {
+    if (tgtRef.current < 0.46) {
       tgtRef.current = 0.48;
     } else if (tgtRef.current >= 0.61) {
       tgtRef.current = 0.48;
     } else {
-      tgtRef.current = 0.42;
+      tgtRef.current = 0.38;
     }
   }, [resetScrollDrive]);
 
@@ -1361,13 +1348,6 @@ export const App: React.FC = () => {
           });
 
           // -----------------------------------------------------
-          // Step 3: 3D Perspective Tilt, Pop & Ground Shadow
-          // p: 0.35 -> 0.40
-          // -----------------------------------------------------
-          const r = io(sg(p, 0.35, 0.40));
-          const pop = Math.sin(sg(p, 0.33, 0.39) * Math.PI) * 0.04;
-
-          // -----------------------------------------------------
           // Step 4: Specular Sheen sweep across cover
           // p: 0.37 -> 0.40
           // -----------------------------------------------------
@@ -1378,43 +1358,38 @@ export const App: React.FC = () => {
           }
 
           // -----------------------------------------------------
-          // Step 5: 3D Accordion Fan Reveal (MATCHES 0315e51d.jpg!)
-          // p: 0.40 -> 0.44
+          // Step 5: Clean, Unified Book Opening (Zero Tilt, Zero Wobble)
+          // p: 0.40 -> 0.48 (Front cover swings smoothly open from 0 to -180 deg)
           // -----------------------------------------------------
-          const tiltT = sg(p, 0.40, 0.44);
-          const tiltEase = io(tiltT);
+          const openT = sg(p, 0.40, 0.48);
+          const openEase = io(openT);
 
           // -----------------------------------------------------
-          // Step 6: Transition from Fan to Centered Flat Spread (MATCHES 1a0dbb24.jpg!)
-          // p: 0.44 -> 0.48 (Milestone 2: WINS Open Spread)
+          // Step 6: Interactive 3D Physical Page Turns
+          // p: 0.48 -> 0.60 (4 physical turns across 5 projects)
           // -----------------------------------------------------
-          const spreadT = sg(p, 0.44, 0.48);
-          const spreadEase = io(spreadT);
+          const turnProgress = sg(p, 0.48, 0.60) * 4;
+          const activePage = Math.min(4, Math.max(0, Math.round(turnProgress)));
+          activePageRef.current = activePage;
 
           // -----------------------------------------------------
-          // Step 7: Interactive 5 Page Turns
-          // p: 0.48 -> 0.60 (5 pages: Leaves 0, 1, 2, 3, 4)
-          // -----------------------------------------------------
-          const turnProgress = sg(p, 0.48, 0.60) * 5;
-
-          // -----------------------------------------------------
-          // Step 8: Book Closes After Last Page!
-          // p: 0.60 -> 0.635 (Front cover & all pages swing shut)
+          // Step 7: Book Closes After Last Page!
+          // p: 0.60 -> 0.635 (Front cover & leaves swing shut together)
           // -----------------------------------------------------
           const closeT = sg(p, 0.60, 0.635);
           const closeEase = io(closeT);
 
           // -----------------------------------------------------
-          // Step 9: Smooth Zoom-Through Transition into Moments 3D Globe
+          // Step 8: Smooth Zoom-Through Transition into Moments 3D Globe
           // p: 0.635 -> 0.685 (Closed book zooms dramatically towards camera & dissolves into Moments)
           // -----------------------------------------------------
           const zoomT = sg(p, 0.635, 0.685);
           const zoomEase = io(zoomT);
 
           // Fore-edge, top edge, and bottom edge:
-          // Fully visible and 3D when the book is CLOSED (both before opening at p < 0.365 and after closing at p >= 0.60)
-          // Smoothly hidden when the book is OPEN (during accordion fan and flat spread)
-          const isClosedBefore = (1 - tiltEase) * (1 - spreadEase);
+          // Fully visible and 3D when the book is CLOSED (both before opening at p < 0.40 and after closing at p >= 0.60)
+          // Smoothly hidden when the book is OPEN
+          const isClosedBefore = (1 - openEase);
           const isClosedAfter = closeEase;
           const closedFactor = cl(isClosedBefore + isClosedAfter);
           const closedEdgeOp = cl(sg(p, 0.33, 0.365) * closedFactor * (1 - sg(zoomT, 0.70, 0.98)));
@@ -1449,187 +1424,194 @@ export const App: React.FC = () => {
             bookSpineRef.current.style.opacity = `${spineOp.toFixed(3)}`;
           }
 
-          // Calculate Book Wrap coordinates & 3D orientation
+          // Calculate Book Wrap coordinates: Stationary, Rigid reading position!
+          // Zero lateral slide during cover phase and initial lift (coverRotY: 0 to -90 deg)
           let targetWrapX = 0;
-          if (spreadT > 0 && closeT === 0) {
-            targetWrapX = (bw * 0.38) + (bw * 0.12) * spreadEase; // Centered flat open spread
-          } else if (closeT > 0) {
-            targetWrapX = (bw * 0.5) * (1 - closeEase);
-          } else if (tiltT > 0) {
-            targetWrapX = (bw * 0.38) * tiltEase; // Balanced center in 3D accordion fan
+          if (closeT > 0) {
+            if (closeEase < 0.5) {
+              const closeCenterEase = io(closeEase * 2);
+              targetWrapX = (bw * 0.5) * (1 - closeCenterEase);
+            } else {
+              targetWrapX = 0;
+            }
+          } else if (openT > 0) {
+            if (openEase > 0.5) {
+              const openCenterEase = io((openEase - 0.5) * 2);
+              targetWrapX = (bw * 0.5) * openCenterEase;
+            } else {
+              targetWrapX = 0;
+            }
           }
-          // Zoom forward in 3D with refined, aesthetic moderation (gentle depth glide)
+
+          // Gentle depth glide on transition into Moments
           const wrapX = targetWrapX - (bw * 0.12) * zoomEase;
           const wrapZ = zoomEase * 320;
-
-          // Pure static when reading open spread (zero bobbing, zero mouse wiggle!)
-          const isSpreadFlat = spreadEase > 0.5 && closeEase === 0;
-          const baseRotX = (-14 * r * (1 - tiltEase)) +
-            (7 * tiltEase * (1 - spreadEase)) +
-            (2.5 * spreadEase * (1 - closeEase)) +
-            (-14 * r * closeEase) - (isSpreadFlat ? 0 : my * 5);
-
-          const baseRotY = (-30 * r * (1 - tiltEase)) +
-            (-14 * tiltEase * (1 - spreadEase)) +
-            (-2 * spreadEase * (1 - closeEase)) +
-            (-28 * r * closeEase) + (isSpreadFlat ? 0 : mx * 8);
-
-          // Pure flat 1:1 screen mapping during spread for 100% razor-sharp native font clarity
-          const rotX = isSpreadFlat ? 0 : baseRotX - (zoomEase * 2.5);
-          const rotY = isSpreadFlat ? 0 : baseRotY + (zoomEase * 1.8);
-
-          // Controlled scale strictly bounded around 1.0 to prevent 3D pages from expanding out of screen bounds
-          const baseScale = isSpreadFlat ? 1.0 : (1 + 0.02 * pop - 0.02 * closeEase);
-          const wrapScale = isSpreadFlat ? 1.0 : (baseScale + zoomEase * 0.35);
-          // Smooth, gradual fade-out into Moments
+          const wrapScale = 1.0 + zoomEase * 0.35;
           const wrapOpacity = 1 - io(sg(zoomT, 0.45, 0.96));
 
           if (bookWrapRef.current) {
-            const finalWrapX = isSpreadFlat ? Math.round(targetWrapX) : Number(wrapX.toFixed(1));
-            const finalWrapY = 0;
-            const finalWrapZ = isSpreadFlat ? 0 : Number(wrapZ.toFixed(1));
-            bookWrapRef.current.style.transform = `translate3d(${finalWrapX}px, ${finalWrapY}px, ${finalWrapZ}px) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg) scale(${wrapScale.toFixed(3)})`;
+            bookWrapRef.current.style.transform = `translate3d(${wrapX.toFixed(1)}px, 0px, ${wrapZ.toFixed(1)}px) scale(${wrapScale.toFixed(3)})`;
             bookWrapRef.current.style.opacity = `${wrapOpacity.toFixed(3)}`;
-            bookWrapRef.current.style.willChange = isSpreadFlat ? 'auto' : 'transform';
+            bookWrapRef.current.style.willChange = 'transform';
           }
 
           if (bookStageRef.current) {
-            bookStageRef.current.style.perspective = isSpreadFlat ? 'none' : '2200px';
+            bookStageRef.current.style.perspective = '2200px';
           }
 
-          // -----------------------------------------------------
-          // Step 10: Cover rotation:
-          // Closed (0deg) -> 3D Accordion Fan (-164deg) -> Flat Open (-180deg) -> Closes Shut (0deg)
-          // -----------------------------------------------------
+          // Cover rotation:
+          // Closed (0deg) -> Opens flat (-180deg) -> Closes shut (0deg)
           let coverRotY = 0;
-          if (tiltT > 0 && spreadT === 0) {
-            coverRotY = -164 * tiltEase;
-          } else if (spreadT > 0 && closeT === 0) {
-            coverRotY = -164 - 16 * spreadEase;
-          } else if (closeT > 0) {
+          if (closeT > 0) {
             coverRotY = -180 * (1 - closeEase);
+          } else if (openT > 0) {
+            coverRotY = -180 * openEase;
           }
+
+          const isOpenOnLeft = coverRotY <= -90;
+
           if (bookCoverRef.current) {
-            const coverZ = isSpreadFlat ? 0 : Number((T / 2 * u).toFixed(1));
+            const coverZ = isOpenOnLeft ? -1 : 3;
             bookCoverRef.current.style.transform = `translateZ(${coverZ}px) rotateY(${coverRotY.toFixed(1)}deg)`;
-            bookCoverRef.current.style.zIndex = (spreadEase > 0.85 && closeEase === 0) ? '1' : '45';
-            bookCoverRef.current.style.pointerEvents = (closeT > 0 || p < 0.36) ? 'auto' : 'none';
+            bookCoverRef.current.style.zIndex = isOpenOnLeft ? '5' : '45';
+            bookCoverRef.current.style.pointerEvents = (p < 0.36 || closeT > 0 || (activePage === 0 && openEase >= 0.9)) ? 'auto' : 'none';
           }
 
           // Dynamic Floor Shadow
           if (bookShadowRef.current) {
-            const shadowLeft = 50 - 50 * (spreadEase * (1 - closeEase));
-            const shadowScaleX = (1 + 0.35 * tiltEase + 0.35 * spreadEase - 0.35 * closeEase) * (1 + zoomEase * 0.8);
+            const shadowLeft = 50 - 50 * (openEase * (1 - closeEase));
+            const shadowScaleX = (1 + 0.35 * openEase - 0.35 * closeEase) * (1 + zoomEase * 0.8);
             const shadowOpacity = (sg(p, 0.35, 0.40) * 0.8) * (1 - zoomT);
             bookShadowRef.current.style.left = `${shadowLeft.toFixed(1)}%`;
             bookShadowRef.current.style.transform = `translateX(-50%) rotateX(85deg) scale(${shadowScaleX.toFixed(2)}, 1)`;
             bookShadowRef.current.style.opacity = `${shadowOpacity.toFixed(2)}`;
           }
 
-          // -----------------------------------------------------
-          // Step 11: 3D Paper Fan Leaves (Accordion Fan & Closing Phase)
-          // -----------------------------------------------------
-          const fanAngles = [-48, -36, -25, -14, -4];
-          const leafSpacing = 2.4; // Real tactile paper thickness
+          // baseLeftRef is permanently visible on inside front cover (Flowmind Left)
+          if (baseLeftRef.current) {
+            baseLeftRef.current.style.display = 'block';
+            baseLeftRef.current.style.opacity = '1';
+            baseLeftRef.current.style.pointerEvents = (activePage === 0 && openEase >= 0.9 && closeT === 0) ? 'auto' : 'none';
+          }
 
-          bookLeafRefs.current.forEach((leaf, i) => {
-            if (!leaf) return;
-
-            if (spreadEase < 0.85) {
-              leaf.style.display = 'block';
-              if (tiltT > 0 && spreadT === 0) {
-                // ACCORDION FAN IN 3D PERSPECTIVE (MATCHES 0315e51d.jpg!)
-                const ang = fanAngles[i] * tiltEase;
-                leaf.style.transform = `translate3d(0, 0, ${(-i * leafSpacing).toFixed(1)}px) rotateY(${ang.toFixed(1)}deg)`;
-              } else if (spreadT > 0) {
-                // Fanning pages settle flat onto the stack
-                const ang = fanAngles[i] * (1 - spreadEase);
-                leaf.style.transform = `translate3d(0, 0, ${(-i * leafSpacing).toFixed(1)}px) rotateY(${ang.toFixed(1)}deg)`;
-              } else {
-                // Closed flat inside book
-                leaf.style.transform = `translate3d(0, 0, ${(-i * leafSpacing).toFixed(1)}px) rotateY(0deg)`;
-              }
-            } else if (closeT > 0) {
-              // BOOK CLOSING PHASE!
-              leaf.style.display = 'block';
-              const closedRotY = -180 * (1 - closeEase);
-              leaf.style.transform = `translate3d(0, 0, ${(-i * leafSpacing).toFixed(1)}px) rotateY(${closedRotY.toFixed(1)}deg)`;
-            } else {
-              leaf.style.display = 'none';
-            }
-          });
-
-          // -----------------------------------------------------
-          // Step 12: Master Open 2-Page Spread & Dynamic 3D Page Turn
-          // -----------------------------------------------------
-          if (bookSpreadRef.current) {
-            if (spreadEase >= 0.85 && closeT === 0) {
+          if (p < 0.40) {
+            // Book is completely closed (Cover phase)
+            // Left desk is 100% empty, master spread hidden!
+            if (bookSpreadRef.current) bookSpreadRef.current.style.display = 'none';
+          } else if (openEase < 0.85 && closeT === 0) {
+            // BOOK OPENING PHASE (Cover opens cleanly around spine revealing Page 1: Flowmind!)
+            if (bookSpreadRef.current) {
               bookSpreadRef.current.style.display = 'block';
               bookSpreadRef.current.style.opacity = '1';
-            } else if (closeT > 0) {
-              bookSpreadRef.current.style.display = 'block';
-              bookSpreadRef.current.style.opacity = `${(1 - closeEase).toFixed(2)}`;
-            } else {
-              bookSpreadRef.current.style.display = 'none';
             }
-          }
-
-          // Dynamic 3D Page Turn (turnProgress: 0.0 -> 5.0)
-          const fromIdx = Math.min(3, Math.max(0, Math.floor(turnProgress)));
-          const toIdx = fromIdx + 1;
-          const frac = turnProgress - fromIdx;
-
-          if (spreadEase >= 0.85 && closeT === 0) {
-            if (frac > 0.06 && frac < 0.94) {
-              // Active page flip in flight!
-              if (turnLeafPagesRef.current.from !== fromIdx || turnLeafPagesRef.current.to !== toIdx) {
-                turnLeafPagesRef.current = { from: fromIdx, to: toIdx };
-                setTurnLeafPages({ from: fromIdx, to: toIdx });
-              }
-              if (turnLeafRef.current) {
-                turnLeafRef.current.style.display = 'block';
-                const easeTurn = 0.5 - 0.5 * Math.cos(frac * Math.PI);
-                const rotY = -180 * easeTurn;
-                const arcZ = Math.sin(frac * Math.PI) * 45;
-                turnLeafRef.current.style.transform = `translate3d(0, 0, ${arcZ.toFixed(1)}px) rotateY(${rotY.toFixed(1)}deg)`;
-              }
-            } else {
-              // Settled flat on active spread
-              if (turnLeafRef.current) {
-                turnLeafRef.current.style.display = 'none';
-              }
-              const restingPage = Math.min(4, Math.max(0, Math.round(turnProgress)));
-              if (restingPage !== activePageRef.current) {
-                activePageRef.current = restingPage;
-                setActiveProjectIdx(restingPage);
-              }
+            if (baseRightRef.current) {
+              baseRightRef.current.style.display = 'block';
+              baseRightRef.current.style.opacity = '1';
+              baseRightRef.current.style.zIndex = '4';
+              baseRightRef.current.style.pointerEvents = 'none';
             }
+            // All leaves stay firmly flat on the right stack at 0deg! ZERO fanning, ZERO random pages!
+            leafRefs.current.forEach((leaf, i) => {
+              if (!leaf) return;
+              leaf.style.display = 'block';
+              const stackZ = (3 - i) * 0.4;
+              leaf.style.transform = `translate3d(0, 0, ${stackZ.toFixed(1)}px) rotateY(0deg)`;
+              leaf.style.zIndex = `${15 - i}`;
+              leaf.style.pointerEvents = 'none';
+            });
+          } else if (closeT > 0) {
+            // BOOK CLOSING PHASE! (Front cover & leaves swing shut together onto right side)
+            if (bookSpreadRef.current) {
+              bookSpreadRef.current.style.display = closeEase >= 0.98 ? 'none' : 'block';
+              bookSpreadRef.current.style.opacity = '1';
+            }
+            if (baseRightRef.current) {
+              baseRightRef.current.style.display = 'block';
+              baseRightRef.current.style.zIndex = '4';
+              baseRightRef.current.style.pointerEvents = 'none';
+            }
+            const closedLeafRotY = -180 * (1 - closeEase);
+            leafRefs.current.forEach((leaf, i) => {
+              if (!leaf) return;
+              leaf.style.display = 'block';
+              // When lifting off left desk (isOpenOnLeft), Leaf 3 must stay on top facing user (stackZ = i * 0.4)!
+              // When landing on right desk, Leaf 0 is on top under front cover (stackZ = (3 - i) * 0.4).
+              const stackZ = isOpenOnLeft ? (i * 0.4) : ((3 - i) * 0.4);
+              leaf.style.transform = `translate3d(0, 0, ${stackZ.toFixed(1)}px) rotateY(${closedLeafRotY.toFixed(1)}deg)`;
+              if (isOpenOnLeft) {
+                // Lifting off the left desk: Leaf 3 Back (Sulajh AI Left) is on top facing the user!
+                leaf.style.zIndex = `${20 + i}`;
+              } else {
+                // Coming down onto the right desk: underneath front cover (zIndex: 45)
+                leaf.style.zIndex = `${15 - i}`;
+              }
+              leaf.style.pointerEvents = 'none';
+            });
           } else {
-            if (turnLeafRef.current) {
-              turnLeafRef.current.style.display = 'none';
+            // OPEN 2-PAGE SPREAD & DYNAMIC 3D PAGE TURNS (turnProgress: 0.0 -> 4.0 across 5 projects)
+            if (bookSpreadRef.current) {
+              bookSpreadRef.current.style.display = 'block';
+              bookSpreadRef.current.style.opacity = '1';
+            }
+            if (baseRightRef.current) {
+              baseRightRef.current.style.display = 'block';
+              baseRightRef.current.style.opacity = '1';
+              baseRightRef.current.style.zIndex = '4';
+              baseRightRef.current.style.pointerEvents = activePage === 4 ? 'auto' : 'none';
+            }
+
+            for (let i = 0; i < 4; i++) {
+              const leaf = leafRefs.current[i];
+              if (!leaf) continue;
+              leaf.style.display = 'block';
+
+              if (turnProgress <= i) {
+                // Flat on right side stack (unturned)
+                const stackZ = (3 - i) * 0.4;
+                leaf.style.transform = `translate3d(0, 0, ${stackZ.toFixed(1)}px) rotateY(0deg)`;
+                leaf.style.zIndex = `${15 - i}`;
+                leaf.style.pointerEvents = activePage === i ? 'auto' : 'none';
+              } else if (turnProgress >= i + 1) {
+                // Flat on left side stack (already turned)
+                const stackZ = i * 0.4;
+                leaf.style.transform = `translate3d(0, 0, ${stackZ.toFixed(1)}px) rotateY(-180deg)`;
+                leaf.style.zIndex = `${6 + i}`;
+                leaf.style.pointerEvents = activePage === i + 1 ? 'auto' : 'none';
+              } else {
+                // ACTIVE 3D PAGE FLIGHT between project i and i + 1!
+                const u = turnProgress - i;
+                const easeTurn = 0.5 - 0.5 * Math.cos(u * Math.PI);
+                const rotY = -180 * easeTurn;
+                const arcZ = Math.sin(u * Math.PI) * 45 + 5;
+                leaf.style.transform = `translate3d(0, 0, ${arcZ.toFixed(1)}px) rotateY(${rotY.toFixed(1)}deg)`;
+                leaf.style.zIndex = '50';
+                leaf.style.pointerEvents = 'none';
+              }
             }
           }
 
-          // Scroll to open hint (visible when book cover is closed, fades as it opens)
+          // Scroll to open hint (strictly visible ONLY when book cover is closed before opening)
           if (bookScrollHintRef.current) {
-            const hintOp = sg(p, 0.33, 0.36) * (1 - sg(p, 0.38, 0.42));
+            const hintOp = sg(p, 0.33, 0.36) * (1 - sg(p, 0.39, 0.43));
             bookScrollHintRef.current.style.opacity = `${hintOp.toFixed(3)}`;
             bookScrollHintRef.current.style.pointerEvents = hintOp > 0.3 ? 'auto' : 'none';
           }
 
           // Minimalist Bottom Controls & Dynamic Direct DOM Updates
+          // STRICTLY VISIBLE ONLY WHEN BOOK IS FLAT OPEN AND READY FOR READING!
           if (bookControlsRef.current) {
-            const ctrlOp = (tiltEase > 0 ? 1 : 0) * (1 - zoomT);
+            const isOpenForReading = p >= 0.46 && p <= 0.60;
+            const ctrlFadeIn = io(sg(p, 0.46, 0.49));
+            const ctrlFadeOut = 1 - io(sg(p, 0.595, 0.61));
+            const ctrlOp = (isOpenForReading ? ctrlFadeIn * ctrlFadeOut : 0) * (1 - zoomT);
             bookControlsRef.current.style.opacity = `${ctrlOp.toFixed(2)}`;
             bookControlsRef.current.style.pointerEvents = ctrlOp > 0.5 ? 'auto' : 'none';
           }
 
           if (bookCounterRef.current) {
-            if (p < 0.38) {
+            if (p < 0.46) {
               bookCounterRef.current.textContent = 'COVER';
-            } else if (spreadEase < 0.85) {
-              bookCounterRef.current.textContent = '01 / 05';
-            } else if (closeT > 0.4) {
+            } else if (p > 0.60) {
               bookCounterRef.current.textContent = 'CLOSED';
             } else {
               bookCounterRef.current.textContent = `0${activePageRef.current + 1} / 05`;
@@ -1637,7 +1619,7 @@ export const App: React.FC = () => {
           }
 
           if (bookNextBtnRef.current) {
-            if (closeT > 0.3) {
+            if (p > 0.60) {
               bookNextBtnRef.current.textContent = 'MOMENTS →';
             } else if (activePageRef.current >= 4) {
               bookNextBtnRef.current.textContent = 'CLOSE BOOK ›';
@@ -1647,7 +1629,7 @@ export const App: React.FC = () => {
           }
 
           if (bookPrevBtnRef.current) {
-            bookPrevBtnRef.current.disabled = (p <= 0.39);
+            bookPrevBtnRef.current.disabled = (p < 0.46);
           }
         }
       }
@@ -2292,54 +2274,51 @@ export const App: React.FC = () => {
             {/* 3D Paper Bottom Edge */}
             <div ref={bookBotEdgeRef} className="book-bot-edge" />
 
-            {/* 3D Paper Fan Leaves (Fanned during accordion fan mode, closed during close) */}
-            {[0, 1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                ref={(el) => { bookLeafRefs.current[i] = el; }}
-                className="book-fan-leaf"
-                aria-hidden="true"
-              />
-            ))}
-
             {/* Master Open 2-Page Spread Container */}
             <div
               ref={bookSpreadRef}
               className="book-page-spread"
               style={{ display: 'none' }}
             >
-              {/* Left Page (Active Project Visuals & Screenshots) */}
+              {/* Base Right Page: Fixed base underneath right stack (Project 4: Sulajh AI Right) */}
               <div
-                ref={bookSpreadLeftRef}
-                className="book-spread-left"
-                onClick={() => turnPrev()}
+                ref={baseRightRef}
+                className="book-base-right"
+                onClick={(e) => {
+                  if ((e.target as HTMLElement).closest('button, a, input, select, textarea')) return;
+                  turnNext();
+                }}
               >
-                {renderProjectLeft(PROJECTS_DATA[activeProjectIdx])}
+                {renderProjectRight(PROJECTS_DATA[4])}
               </div>
 
-              {/* Right Page (Active Project Case Study & Specs) */}
-              <div
-                ref={bookSpreadRightRef}
-                className="book-spread-right"
-                onClick={() => turnNext()}
-              >
-                {renderProjectRight(PROJECTS_DATA[activeProjectIdx])}
-              </div>
-            </div>
-
-            {/* Dynamic 3D Page Turn Leaf (During page turns) */}
-            <div
-              ref={turnLeafRef}
-              className="book-leaf-turn"
-              style={{ display: 'none' }}
-              aria-hidden="true"
-            >
-              <div className="leaf-turn-front">
-                {renderProjectRight(PROJECTS_DATA[turnLeafPages.from])}
-              </div>
-              <div className="leaf-turn-back">
-                {renderProjectLeft(PROJECTS_DATA[turnLeafPages.to])}
-              </div>
+              {/* 4 Physical 3D Turning Leaves */}
+              {[0, 1, 2, 3].map((i) => (
+                <div
+                  key={`leaf-${i}`}
+                  ref={(el) => { leafRefs.current[i] = el; }}
+                  className="book-leaf-item"
+                >
+                  <div
+                    className="leaf-face-front"
+                    onClick={(e) => {
+                      if ((e.target as HTMLElement).closest('button, a, input, select, textarea')) return;
+                      turnNext();
+                    }}
+                  >
+                    {renderProjectRight(PROJECTS_DATA[i])}
+                  </div>
+                  <div
+                    className="leaf-face-back"
+                    onClick={(e) => {
+                      if ((e.target as HTMLElement).closest('button, a, input, select, textarea')) return;
+                      turnPrev();
+                    }}
+                  >
+                    {renderProjectLeft(PROJECTS_DATA[i + 1])}
+                  </div>
+                </div>
+              ))}
             </div>
 
             {/* Front Hardback Cover */}
@@ -2379,8 +2358,17 @@ export const App: React.FC = () => {
                 <div ref={bookShineRef} className="book-shine" />
               </div>
 
-              {/* Back Face of Cover: Clean Archival Endpaper */}
-              <div className="book-cover-back" aria-hidden="true" />
+              {/* Back Face of Cover: Spread 1 Left (Flowmind Left) */}
+              <div
+                ref={baseLeftRef}
+                className="book-cover-back"
+                onClick={(e) => {
+                  if ((e.target as HTMLElement).closest('button, a, input, select, textarea')) return;
+                  turnPrev();
+                }}
+              >
+                {renderProjectLeft(PROJECTS_DATA[0])}
+              </div>
             </div>
           </div>
 
