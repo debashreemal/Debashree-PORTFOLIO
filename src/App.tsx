@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState, useCallback, useMemo, lazy, Suspens
 import debashreePhoto from './assets/debashree.png';
 import FlyingButton from './components/FlyingButton';
 import FoldText from './components/FoldText';
+import ContactModal from './components/ContactModal';
 import { FaLinkedin, FaGithub, FaEnvelope } from 'react-icons/fa6';
 import { LinkedInBrandIcon, GitHubBrandIcon, GmailBrandIcon } from './components/BrandIcons';
 
@@ -155,7 +156,7 @@ const PROJECTS_DATA: ProjectItem[] = [
     stack: ['React Native', 'React', 'JavaScript', 'Node.js', 'Supabase', 'Razorpay', 'Groq (LLaMA)', 'Firebase FCM', 'Three.js'],
     quote: '“A unified institutional repository for 1,200+ student collaborators.”',
     liveUrl: 'https://www.plutocampus.in/',
-    githubLabel: 'Download',
+    githubLabel: 'Download now',
     githubUrl: 'https://play.google.com/store/apps/details?id=com.pluto_app',
   },
   {
@@ -177,7 +178,7 @@ const PROJECTS_DATA: ProjectItem[] = [
     solution: 'Sulajh AI is an AI teammate that handles payout failures and chargeback disputes automatically. It merges similar cases into one ticket, resolves small amounts on its own, and sends larger ones to Paytm with all details ready for one-click approval.',
     stack: ['React', 'Vite', 'Tailwind CSS', 'TypeScript', 'Express', 'Supabase', 'Groq (Llama)', 'Sarvam AI (STT and TTS)', 'Qdrant (Vector DB)', 'Zod', 'Vitest'],
     quote: '“Sulajh means untangle, AI that untangles merchant payouts problems and gives Paytm team ready for one click approval.”',
-    liveUrl: 'https://sulajh-ai.vercel.app/login',
+    liveUrl: 'https://sulajh-ai.vercel.app/',
     githubUrl: 'https://github.com/piyushyenorkar/Sulajh-AI',
   },
 ];
@@ -523,6 +524,11 @@ export const App: React.FC = () => {
   // Active Project Screenshot Tab state { [projIndex]: tabIndex }
   const [projectActiveTabs, setProjectActiveTabs] = useState<Record<number, number>>({});
 
+  // Contact Form Modal state (FormSubmit public API)
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const isContactModalOpenRef = useRef(false);
+  isContactModalOpenRef.current = isContactModalOpen;
+
   const activePageRef = useRef(0);
 
   // Real 3D Book Pages Refs (Base Left, Base Right, and 4 Physical 3D Turning Leaves)
@@ -623,7 +629,14 @@ export const App: React.FC = () => {
       </div>
       <div className="foot">
         <p className="script">{proj.quote}</p>
-        <div className="cta">
+        <div
+          className="cta"
+          onPointerDown={(e) => e.stopPropagation()}
+          onPointerUp={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+          onMouseUp={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
+        >
           {(proj.liveUrl || proj.liveLabel) && (
             proj.liveUrl ? (
               <a
@@ -631,7 +644,16 @@ export const App: React.FC = () => {
                 href={proj.liveUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
+                onPointerUp={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+                onMouseUp={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (proj.liveUrl) {
+                    window.open(proj.liveUrl, '_blank', 'noopener,noreferrer');
+                  }
+                }}
               >
                 {proj.liveLabel || 'Live demo'}
                 <span className="ic">
@@ -643,6 +665,10 @@ export const App: React.FC = () => {
             ) : (
               <span
                 className="p no-link"
+                onPointerDown={(e) => e.stopPropagation()}
+                onPointerUp={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+                onMouseUp={(e) => e.stopPropagation()}
                 onClick={(e) => e.stopPropagation()}
               >
                 {proj.liveLabel}
@@ -660,23 +686,32 @@ export const App: React.FC = () => {
               href={proj.githubUrl}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
+              onPointerUp={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()}
+              onMouseUp={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (proj.githubUrl) {
+                  window.open(proj.githubUrl, '_blank', 'noopener,noreferrer');
+                }
+              }}
             >
               {proj.githubLabel || 'GitHub'}
               <span className="ic">
                 {proj.githubUrl?.includes('play.google') || proj.githubLabel === 'Download now' || proj.githubLabel?.includes('Play') || proj.githubLabel?.includes('APK') ? (
                   <svg className="ic-playstore" viewBox="0 0 512 512" aria-hidden="true" style={{ width: 19, height: 19, display: 'block' }}>
-                      <path fill="#00C3FF" d="M38.9 15.3c-2.9 3.3-4.6 8.4-4.6 14.9v451.6c0 6.5 1.7 11.6 4.6 14.9l2.4 2.4L266 274.5v-37L41.3 12.9l-2.4 2.4z" />
-                      <path fill="#00E676" d="M341.2 162.3L69.5 11.7c-11.4-6.4-22-5.3-28.2 1.2L266 237.5l75.2-75.2z" />
-                      <path fill="#FF3A44" d="M341.2 349.7L266 274.5 41.3 499.1c6.2 6.5 16.8 7.6 28.2 1.2l271.7-150.6z" />
-                      <path fill="#FFD400" d="M432.1 227.6l-90.9-50.4-75.2 75.2 75.2 75.2 90.9-50.4c18.3-10.2 18.3-26.8 0-37z" />
-                    </svg>
-                    ) : (
-                    <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-                      <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
-                    </svg>
+                    <path fill="#00C3FF" d="M38.9 15.3c-2.9 3.3-4.6 8.4-4.6 14.9v451.6c0 6.5 1.7 11.6 4.6 14.9l2.4 2.4L266 274.5v-37L41.3 12.9l-2.4 2.4z" />
+                    <path fill="#00E676" d="M341.2 162.3L69.5 11.7c-11.4-6.4-22-5.3-28.2 1.2L266 237.5l75.2-75.2z" />
+                    <path fill="#FF3A44" d="M341.2 349.7L266 274.5 41.3 499.1c6.2 6.5 16.8 7.6 28.2 1.2l271.7-150.6z" />
+                    <path fill="#FFD400" d="M432.1 227.6l-90.9-50.4-75.2 75.2 75.2 75.2 90.9-50.4c18.3-10.2 18.3-26.8 0-37z" />
+                  </svg>
+                ) : (
+                  <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
+                  </svg>
                 )}
-                  </span>
+              </span>
             </a>
           )}
         </div>
@@ -837,6 +872,7 @@ export const App: React.FC = () => {
     // Continuous scroll progress wheel handler:
     // Captures scroll intent direction and sustains continuous constant-speed progression
     const handleWheel = (e: WheelEvent) => {
+      if (isContactModalOpenRef.current) return;
       e.preventDefault();
       const d = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
       if (Math.abs(d) < 0.1) return;
@@ -845,6 +881,7 @@ export const App: React.FC = () => {
 
     // Keyboard navigation
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (isContactModalOpenRef.current) return;
       if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
         const next = MILESTONES.find((a) => a > tgtRef.current + 0.01);
         if (next !== undefined) {
@@ -865,7 +902,8 @@ export const App: React.FC = () => {
     // Drag to scroll on stage (excluding clickable items)
     let dragStart: { y: number; t: number } | null = null;
     const handlePointerDown = (e: PointerEvent) => {
-      if ((e.target as HTMLElement)?.closest('.nav, .hero-robot-wrap, .domew, .contact-footer-bar, button, a')) {
+      if (isContactModalOpenRef.current || (e.target as Element)?.closest?.('.nav, .hero-robot-wrap, .domew, .contact-footer-bar, .cta, .tabs, .gallery, .ref-badge, .contact-modal-overlay, button, a')) {
+        dragStart = null;
         return;
       }
       dragStart = { y: e.clientY, t: tgtRef.current };
@@ -874,8 +912,9 @@ export const App: React.FC = () => {
     const handlePointerMove = (e: PointerEvent) => {
       if (dragStart) {
         const diff = dragStart.y - e.clientY;
-        if (Math.abs(diff) > 2) {
+        if (Math.abs(diff) > 10) {
           registerScroll(diff > 0 ? 1 : -1);
+          dragStart = { y: e.clientY, t: tgtRef.current };
         }
       }
     };
@@ -887,13 +926,18 @@ export const App: React.FC = () => {
     // Touch swipe for mobile devices
     let touchStartY = 0;
     const handleTouchStart = (e: TouchEvent) => {
+      if (isContactModalOpenRef.current || (e.target as Element)?.closest?.('.nav, .hero-robot-wrap, .domew, .contact-footer-bar, .cta, .tabs, .gallery, .ref-badge, .contact-modal-overlay, button, a')) {
+        touchStartY = 0;
+        return;
+      }
       touchStartY = e.touches[0].clientY;
     };
     const handleTouchMove = (e: TouchEvent) => {
+      if (!touchStartY) return;
       const touchY = e.touches[0].clientY;
       const diff = touchStartY - touchY;
+      if (Math.abs(diff) < 10) return;
       touchStartY = touchY;
-      if (Math.abs(diff) < 2) return;
       registerScroll(diff > 0 ? 1 : -1);
     };
 
@@ -1594,18 +1638,27 @@ export const App: React.FC = () => {
               if (!leaf) continue;
               leaf.style.display = 'block';
 
+              const frontFace = leaf.querySelector('.leaf-face-front') as HTMLElement | null;
+              const backFace = leaf.querySelector('.leaf-face-back') as HTMLElement | null;
+
               if (turnProgress <= i) {
                 // Flat on right side stack (unturned)
                 const stackZ = (3 - i) * 0.4;
                 leaf.style.transform = `translate3d(0, 0, ${stackZ.toFixed(1)}px) rotateY(0deg)`;
                 leaf.style.zIndex = `${15 - i}`;
-                leaf.style.pointerEvents = activePage === i ? 'auto' : 'none';
+                const isCurrent = activePage === i;
+                leaf.style.pointerEvents = isCurrent ? 'auto' : 'none';
+                if (frontFace) frontFace.style.pointerEvents = isCurrent ? 'auto' : 'none';
+                if (backFace) backFace.style.pointerEvents = 'none';
               } else if (turnProgress >= i + 1) {
                 // Flat on left side stack (already turned)
                 const stackZ = i * 0.4;
                 leaf.style.transform = `translate3d(0, 0, ${stackZ.toFixed(1)}px) rotateY(-180deg)`;
                 leaf.style.zIndex = `${6 + i}`;
-                leaf.style.pointerEvents = activePage === i + 1 ? 'auto' : 'none';
+                const isCurrent = activePage === i + 1;
+                leaf.style.pointerEvents = isCurrent ? 'auto' : 'none';
+                if (frontFace) frontFace.style.pointerEvents = 'none';
+                if (backFace) backFace.style.pointerEvents = isCurrent ? 'auto' : 'none';
               } else {
                 // ACTIVE 3D PAGE FLIGHT between project i and i + 1!
                 const u = turnProgress - i;
@@ -1615,6 +1668,8 @@ export const App: React.FC = () => {
                 leaf.style.transform = `translate3d(0, 0, ${arcZ.toFixed(1)}px) rotateY(${rotY.toFixed(1)}deg)`;
                 leaf.style.zIndex = '50';
                 leaf.style.pointerEvents = 'none';
+                if (frontFace) frontFace.style.pointerEvents = 'none';
+                if (backFace) backFace.style.pointerEvents = 'none';
               }
             }
           }
@@ -1976,7 +2031,11 @@ export const App: React.FC = () => {
               className={`l ${cur === i ? 'on' : ''}`}
               onClick={() => goTo(i)}
             >
-              {sec}
+              {sec === 'ABOUT' ? (
+                <>AB<span id="nav-about-o">O</span>U<span id="nav-about-t">T</span></>
+              ) : (
+                sec
+              )}
             </span>
           ))}
         </div>
@@ -2314,7 +2373,7 @@ export const App: React.FC = () => {
                 ref={baseRightRef}
                 className="book-base-right"
                 onClick={(e) => {
-                  if ((e.target as HTMLElement).closest('button, a, input, select, textarea')) return;
+                  if ((e.target as Element)?.closest?.('.cta, .gallery, .tabs, .ref-badge, button, a, input, select, textarea')) return;
                   turnNext();
                 }}
               >
@@ -2331,7 +2390,7 @@ export const App: React.FC = () => {
                   <div
                     className="leaf-face-front"
                     onClick={(e) => {
-                      if ((e.target as HTMLElement).closest('button, a, input, select, textarea')) return;
+                      if ((e.target as Element)?.closest?.('.cta, .gallery, .tabs, .ref-badge, button, a, input, select, textarea')) return;
                       turnNext();
                     }}
                   >
@@ -2340,7 +2399,7 @@ export const App: React.FC = () => {
                   <div
                     className="leaf-face-back"
                     onClick={(e) => {
-                      if ((e.target as HTMLElement).closest('button, a, input, select, textarea')) return;
+                      if ((e.target as Element)?.closest?.('.cta, .gallery, .tabs, .ref-badge, button, a, input, select, textarea')) return;
                       turnPrev();
                     }}
                   >
@@ -2354,7 +2413,10 @@ export const App: React.FC = () => {
             <div
               ref={bookCoverRef}
               className="book-cover"
-              onClick={() => handleCoverClick()}
+              onClick={(e) => {
+                if ((e.target as Element)?.closest?.('.cta, .gallery, .tabs, .ref-badge, button, a, input, select, textarea')) return;
+                handleCoverClick();
+              }}
             >
               {/* Front Face: The cream sheet that scales from full-screen down to the book */}
               <div ref={bookFrontRef} className="book-cover-front">
@@ -2392,7 +2454,7 @@ export const App: React.FC = () => {
                 ref={baseLeftRef}
                 className="book-cover-back"
                 onClick={(e) => {
-                  if ((e.target as HTMLElement).closest('button, a, input, select, textarea')) return;
+                  if ((e.target as Element)?.closest?.('.cta, .gallery, .tabs, .ref-badge, button, a, input, select, textarea')) return;
                   turnPrev();
                 }}
               >
@@ -2570,7 +2632,7 @@ export const App: React.FC = () => {
               }}
               className="lets-connect-heading"
             >
-              LET'S CONNECT
+              LET'S CONNEC<span id="connect-alpha-t">T</span>
             </span>
           </div>
         </div>
@@ -2625,7 +2687,7 @@ export const App: React.FC = () => {
             buttonColor="#18181b"
             textColor="#EFEAE0"
             onClick={() => {
-              window.location.href = 'mailto:debashreee87@gmail.com';
+              setIsContactModalOpen(true);
             }}
           >
             SAY HELLO ↗
@@ -2641,6 +2703,10 @@ export const App: React.FC = () => {
               className="contact-social-btn"
               title="Email • debashreee87@gmail.com"
               aria-label="Send Direct Email"
+              onClick={(e) => {
+                e.preventDefault();
+                setIsContactModalOpen(true);
+              }}
             >
               <GmailBrandIcon />
             </a>
@@ -2718,6 +2784,12 @@ export const App: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Contact Form Modal with FormSubmit Public API */}
+      <ContactModal
+        isOpen={isContactModalOpen}
+        onClose={() => setIsContactModalOpen(false)}
+      />
     </div>
   );
 };

@@ -1020,7 +1020,7 @@ body {
   box-shadow: 15px 25px 50px rgba(0, 0, 0, 0.35), inset 0 0 0 1px var(--edge);
   overflow: hidden;
   cursor: pointer;
-  pointer-events: auto !important;
+  pointer-events: auto;
   -webkit-font-smoothing: subpixel-antialiased;
 }
 
@@ -1035,7 +1035,7 @@ body {
   box-shadow: -15px 25px 50px rgba(0, 0, 0, 0.35), inset 0 0 0 1px var(--edge);
   overflow: hidden;
   cursor: pointer;
-  pointer-events: auto !important;
+  pointer-events: auto;
   -webkit-font-smoothing: subpixel-antialiased;
 }
 
@@ -1631,6 +1631,9 @@ body {
   gap: 12px;
   flex-wrap: wrap;
   align-items: center;
+  position: relative !important;
+  z-index: 50 !important;
+  pointer-events: auto !important;
 }
 
 .page .cta a,
@@ -1655,6 +1658,8 @@ body {
   box-sizing: border-box;
   cursor: pointer;
   pointer-events: auto !important;
+  position: relative !important;
+  z-index: 55 !important;
 }
 
 .page .cta .no-link {
