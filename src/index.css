@@ -1634,6 +1634,8 @@ body {
 }
 
 .page .cta a,
+.page .cta .p,
+.page .cta .s,
 .ref-btn-live,
 .ref-btn-github {
   display: inline-flex;
@@ -1645,7 +1647,7 @@ body {
   font-size: 12.5px;
   justify-content: center;
   flex: none;
-  width: 120px;
+  width: 138px;
   padding: 7px 0;
   border-radius: 999px;
   border: 2px solid var(--ink);
@@ -1653,6 +1655,15 @@ body {
   box-sizing: border-box;
   cursor: pointer;
   pointer-events: auto !important;
+}
+
+.page .cta .no-link {
+  cursor: default !important;
+}
+
+.page .cta .no-link:hover {
+  transform: none !important;
+  box-shadow: 0 3px 0 var(--ink) !important;
 }
 
 .page .cta .ic {
@@ -1665,6 +1676,11 @@ body {
 .page .cta .ic svg {
   width: 14px;
   height: 14px;
+}
+
+.page .cta .ic svg.ic-playstore {
+  width: 19px !important;
+  height: 19px !important;
 }
 
 .page .cta .p,

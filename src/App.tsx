@@ -52,7 +52,9 @@ export interface ProjectItem {
   solution: string;
   stack: string[];
   quote: string;
-  liveUrl: string;
+  liveLabel?: string;
+  liveUrl?: string;
+  githubLabel?: string;
   githubUrl: string;
 }
 
@@ -64,7 +66,7 @@ const PROJECTS_DATA: ProjectItem[] = [
     tagline: 'AI project manager that plans, assigns, and tracks work for your team.',
     metaTeam: 'Team of 2 people',
     metaDuration: '8 hours',
-    metaYear: '2025',
+    metaYear: '2026',
     tabs: ['Interface', 'Dashboard', 'AI meeting', 'AI logs'],
     screenshots: [
       '/Flowmind/flowmind1- Interface.jpeg',
@@ -88,7 +90,7 @@ const PROJECTS_DATA: ProjectItem[] = [
     tagline: 'Looks like food delivery. Three taps, and help is on the way.',
     metaTeam: 'Solo Architect',
     metaDuration: '2 weeks',
-    metaYear: '2025',
+    metaYear: '2026',
     tabs: ['Silent Tracking', 'Audio Maps', 'Live SOS', 'Contacts'],
     screenshots: [
       '/Zwiggy/zwiggy1 - Silent Track.png',
@@ -102,18 +104,18 @@ const PROJECTS_DATA: ProjectItem[] = [
     problem: 'In unsafe moments, people often cannot ask for help openly, because opening a normal safety app or calling someone can alert the person causing the danger.',
     solution: 'Zwiggy looks like a normal food delivery app, so nobody suspects it is a safety tool. A secret PIN opens safety mode, and three taps send an SOS with your live location to your trusted contacts. Your current location and recordings are saved automatically, hidden inside the orders section.',
     stack: ['React', 'Vite', 'Tailwind CSS', 'JavaScript', 'Capacitor.js', 'Android', 'iOS', 'Supabase', 'React-Leaflet', 'Twilio API', 'Vercel'],
-    quote: '“Real help doesn’t always announce itself.”',
+    quote: '“Real help doesn’t always announce itself, and Zwiggy proves it.”',
     liveUrl: 'https://zwiggy-app.vercel.app/',
     githubUrl: 'https://github.com/debashreemal/Zwiggy',
   },
   {
     index: 3,
-    badge: 'National Finalist • NHAI Hackathon 7.0',
+    badge: 'National Finalist at NHAI Hackathon 7.0',
     title: 'NHAI FACE ID',
-    tagline: 'Offline edge toll facial recognition SDK for remote highways',
-    metaTeam: 'Team of 2 people',
-    metaDuration: '36 hours',
-    metaYear: '2025',
+    tagline: 'Real-time facial recognition for NHAI field teams, fully offline and spoof-proof.',
+    metaTeam: 'Team of 4 people',
+    metaDuration: '1 week',
+    metaYear: '2026',
     tabs: ['Dashboard', 'Enrollement', 'Pipeline'],
     screenshots: [
       '/nhai/nhai1- Dashboard.jpeg',
@@ -122,23 +124,24 @@ const PROJECTS_DATA: ProjectItem[] = [
     ],
     isPortrait: true,
     aspectRatio: '424 / 900',
-    role: 'Built with Piyush Yenorkar — implemented facial landmark quantization, local vector embeddings, and zero-cloud WASM runtime.',
-    problem: 'Remote highway toll plazas suffer frequent network blackouts, rendering cloud-dependent facial inspection systems completely unusable.',
-    solution: 'Engineered a 100% offline edge SDK compiling optimized OpenCV models and INT8 quantized embeddings directly into on-device WebAssembly and C++.',
-    stack: ['WebAssembly', 'C++', 'OpenCV', 'Python', 'ONNX Runtime'],
-    quote: '“Zero cloud dependence. Complete on-device toll inspection at edge.”',
-    liveUrl: 'https://nhai-faceid.vercel.app',
-    githubUrl: 'https://github.com/debashree-08/nhai-faceid',
+    role: 'Crafted NHAIFaceIDs every screen and component of the frontend, turning complex offline face recognition into an interface anyone can use in seconds effortlessly.',
+    problem: 'NHAI field workers on remote highway sites often have no internet, so they can’t verify identity or mark attendance, and fake photos or videos can be used to cheat the system.',
+    solution: 'We Delivered a tiny AI system (under 3MB) that recognizes real faces on the device itself and syncs attendance logs to NHAI’s cloud once the network returns.',
+    stack: ['React Native', 'JavaScript', 'Kotlin', 'TensorFlow Lite', 'ONNX Runtime', 'BlazeFace', 'MobileFaceNet', 'SQLite', 'AWS (offline sync)'],
+    quote: '“Our goal was simple: accurate, spoof-resistant face recognition that works on any standard mobile device, anywhere”',
+    liveLabel: 'Android App',
+    liveUrl: '',
+    githubUrl: 'https://github.com/piyushyenorkar/NHAIFaceID',
   },
   {
     index: 4,
-    badge: 'Student Innovation Winner 2024',
+    badge: 'Live Event Discovery Platform',
     title: 'PLUTO',
-    tagline: 'Next-gen campus collaboration & verified academic resource hub',
-    metaTeam: 'Founding Lead',
-    metaDuration: '2 months',
-    metaYear: '2024',
-    tabs: ['Events', 'User Rank', 'Create Event', 'Transactions'],
+    tagline: 'Discover events, pick your seat, book your ticket, and connect across campuses.',
+    metaTeam: '',
+    metaDuration: '',
+    metaYear: '2026',
+    tabs: ['Browse Events', 'User Ranks', 'Create Event', 'Transactions'],
     screenshots: [
       '/Pluto/pluto1 - Events.jpeg',
       '/Pluto/pluto2 - User Rank.jpeg',
@@ -146,35 +149,36 @@ const PROJECTS_DATA: ProjectItem[] = [
       '/Pluto/pluto4 - Transactions.jpeg',
     ],
     aspectRatio: '1600 / 819',
-    role: 'Architected responsive multi-tenant portal, granular RBAC student permissions, and high-throughput asset delivery.',
-    problem: 'University peer collaboration is fractured across disjoint WhatsApp groups, Notion boards, and drives, causing acute resource loss.',
-    solution: 'Built an integrated campus platform consolidating verified academic repositories, peer-to-peer asset exchange, and real-time departmental discussions.',
-    stack: ['React', 'TypeScript', 'Node.js', 'PostgreSQL', 'Tailwind CSS'],
+    role: 'Shaped how PLUTO looks and feels, designed its logo, and opened the doors to colleges and organizers.',
+    problem: 'College events in India are scattered across WhatsApp groups, Instagram posts and notice boards, so students miss them and organizers struggle to reach and manage their audience.',
+    solution: 'PLUTO integrates discovery, competitions, seat selection, payment and booking into one campus event platform. Students explore events across campuses, pick their seat, pay online and get a QR e-ticket, while organizers create events, design seat layouts and track bookings and payments in one place.',
+    stack: ['React Native', 'React', 'JavaScript', 'Node.js', 'Supabase', 'Razorpay', 'Groq (LLaMA)', 'Firebase FCM', 'Three.js'],
     quote: '“A unified institutional repository for 1,200+ student collaborators.”',
-    liveUrl: 'https://pluto-campus.vercel.app',
-    githubUrl: 'https://github.com/debashree-08/pluto',
+    liveUrl: 'https://www.plutocampus.in/',
+    githubLabel: 'Download',
+    githubUrl: 'https://play.google.com/store/apps/details?id=com.pluto_app',
   },
   {
     index: 5,
-    badge: 'National Finalist • Paytm HQ 2025',
+    badge: 'Finalist at Paytm Build AI Hackathon',
     title: 'SULAJH AI',
-    tagline: 'Autonomous merchant simulation & KYC exception resolution',
-    metaTeam: 'Team of 3 people',
-    metaDuration: '48 hours',
-    metaYear: '2025',
+    tagline: 'The autonomous AI teammate that fixes merchant payout failures and chargeback disputes, within the rules.',
+    metaTeam: 'Team of 2 people',
+    metaDuration: '6 hours',
+    metaYear: '2026',
     tabs: ['Merchants', 'Dashboard'],
     screenshots: [
       '/paytm/paytm1 - Merchants.png',
       '/paytm/paytm2 - Dashboard.jpeg',
     ],
     aspectRatio: '1919 / 907',
-    role: 'Architected multilingual OCR pipeline, automated merchant exception classification, and webhook dispatch.',
-    problem: 'Indian merchant onboarding has high drop-offs due to ambiguous Hindi/regional document scans and complex GST exception handling queues.',
-    solution: 'Built autonomous AI teammates simulating merchant onboarding, parsing noisy physical KYC paperwork, and auto-generating corrective tasks.',
-    stack: ['LLM Agents', 'FastAPI', 'FinTech SDK', 'React', 'Python'],
-    quote: '“Turning merchant onboarding exceptions into zero-touch resolution.”',
-    liveUrl: 'https://paytm-hackathon.vercel.app',
-    githubUrl: 'https://github.com/debashree-08/sulajh-ai',
+    role: 'Analyzed the whole system, integrated text-to-speech and speech-to-text into the merchant chat, redesigned merchant dashboard and pages so everything fits cleanly on every screen.',
+    problem: 'When a payout fails or a chargeback dispute arrives, merchants are left waiting for answers while their money is stuck, and support teams handle each case by hand. Both sides need faster resolution that still follows policy.',
+    solution: 'Sulajh AI is an autonomous, policy-gated AI teammate for payout failures and chargeback disputes. It merges similar cases into one ticket and sends the amount automatically when it is within the approved limit. Larger amounts go to Paytm with all the gathered details for one-click approval, so merchants get faster answers and reviewers need no extra investigation.',
+    stack: ['React', 'Vite', 'Tailwind CSS', 'TypeScript', 'Express', 'Supabase', 'Groq (Llama)', 'Sarvam AI (STT and TTS)', 'Qdrant (Vector DB)', 'Zod', 'Vitest'],
+    quote: '“Sulajh means to untangle. We built an AI that untangles payout problems and gives Paytm one ticket, with all the evidence, ready for one-click approval.”',
+    liveUrl: 'https://sulajh-ai.vercel.app/login',
+    githubUrl: 'https://github.com/piyushyenorkar/Sulajh-AI',
   },
 ];
 
@@ -620,21 +624,35 @@ export const App: React.FC = () => {
       <div className="foot">
         <p className="script">{proj.quote}</p>
         <div className="cta">
-          {proj.liveUrl && (
-            <a
-              className="p"
-              href={proj.liveUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-            >
-              Live demo
-              <span className="ic">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M7 17L17 7M9 7h8v8" />
-                </svg>
+          {(proj.liveUrl || proj.liveLabel) && (
+            proj.liveUrl ? (
+              <a
+                className="p"
+                href={proj.liveUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {proj.liveLabel || 'Live demo'}
+                <span className="ic">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M7 17L17 7M9 7h8v8" />
+                  </svg>
+                </span>
+              </a>
+            ) : (
+              <span
+                className="p no-link"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {proj.liveLabel}
+                <span className="ic">
+                  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style={{ width: 14, height: 14 }}>
+                    <path d="M17.523 15.3414c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.551 0 .9993.4482.9993.9993.0001.5511-.4483.9997-.9993.9997m-11.046 0c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993 0 .5511-.4482.9997-.9993.9997m11.4045-6.02l1.9973-3.4592a.416.416 0 00-.1521-.5676.416.416 0 00-.5676.1521l-2.0223 3.503C15.5902 8.4116 13.8533 8.082 12 8.082s-3.5902.3296-5.1368.8677L4.841 5.4467a.4161.4161 0 00-.5677-.1521.4157.4157 0 00-.1521.5676l1.9973 3.4592C2.6889 11.1867.3432 14.6589 0 18.761h24c-.3432-4.1021-2.6889-7.5743-6.1185-9.4396" />
+                  </svg>
+                </span>
               </span>
-            </a>
+            )
           )}
           {proj.githubUrl && (
             <a
@@ -644,12 +662,22 @@ export const App: React.FC = () => {
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
             >
-              GitHub
+              {proj.githubLabel || 'GitHub'}
               <span className="ic">
-                <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-                  <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
-                </svg>
-              </span>
+                {proj.githubUrl?.includes('play.google') || proj.githubLabel === 'Download now' || proj.githubLabel?.includes('Play') || proj.githubLabel?.includes('APK') ? (
+                  <svg viewBox="0 0 512 512" aria-hidden="true" style={{ width: 14, height: 14, display: 'block' }}>
+                    <svg className="ic-playstore" viewBox="0 0 512 512" aria-hidden="true" style={{ width: 19, height: 19, display: 'block' }}>
+                      <path fill="#00C3FF" d="M38.9 15.3c-2.9 3.3-4.6 8.4-4.6 14.9v451.6c0 6.5 1.7 11.6 4.6 14.9l2.4 2.4L266 274.5v-37L41.3 12.9l-2.4 2.4z" />
+                      <path fill="#00E676" d="M341.2 162.3L69.5 11.7c-11.4-6.4-22-5.3-28.2 1.2L266 237.5l75.2-75.2z" />
+                      <path fill="#FF3A44" d="M341.2 349.7L266 274.5 41.3 499.1c6.2 6.5 16.8 7.6 28.2 1.2l271.7-150.6z" />
+                      <path fill="#FFD400" d="M432.1 227.6l-90.9-50.4-75.2 75.2 75.2 75.2 90.9-50.4c18.3-10.2 18.3-26.8 0-37z" />
+                    </svg>
+                    ) : (
+                    <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                      <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
+                    </svg>
+                )}
+                  </span>
             </a>
           )}
         </div>
