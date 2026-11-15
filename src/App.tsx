@@ -174,9 +174,9 @@ const PROJECTS_DATA: ProjectItem[] = [
     aspectRatio: '1919 / 907',
     role: 'Analyzed the whole system, integrated text-to-speech and speech-to-text into the merchant chat, redesigned merchant dashboard and pages so everything fits cleanly on every screen.',
     problem: 'When a payout fails or a chargeback dispute arrives, merchants are left waiting for answers while their money is stuck, and support teams handle each case by hand. Both sides need faster resolution that still follows policy.',
-    solution: 'Sulajh AI is an autonomous, policy-gated AI teammate for payout failures and chargeback disputes. It merges similar cases into one ticket and sends the amount automatically when it is within the approved limit. Larger amounts go to Paytm with all the gathered details for one-click approval, so merchants get faster answers and reviewers need no extra investigation.',
+    solution: 'Sulajh AI is an AI teammate that handles payout failures and chargeback disputes automatically. It merges similar cases into one ticket, resolves small amounts on its own, and sends larger ones to Paytm with all details ready for one-click approval.',
     stack: ['React', 'Vite', 'Tailwind CSS', 'TypeScript', 'Express', 'Supabase', 'Groq (Llama)', 'Sarvam AI (STT and TTS)', 'Qdrant (Vector DB)', 'Zod', 'Vitest'],
-    quote: '“Sulajh means to untangle. We built an AI that untangles payout problems and gives Paytm one ticket, with all the evidence, ready for one-click approval.”',
+    quote: '“Sulajh means untangle, AI that untangles merchant payouts problems and gives Paytm team ready for one click approval.”',
     liveUrl: 'https://sulajh-ai.vercel.app/login',
     githubUrl: 'https://github.com/piyushyenorkar/Sulajh-AI',
   },
@@ -665,8 +665,7 @@ export const App: React.FC = () => {
               {proj.githubLabel || 'GitHub'}
               <span className="ic">
                 {proj.githubUrl?.includes('play.google') || proj.githubLabel === 'Download now' || proj.githubLabel?.includes('Play') || proj.githubLabel?.includes('APK') ? (
-                  <svg viewBox="0 0 512 512" aria-hidden="true" style={{ width: 14, height: 14, display: 'block' }}>
-                    <svg className="ic-playstore" viewBox="0 0 512 512" aria-hidden="true" style={{ width: 19, height: 19, display: 'block' }}>
+                  <svg className="ic-playstore" viewBox="0 0 512 512" aria-hidden="true" style={{ width: 19, height: 19, display: 'block' }}>
                       <path fill="#00C3FF" d="M38.9 15.3c-2.9 3.3-4.6 8.4-4.6 14.9v451.6c0 6.5 1.7 11.6 4.6 14.9l2.4 2.4L266 274.5v-37L41.3 12.9l-2.4 2.4z" />
                       <path fill="#00E676" d="M341.2 162.3L69.5 11.7c-11.4-6.4-22-5.3-28.2 1.2L266 237.5l75.2-75.2z" />
                       <path fill="#FF3A44" d="M341.2 349.7L266 274.5 41.3 499.1c6.2 6.5 16.8 7.6 28.2 1.2l271.7-150.6z" />
