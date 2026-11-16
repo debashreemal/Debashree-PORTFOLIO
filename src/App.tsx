@@ -2686,11 +2686,16 @@ export const App: React.FC = () => {
             smokeColor="#EFEAE0"
             buttonColor="#18181b"
             textColor="#EFEAE0"
+            style={{
+              '--fly-px': '18px',
+              '--fly-h': '40px',
+              '--fly-fs': '13px',
+            } as React.CSSProperties}
             onClick={() => {
               setIsContactModalOpen(true);
             }}
           >
-            SAY HELLO ↗
+            SAY HELLO
           </FlyingButton>
         </div>
 

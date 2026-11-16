@@ -933,7 +933,7 @@ function createEngine({ root, canvas, button, cursor, ramp, props }) {
       chars.forEach((ch, i) => {
         const el = document.createElement('span');
         el.textContent = ch;
-        el.style.cssText = `position:absolute;left:0;top:0;white-space:pre;line-height:1;transform-origin:0 0;font:${font};color:${cs.color}`;
+        el.style.cssText = `position:absolute;left:0;top:0;white-space:pre;line-height:1;transform-origin:0 0;font:${font};color:${cs.color};letter-spacing:${cs.letterSpacing}`;
         ink.appendChild(el);
         items.push({ el, x: label.offsetLeft + ((at(i) + at(i + 1)) / 2) * (label.offsetWidth / span), y: yc, k: 0.5 });
       });

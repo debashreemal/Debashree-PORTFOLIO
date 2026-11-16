@@ -27,19 +27,19 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
         setNavBottom(Math.round(rect.bottom));
       }
 
-      // 2. Position card so its last right end aligns with the letter 'T' in navbar 'ABOUT'
+      // 2. Position card so its last right end aligns with the letter 'T' in navbar 'ABOUT' + shifted little towards the right
       const tNavEl = document.getElementById('nav-about-t') || document.getElementById('nav-about-o');
       if (tNavEl) {
         const tRect = tNavEl.getBoundingClientRect();
         const cardW = 356;
-        const targetRight = Math.round(tRect.right);
+        const targetRight = Math.round(tRect.right) + 20;
         const idealLeft = targetRight - cardW;
         setCardLeft(Math.max(14, idealLeft));
       } else {
         const tEl = document.getElementById('connect-alpha-t');
         if (tEl) {
           const tRect = tEl.getBoundingClientRect();
-          setCardLeft(Math.round(tRect.right) + 18);
+          setCardLeft(Math.round(tRect.right) + 38);
         }
       }
     };
@@ -240,7 +240,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
                 </>
               ) : (
                 <>
-                  Send Message ↗
+                  Send Message
                 </>
               )}
             </button>
