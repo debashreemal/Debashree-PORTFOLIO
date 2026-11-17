@@ -3,8 +3,17 @@ import debashreePhoto from './assets/debashree.png';
 import FlyingButton from './components/FlyingButton';
 import FoldText from './components/FoldText';
 import ContactModal from './components/ContactModal';
+import Folder, { type FolderItem } from './components/Folder';
+import ClickSpark from './components/ClickSpark';
 import { FaLinkedin, FaGithub, FaEnvelope } from 'react-icons/fa6';
 import { LinkedInBrandIcon, GitHubBrandIcon, GmailBrandIcon } from './components/BrandIcons';
+
+const SKETCHES: FolderItem[] = [
+  { image: '/sketches/s1.jpeg', title: 'Sketch 01' },
+  { image: '/sketches/s2.jpeg', title: 'Sketch 02' },
+  { image: '/sketches/s3.jpeg', title: 'Sketch 03' },
+  { image: '/sketches/s4.jpeg', title: 'Sketch 04' },
+];
 
 // Pre-warm 3D WebGL chunk immediately on page parse for instantaneous, stutter-free render
 import('./components/canvas/HeroRobot');
@@ -154,7 +163,7 @@ const PROJECTS_DATA: ProjectItem[] = [
     problem: 'College events in India are scattered across WhatsApp groups, Instagram posts and notice boards, so students miss them and organizers struggle to reach and manage their audience.',
     solution: 'PLUTO integrates discovery, competitions, seat selection, payment and booking into one campus event platform. Students explore events across campuses, pick their seat, pay online and get a QR e-ticket, while organizers create events, design seat layouts and track bookings and payments in one place.',
     stack: ['React Native', 'React', 'JavaScript', 'Node.js', 'Supabase', 'Razorpay', 'Groq (LLaMA)', 'Firebase FCM', 'Three.js'],
-    quote: '“A unified institutional repository for 1,200+ student collaborators.”',
+    quote: '“Others show events. PLUTO connects the whole campus world.”',
     liveUrl: 'https://www.plutocampus.in/',
     githubLabel: 'Download now',
     githubUrl: 'https://play.google.com/store/apps/details?id=com.pluto_app',
@@ -529,6 +538,53 @@ export const App: React.FC = () => {
   const isContactModalOpenRef = useRef(false);
   isContactModalOpenRef.current = isContactModalOpen;
 
+  // About Me Sketch Folder Showcase state ('idle' | 'centered' | 'open')
+  const [sketchModalStage, setSketchModalStage] = useState<'idle' | 'centered' | 'open'>('idle');
+  const sketchModalStageRef = useRef<'idle' | 'centered' | 'open'>('idle');
+  sketchModalStageRef.current = sketchModalStage;
+
+  // Track docking transition when closing back to circle
+  const isReturningToDockRef = useRef(false);
+  const lastDockPosRef = useRef({ left: '0px', top: '0px', transform: 'rotate(10deg) scale(1)' });
+
+  // Close sketch showcase and return folder smoothly to dock
+  const handleCloseSketchShowcase = useCallback(() => {
+    if (sketchModalStageRef.current === 'idle') return;
+    sketchModalStageRef.current = 'idle';
+    setSketchModalStage('idle');
+    isReturningToDockRef.current = true;
+    if (aLRef.current) aLRef.current.style.opacity = '1';
+    if (aBarRef.current) aBarRef.current.style.opacity = '1';
+    if (aCircRef.current) aCircRef.current.style.opacity = '1';
+    if (aPhRef.current) aPhRef.current.style.opacity = '1';
+    if (tg1Ref.current) tg1Ref.current.style.opacity = '1';
+    if (tg2Ref.current) {
+      tg2Ref.current.style.transition = 'left 0.6s cubic-bezier(0.16, 1, 0.3, 1), top 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
+      tg2Ref.current.style.left = lastDockPosRef.current.left;
+      tg2Ref.current.style.top = lastDockPosRef.current.top;
+      tg2Ref.current.style.transform = lastDockPosRef.current.transform;
+    }
+    setTimeout(() => {
+      isReturningToDockRef.current = false;
+      if (tg2Ref.current) {
+        tg2Ref.current.style.transition = 'none';
+      }
+    }, 650);
+  }, []);
+
+  // Open centered showcase (folder moves to center on dark backdrop, CLOSED)
+  const handleOpenCenteredShowcase = useCallback(() => {
+    sketchModalStageRef.current = 'centered';
+    setSketchModalStage('centered');
+    if (tg2Ref.current) {
+      tg2Ref.current.style.transition = 'left 0.6s cubic-bezier(0.16, 1, 0.3, 1), top 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
+      tg2Ref.current.style.left = '50%';
+      tg2Ref.current.style.top = '55%';
+      tg2Ref.current.style.transform = 'translate(-50%, -50%) rotate(0deg)';
+      tg2Ref.current.style.opacity = '1';
+    }
+  }, []);
+
   const activePageRef = useRef(0);
 
   // Real 3D Book Pages Refs (Base Left, Base Right, and 4 Physical 3D Turning Leaves)
@@ -872,7 +928,7 @@ export const App: React.FC = () => {
     // Continuous scroll progress wheel handler:
     // Captures scroll intent direction and sustains continuous constant-speed progression
     const handleWheel = (e: WheelEvent) => {
-      if (isContactModalOpenRef.current) return;
+      if (isContactModalOpenRef.current || sketchModalStageRef.current !== 'idle') return;
       e.preventDefault();
       const d = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
       if (Math.abs(d) < 0.1) return;
@@ -881,7 +937,12 @@ export const App: React.FC = () => {
 
     // Keyboard navigation
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (isContactModalOpenRef.current) return;
+      if (e.key === 'Escape' && sketchModalStageRef.current !== 'idle') {
+        handleCloseSketchShowcase();
+        e.preventDefault();
+        return;
+      }
+      if (isContactModalOpenRef.current || sketchModalStageRef.current !== 'idle') return;
       if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
         const next = MILESTONES.find((a) => a > tgtRef.current + 0.01);
         if (next !== undefined) {
@@ -902,7 +963,7 @@ export const App: React.FC = () => {
     // Drag to scroll on stage (excluding clickable items)
     let dragStart: { y: number; t: number } | null = null;
     const handlePointerDown = (e: PointerEvent) => {
-      if (isContactModalOpenRef.current || (e.target as Element)?.closest?.('.nav, .hero-robot-wrap, .domew, .contact-footer-bar, .cta, .tabs, .gallery, .ref-badge, .contact-modal-overlay, button, a')) {
+      if (isContactModalOpenRef.current || sketchModalStageRef.current !== 'idle' || (e.target as Element)?.closest?.('.nav, .hero-robot-wrap, .domew, .contact-footer-bar, .cta, .tabs, .gallery, .ref-badge, .contact-modal-overlay, .sketch-showcase-backdrop, button, a')) {
         dragStart = null;
         return;
       }
@@ -1170,9 +1231,10 @@ export const App: React.FC = () => {
       // =========================================================
       const aboutVisible = p > 0.030 && p < 0.34;
       if (p1Ref.current) {
-        p1Ref.current.style.display = aboutVisible ? 'block' : 'none';
-        p1Ref.current.style.zIndex = p > 0.28 ? '2' : '4';
-        p1Ref.current.style.pointerEvents = (p > 0.16 && p < 0.26) ? 'auto' : 'none';
+        const isSketchModalActive = sketchModalStageRef.current !== 'idle';
+        p1Ref.current.style.display = (aboutVisible || isSketchModalActive) ? 'block' : 'none';
+        p1Ref.current.style.zIndex = isSketchModalActive ? '100' : (p > 0.28 ? '2' : '4');
+        p1Ref.current.style.pointerEvents = (isSketchModalActive || (p > 0.16 && p < 0.26)) ? 'auto' : 'none';
 
         if (aboutVisible) {
           // Keep p1Ref fixed at fullscreen so individual elements flow with independent physics
@@ -1212,9 +1274,13 @@ export const App: React.FC = () => {
             tg1Ref.current.style.left = `${cx0 - D * 0.43}px`;
             tg1Ref.current.style.top = `${cy0 - D * 0.5}px`;
           }
-          if (tg2Ref.current) {
-            tg2Ref.current.style.left = `${cx0 + D * 0.26}px`;
-            tg2Ref.current.style.top = `${cy0 - D * 0.03}px`;
+          if (tg2Ref.current && sketchModalStageRef.current === 'idle' && !isReturningToDockRef.current) {
+            const dockLeft = `${cx0 + D * 0.39}px`;
+            const dockTop = `${cy0 - D * 0.18}px`;
+            tg2Ref.current.style.left = dockLeft;
+            tg2Ref.current.style.top = dockTop;
+            lastDockPosRef.current.left = dockLeft;
+            lastDockPosRef.current.top = dockTop;
           }
 
           // -----------------------------------------------------
@@ -1295,7 +1361,7 @@ export const App: React.FC = () => {
             }
           }
 
-          if (tg2Ref.current) {
+          if (tg2Ref.current && sketchModalStageRef.current === 'idle' && !isReturningToDockRef.current) {
             if (p < 0.25) {
               if (p < 0.195) {
                 tg2Ref.current.style.opacity = '0';
@@ -1303,15 +1369,19 @@ export const App: React.FC = () => {
               } else {
                 const u2 = sg(p, 0.195, 0.235);
                 const tag2Scale = Math.max(0, eb(u2));
-                const tag2Rot = 6 + (1 - eo(u2)) * -22;
+                const tag2Rot = 10 + (1 - eo(u2)) * -22;
                 const tag2Slide = (1 - eo(u2)) * 80;
-                tg2Ref.current.style.transform = `translate3d(${tag2Slide.toFixed(1)}px, 0, 0) rotate(${tag2Rot.toFixed(1)}deg) scale(${tag2Scale.toFixed(3)})`;
+                const tr = `translate3d(${tag2Slide.toFixed(1)}px, 0, 0) rotate(${tag2Rot.toFixed(1)}deg) scale(${tag2Scale.toFixed(3)})`;
+                tg2Ref.current.style.transform = tr;
                 tg2Ref.current.style.opacity = `${cl(u2 * 4).toFixed(3)}`;
+                lastDockPosRef.current.transform = tr;
               }
             } else {
               const ut = io(sg(p, 0.26, 0.295));
-              tg2Ref.current.style.transform = `translate(${(vw * 0.3 * ut).toFixed(1)}px, ${(vh * 0.1 * ut).toFixed(1)}px) rotate(${(6 + 30 * ut).toFixed(1)}deg)`;
+              const tr = `translate(${(vw * 0.3 * ut).toFixed(1)}px, ${(vh * 0.1 * ut).toFixed(1)}px) rotate(${(10 + 30 * ut).toFixed(1)}deg)`;
+              tg2Ref.current.style.transform = tr;
               tg2Ref.current.style.opacity = `${cl(1 - sg(p, 0.275, 0.295)).toFixed(3)}`;
+              lastDockPosRef.current.transform = tr;
             }
           }
 
@@ -1374,6 +1444,10 @@ export const App: React.FC = () => {
           if (aLRef.current) {
             const textParallax = -(p - 0.24) * 160;
             aLRef.current.style.transform = `translate3d(0, ${textParallax.toFixed(1)}px, 0) skewY(${(sk * 0.35).toFixed(2)}deg)`;
+            aLRef.current.style.opacity = '1';
+          }
+          if (aBarRef.current) {
+            aBarRef.current.style.opacity = '1';
           }
         }
       }
@@ -2016,12 +2090,24 @@ export const App: React.FC = () => {
   }, [domeConfig, activeCard, handleCardClick]);
 
   return (
-    <div
-      className="stage"
-      id="st"
-      ref={stageRef}
-      tabIndex={0}
+    <ClickSpark
+      sparkColor="#8F9BFF"
+      sparkCount={9}
+      sparkSize={15}
+      sparkRadius={32}
+      duration={450}
+      extraScale={1}
+      shape="line"
+      glow={0.35}
+      targetSelector=".contact-modal-close-btn, .sketch-modal-close-btn"
+      style={{ width: '100vw', height: '100vh', position: 'fixed', inset: 0 }}
     >
+      <div
+        className="stage"
+        id="st"
+        ref={stageRef}
+        tabIndex={0}
+      >
       {/* Top Navbar */}
       <nav className="nav">
         <div className="nav-links" style={{ marginLeft: 'auto' }}>
@@ -2137,99 +2223,173 @@ export const App: React.FC = () => {
         <div className="sheet" id="sheet" ref={sheetRef} />
 
         <div ref={aLRef} className="grp">
-          <div className="rv" style={{ left: 'clamp(24px, 6vw, 84px)', top: 'clamp(60px, 11vh, 120px)', height: 'clamp(60px, 10vw, 130px)' }}>
-            <span
-              ref={(el) => { aRevealsRef.current[0] = el; }}
-              style={{ font: '400 clamp(68px, 10vw, 140px)/.9 var(--an)', color: '#111' }}
-            >
-              ABOUT
-            </span>
-          </div>
-          <div className="rv" style={{ left: 'clamp(24px, 6vw, 84px)', top: 'calc(clamp(60px, 11vh, 120px) + clamp(55px, 8.8vw, 125px))', height: 'clamp(60px, 10vw, 130px)' }}>
-            <span
-              ref={(el) => { aRevealsRef.current[1] = el; }}
-              style={{ font: '400 clamp(68px, 10vw, 140px)/.9 var(--an)', color: '#111' }}
-            >
-              ME
-            </span>
-          </div>
-
           <div
-            ref={aBarRef}
             style={{
               position: 'absolute',
               left: 'clamp(24px, 6vw, 84px)',
-              top: 'calc(clamp(60px, 11vh, 120px) + clamp(120px, 18vw, 255px))',
-              width: 'clamp(60px, 8vw, 100px)',
-              height: 'clamp(6px, 0.8vh, 10px)',
-              background: 'var(--rd)',
-              transformOrigin: 'left',
+              top: 'clamp(38px, 7.5vh, 85px)',
+              width: 'min(720px, 49vw)',
+              display: 'flex',
+              flexDirection: 'column',
             }}
-          />
+          >
+            {/* ABOUT ME Title Group */}
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.5px',
+                width: 'fit-content',
+              }}
+            >
+              <div
+                className="rv"
+                style={{
+                  position: 'relative',
+                  overflow: 'hidden',
+                  lineHeight: 0.9,
+                }}
+              >
+                <span
+                  ref={(el) => { aRevealsRef.current[0] = el; }}
+                  style={{
+                    font: '400 clamp(53px, 8.5vw, 125px)/.9 var(--an)',
+                    color: '#111',
+                    display: 'block',
+                  }}
+                >
+                  ABOUT
+                </span>
+              </div>
+              <div
+                className="rv"
+                style={{
+                  position: 'relative',
+                  overflow: 'hidden',
+                  lineHeight: 0.9,
+                }}
+              >
+                <span
+                  ref={(el) => { aRevealsRef.current[1] = el; }}
+                  style={{
+                    font: '400 clamp(53px, 8.5vw, 125px)/.9 var(--an)',
+                    color: '#111',
+                    display: 'block',
+                  }}
+                >
+                  ME
+                </span>
+              </div>
+            </div>
 
-          <div
-            className="rv"
-            style={{
-              left: 'clamp(24px, 6vw, 84px)',
-              top: 'calc(clamp(60px, 11vh, 120px) + clamp(138px, 20vw, 285px))',
-              height: 'clamp(20px, 3vh, 32px)',
-            }}
-          >
-            <span
-              ref={(el) => { aRevealsRef.current[2] = el; }}
-              style={{ font: '500 clamp(11px, 1.2vw, 16px) var(--mo)', letterSpacing: '.12em', color: '#111' }}
-            >
-              FULL-STACK DEVELOPER / AI BUILDER
-            </span>
-          </div>
+            {/* Blue Underline Bar */}
+            <div
+              ref={aBarRef}
+              style={{
+                marginTop: 'clamp(8px, 1.2vh, 14px)',
+                marginBottom: 'clamp(12px, 1.6vh, 18px)',
+                width: 'clamp(60px, 8vw, 100px)',
+                height: 'clamp(6px, 0.8vh, 10px)',
+                background: 'var(--rd)',
+                transformOrigin: 'left',
+              }}
+            />
 
-          <div
-            className="rv"
-            style={{
-              left: 'clamp(24px, 6vw, 84px)',
-              top: 'calc(clamp(60px, 11vh, 120px) + clamp(168px, 23vw, 325px))',
-              height: 'clamp(20px, 3vh, 32px)',
-              width: 'min(520px, 50vw)',
-            }}
-          >
-            <span
-              ref={(el) => { aRevealsRef.current[3] = el; }}
-              style={{ fontSize: 'clamp(12px, 1.3vw, 18px)', color: '#333' }}
+            {/* Text Group (Cursive Subheading + 3 Paragraphs) */}
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 'clamp(14px, 2vh, 22px)',
+              }}
             >
-              CE undergrad from Mumbai (class of 2028).
-            </span>
-          </div>
-          <div
-            className="rv"
-            style={{
-              left: 'clamp(24px, 6vw, 84px)',
-              top: 'calc(clamp(60px, 11vh, 120px) + clamp(192px, 26vw, 360px))',
-              height: 'clamp(20px, 3vh, 32px)',
-              width: 'min(520px, 50vw)',
-            }}
-          >
-            <span
-              ref={(el) => { aRevealsRef.current[4] = el; }}
-              style={{ fontSize: 'clamp(12px, 1.3vw, 18px)', color: '#333' }}
-            >
-              I build AI products for India's underserved
-            </span>
-          </div>
-          <div
-            className="rv"
-            style={{
-              left: 'clamp(24px, 6vw, 84px)',
-              top: 'calc(clamp(60px, 11vh, 120px) + clamp(216px, 29vw, 395px))',
-              height: 'clamp(20px, 3vh, 32px)',
-              width: 'min(520px, 50vw)',
-            }}
-          >
-            <span
-              ref={(el) => { aRevealsRef.current[5] = el; }}
-              style={{ fontSize: 'clamp(12px, 1.3vw, 18px)', color: '#333' }}
-            >
-              markets, from hackathon builds to live apps.
-            </span>
+              {/* Cursive Blue Subheading */}
+              <div className="rv" style={{ position: 'relative', overflow: 'hidden', padding: '2px 0 10px' }}>
+                <span
+                  ref={(el) => { aRevealsRef.current[2] = el; }}
+                  style={{
+                    fontFamily: 'var(--ks, "Kaushan Script", "Kalam", cursive)',
+                    fontSize: 'clamp(24px, 2.5vw, 35px)',
+                    fontWeight: 400,
+                    lineHeight: 1.3,
+                    color: 'var(--rd, #8F9BFF)',
+                    letterSpacing: '0.015em',
+                    display: 'block',
+                  }}
+                >
+                  Full-Stack Developer building AI-powered products, with a Designer’s eye.
+                </span>
+              </div>
+
+              {/* 3 Body Paragraphs with Specified Typography */}
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 'clamp(10px, 1.4vh, 16px)',
+                }}
+              >
+                <div className="rv" style={{ position: 'relative', overflow: 'hidden' }}>
+                  <span
+                    ref={(el) => { aRevealsRef.current[3] = el; }}
+                    style={{
+                      fontFamily: 'var(--in, "Inter", system-ui, -apple-system, sans-serif)',
+                      fontWeight: 500,
+                      fontSize: 'clamp(15px, 1.3vw, 18px)',
+                      color: '#4a4a4a',
+                      letterSpacing: '0.005em',
+                      lineHeight: 1.38,
+                      display: 'block',
+                    }}
+                  >
+                    Computer Engineering student at Mumbai University, graduating 2028. I build AI products end to end, across the frontend, backend and database, for real problems faced by students, small businesses and everyday users.
+                  </span>
+                </div>
+                <div className="rv" style={{ position: 'relative', overflow: 'hidden' }}>
+                  <span
+                    ref={(el) => { aRevealsRef.current[4] = el; }}
+                    style={{
+                      fontFamily: 'var(--in, "Inter", system-ui, -apple-system, sans-serif)',
+                      fontWeight: 500,
+                      fontSize: 'clamp(15px, 1.3vw, 18px)',
+                      color: '#4a4a4a',
+                      letterSpacing: '0.005em',
+                      lineHeight: 1.38,
+                      display: 'block',
+                    }}
+                  >
+                    Sketching taught me to see before I build. Light and shade decide where the eye goes, so I design every screen to lead people to the right thing, without them noticing.
+                  </span>
+                </div>
+                <div className="rv" style={{ position: 'relative', overflow: 'hidden', borderRadius: '10px' }}>
+                  <div
+                    ref={(el) => { aRevealsRef.current[5] = el; }}
+                    style={{
+                      background: 'transparent',
+                      border: '1px solid #d6d1c4',
+                      borderLeft: '5px solid var(--rd, #8F9BFF)',
+                      borderRadius: '10px',
+                      padding: 'clamp(9px, 1.2vh, 12px) clamp(13px, 1.4vw, 17px)',
+                      boxSizing: 'border-box',
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontFamily: 'var(--in, "Inter", system-ui, -apple-system, sans-serif)',
+                        fontWeight: 500,
+                        fontSize: 'clamp(15px, 1.3vw, 18px)',
+                        color: '#4a4a4a',
+                        letterSpacing: '0.005em',
+                        lineHeight: 1.38,
+                        display: 'block',
+                      }}
+                    >
+                      Open to internships in full-stack and AI roles, where an idea can become a live product.
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Pill Badges */}
@@ -2263,6 +2423,45 @@ export const App: React.FC = () => {
           >
             MUMBAI
           </div>
+        </div>
+
+        {/* Full-screen Dark Backdrop for Sketches Showcase (matching Landing Page #0E0E10) */}
+        <div
+          className="sketch-showcase-backdrop"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            zIndex: 99990,
+            background: '#0E0E10',
+            opacity: sketchModalStage !== 'idle' ? 1 : 0,
+            pointerEvents: sketchModalStage !== 'idle' ? 'auto' : 'none',
+            transition: 'opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
+          }}
+        >
+          {/* Close Button matching Contact Modal Say Hello */}
+          {sketchModalStage !== 'idle' && (
+            <button
+              type="button"
+              className="sketch-modal-close-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCloseSketchShowcase();
+              }}
+              aria-label="Close"
+              style={{
+                position: 'absolute',
+                top: 'clamp(20px, 4vh, 36px)',
+                right: 'clamp(24px, 5vw, 64px)',
+                zIndex: 100001,
+                pointerEvents: 'auto',
+              }}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          )}
         </div>
 
         <div ref={aRRef} className="grp">
@@ -2300,35 +2499,63 @@ export const App: React.FC = () => {
           </div>
           <div
             ref={tg2Ref}
-            className="tag"
-            style={{
-              background: 'rgba(239, 234, 224, 0.88)',
-              backdropFilter: 'blur(12px)',
-              WebkitBackdropFilter: 'blur(12px)',
-              color: '#111',
-              border: '1px solid rgba(0, 0, 0, 0.15)',
-              boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8)',
+            onClick={(e) => {
+              if (sketchModalStage === 'idle') {
+                e.stopPropagation();
+                handleOpenCenteredShowcase();
+              } else if (sketchModalStage === 'centered') {
+                e.stopPropagation();
+                setSketchModalStage('open');
+              } else if (sketchModalStage === 'open') {
+                // Prevent closing when clicking on folder while open; only cross button exits
+                e.stopPropagation();
+              }
             }}
-          >
-            AI FOR BHARAT
-          </div>
-
-          <div
-            ref={hintRef}
             style={{
               position: 'absolute',
-              left: '50%',
-              bottom: '4vh',
-              transform: 'translateX(-50%)',
-              zIndex: 6,
-              font: '500 11px var(--mo)',
-              letterSpacing: '.24em',
-              color: '#111',
-              whiteSpace: 'nowrap',
-              pointerEvents: 'none',
+              cursor: 'pointer',
+              zIndex: sketchModalStage !== 'idle' ? 100000 : 25,
+              pointerEvents: 'auto',
             }}
           >
-            SCROLL ↓
+            <div
+              style={{
+                transform: sketchModalStage !== 'idle'
+                  ? (sketchModalStage === 'open' ? 'scale(1.06)' : 'scale(1)')
+                  : 'scale(1)',
+                transformOrigin: 'center center',
+                transition: 'transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), filter 0.45s cubic-bezier(0.16, 1, 0.3, 1)',
+                filter: sketchModalStage !== 'idle'
+                  ? 'none'
+                  : 'drop-shadow(0 10px 22px rgba(0, 0, 0, 0.32))',
+              }}
+            >
+              <Folder
+                frontLabel={sketchModalStage === 'idle' ? 'SKETCHES' : undefined}
+                label={sketchModalStage !== 'idle' ? 'SKETCHES' : ''}
+                items={SKETCHES}
+                size={sketchModalStage !== 'idle' ? 1.65 : 0.34}
+                color="#2e2e34"
+                paperColor="#FDFBF7"
+                variant="solid"
+                mode="flap"
+                theme="dark"
+                tabPosition="right"
+                intro={false}
+                peek={sketchModalStage === 'centered'}
+                draggable={true}
+                zoomOnClick={true}
+                open={sketchModalStage === 'open'}
+                onOpenChange={(open) => {
+                  if (sketchModalStage === 'idle') {
+                    handleOpenCenteredShowcase();
+                  } else if (sketchModalStage === 'centered') {
+                    if (open) setSketchModalStage('open');
+                  }
+                  // When already open, do not close showcase on folder toggle; only cross button closes
+                }}
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -2462,15 +2689,6 @@ export const App: React.FC = () => {
               </div>
             </div>
           </div>
-
-          {/* Scroll to open hint */}
-          <p
-            ref={bookScrollHintRef}
-            className="book-scroll-hint"
-            onClick={() => handleCoverClick()}
-          >
-            Scroll to open ↓
-          </p>
 
           {/* Bottom Floating Controls */}
           <div ref={bookControlsRef} className="book-controls">
@@ -2795,7 +3013,8 @@ export const App: React.FC = () => {
         isOpen={isContactModalOpen}
         onClose={() => setIsContactModalOpen(false)}
       />
-    </div>
+      </div>
+    </ClickSpark>
   );
 };
 

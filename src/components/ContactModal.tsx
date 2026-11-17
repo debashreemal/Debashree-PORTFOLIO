@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { playSound } from '../utils/sound';
 import './ContactModal.css';
 
 interface ContactModalProps {
@@ -80,6 +81,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
     e.preventDefault();
     if (!name.trim() || !email.trim() || !message.trim()) return;
 
+    playSound('rocket');
     setStatus('sending');
     setErrorMessage('');
 

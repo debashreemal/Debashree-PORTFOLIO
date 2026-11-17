@@ -1,0 +1,370 @@
+.folder-root {
+  --folder-ground: rgba(0, 0, 0, 0.42);
+  --folder-ground-soft: rgba(0, 0, 0, 0.26);
+  --folder-focus: #ffffff;
+  position: relative;
+  display: inline-block;
+  width: var(--folder-w);
+  height: calc(var(--folder-tab-h) + var(--folder-h));
+  vertical-align: middle;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.folder-root[data-theme='light'] {
+  --folder-ground: rgba(24, 22, 40, 0.16);
+  --folder-ground-soft: rgba(24, 22, 40, 0.1);
+  --folder-focus: #18181b;
+}
+
+.folder-stage {
+  position: absolute;
+  inset: 0;
+  perspective: var(--folder-depth);
+  perspective-origin: calc(var(--folder-w) / 2) calc(var(--folder-tab-h) + var(--folder-h) / 2);
+  cursor: pointer;
+  outline: none;
+  isolation: isolate;
+}
+
+.folder-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+.folder-ground,
+.folder-cast,
+.folder-shade {
+  display: none !important;
+}
+
+.folder-back {
+  z-index: 4;
+  width: var(--folder-w);
+  height: calc(var(--folder-tab-h) + var(--folder-h));
+}
+
+.folder-back-fill {
+  position: absolute;
+  inset: 0;
+}
+
+.folder-gutter {
+  position: absolute;
+  top: var(--folder-tab-h);
+  bottom: 0;
+  left: 0;
+  width: calc(12px * var(--folder-scale));
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0));
+  opacity: var(--folder-gutter, 0);
+}
+
+.folder-back-rim {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.folder-focus {
+  fill: none;
+  stroke: none;
+}
+
+.folder-stage:focus-visible .folder-focus {
+  stroke: var(--folder-focus);
+  stroke-width: 2;
+}
+
+.folder-tab-text {
+  position: absolute;
+  top: 0;
+  display: flex;
+  height: var(--folder-tab-h);
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  padding-top: calc(1px * var(--folder-scale));
+  overflow: hidden;
+  color: var(--cr, #EFEAE0);
+  opacity: var(--folder-label, 1);
+  font-family: var(--an, sans-serif);
+  font-size: calc(11px * var(--folder-scale));
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.folder-measure {
+  left: 0;
+  width: auto;
+  padding: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.folder-item {
+  z-index: 10;
+  width: var(--folder-doc-w);
+  height: var(--folder-doc-h);
+  overflow: hidden;
+  border-radius: calc(6px * var(--folder-scale));
+  background: transparent;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow:
+    0 0 0 0.5px rgba(0, 0, 0, 0.08),
+    0 calc(2px * var(--folder-scale)) calc(6px * var(--folder-scale)) rgba(0, 0, 0, 0.25),
+    0 calc((4px + var(--folder-lift, 0) * 16px) * var(--folder-scale))
+      calc((10px + var(--folder-lift, 0) * 26px) * var(--folder-scale))
+      rgba(0, 0, 0, calc(0.18 + var(--folder-lift, 0) * 0.18));
+  outline: none;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.folder-root[data-open] .folder-item {
+  cursor: pointer;
+}
+
+.folder-root[data-draggable] .folder-item {
+  cursor: grab;
+  touch-action: none;
+}
+
+.folder-root[data-dragging],
+.folder-root[data-dragging] * {
+  cursor: grabbing !important;
+}
+
+.folder-item:focus-visible {
+  outline: 2px solid var(--folder-focus);
+  outline-offset: 3px;
+}
+
+.folder-shade {
+  z-index: 39;
+  width: var(--folder-w);
+  height: var(--folder-front-h);
+  border-radius: var(--folder-front-radius);
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.34), rgba(0, 0, 0, 0.16));
+  filter: blur(calc(6px * var(--folder-scale)));
+  opacity: 0;
+  pointer-events: none;
+}
+
+.folder-front {
+  z-index: 40;
+  width: var(--folder-w);
+  height: var(--folder-front-h);
+}
+
+.folder-face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: var(--folder-front-radius);
+}
+
+.folder-face::after {
+  content: none !important;
+}
+
+.folder-face-inner,
+.folder-front[data-face='inner'] .folder-face-outer {
+  visibility: hidden;
+}
+
+.folder-face-inner {
+  left: -1px;
+}
+
+.folder-front[data-face='inner'] .folder-face-inner {
+  visibility: visible;
+}
+
+.folder-inner-gutter {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: calc(12px * var(--folder-scale));
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0));
+}
+
+.folder-root[data-variant='solid'] .folder-back-fill,
+.folder-root[data-variant='solid'] .folder-face,
+.folder-root[data-variant='solid'] .folder-face-inner,
+.folder-root[data-variant='solid'] .folder-face-outer {
+  background: var(--folder-base);
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+
+
+.folder-front-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mo, 'JetBrains Mono', monospace);
+  font-size: clamp(9px, calc(28px * var(--folder-scale)), 18px);
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  color: var(--cr, #EFEAE0);
+  text-transform: uppercase;
+  pointer-events: none;
+  user-select: none;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
+.folder-root[data-variant='glass'] .folder-back-fill {
+  background: linear-gradient(180deg, var(--folder-inside-top), var(--folder-inside-bottom));
+}
+
+.folder-root[data-variant='glass'] .folder-face-outer,
+.folder-root[data-variant='glass'] .folder-face-inner {
+  background:
+    linear-gradient(
+      160deg,
+      rgba(255, 255, 255, 0.34) 0%,
+      rgba(255, 255, 255, 0.08) 46%,
+      rgba(255, 255, 255, 0.16) 100%
+    ),
+    rgba(var(--folder-rgb), 0.24);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  -webkit-backdrop-filter: blur(var(--folder-frost)) saturate(1.8);
+  backdrop-filter: blur(var(--folder-frost)) saturate(1.8);
+}
+
+.folder-root[data-gl] .folder-face {
+  visibility: hidden;
+}
+
+.folder-glass {
+  position: absolute;
+  z-index: 40;
+  pointer-events: none;
+}
+
+.folder-root[data-variant='matte'] .folder-back-fill,
+.folder-root[data-variant='matte'] .folder-face-inner {
+  background: var(--folder-inside-bottom);
+}
+
+.folder-root[data-variant='matte'] .folder-face-outer {
+  background: var(--folder-base);
+}
+
+.folder-doc {
+  display: flex;
+  height: 100%;
+  box-sizing: border-box;
+  flex-direction: column;
+  gap: calc(6px * var(--folder-scale));
+  padding: calc(14px * var(--folder-scale)) calc(13px * var(--folder-scale));
+}
+
+.folder-doc-title {
+  overflow: hidden;
+  margin-bottom: calc(4px * var(--folder-scale));
+  color: var(--folder-paper-text);
+  font-size: calc(11px * var(--folder-scale));
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.folder-doc-text {
+  margin-top: calc(-6px * var(--folder-scale));
+  margin-bottom: calc(4px * var(--folder-scale));
+  color: var(--folder-paper-ink-strong);
+  font-size: calc(9px * var(--folder-scale));
+  line-height: 1.3;
+}
+
+.folder-doc-heading {
+  width: 56%;
+  height: calc(7px * var(--folder-scale));
+  flex: none;
+  margin-bottom: calc(4px * var(--folder-scale));
+  border-radius: 999px;
+  background: var(--folder-paper-ink-strong);
+}
+
+.folder-doc-line {
+  height: calc(4px * var(--folder-scale));
+  flex: none;
+  border-radius: 999px;
+  background: var(--folder-paper-ink);
+}
+
+.folder-doc-block {
+  height: calc(40px * var(--folder-scale));
+  flex: none;
+  margin: calc(3px * var(--folder-scale)) 0;
+  border-radius: calc(5px * var(--folder-scale));
+  background: var(--folder-paper-ink);
+  opacity: 0.75;
+}
+
+.folder-photo {
+  position: absolute;
+  inset: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.folder-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  -webkit-user-drag: none;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: auto;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.sketch-modal-close-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none !important;
+  outline: none !important;
+  background: #DBD7CF;
+  color: #16151D;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.sketch-modal-close-btn svg {
+  pointer-events: none;
+}
+
+.sketch-modal-close-btn:hover {
+  background: #CAC6C0;
+  color: #16151D;
+  transform: rotate(90deg);
+}
