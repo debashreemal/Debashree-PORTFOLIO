@@ -777,6 +777,7 @@ const Folder = ({
   onOpenChange,
   onItemClick,
   onItemDrop,
+  onPeek,
   draggable = true,
   zoomOnClick = true,
   peek = true,
@@ -869,6 +870,7 @@ const Folder = ({
     closeOnOutsideClick,
     onItemClick,
     onItemDrop,
+    onPeek,
     tilt: clamp(tilt, 0, 1.5),
     bounce: clamp(bounce, 0, 1),
     speed: clamp(speed, 0.2, 3),
@@ -1614,6 +1616,9 @@ const Folder = ({
       if (!state.hovered) {
         state.hovered = true;
         if (settingsRef.current.openOn === 'hover') setOpenRef.current(true);
+        if (settingsRef.current.peek && !settingsRef.current.open) {
+          settingsRef.current.onPeek?.();
+        }
       }
       wake();
     };

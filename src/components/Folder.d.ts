@@ -25,6 +25,7 @@ export interface FolderProps {
   onOpenChange?: (open: boolean) => void;
   onItemClick?: (item: any, index: number) => void;
   onItemDrop?: (item: any, index: number, inside: boolean) => void;
+  onPeek?: () => void;
   draggable?: boolean;
   zoomOnClick?: boolean;
   peek?: boolean;

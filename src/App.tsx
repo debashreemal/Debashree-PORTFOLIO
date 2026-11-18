@@ -5,6 +5,8 @@ import FoldText from './components/FoldText';
 import ContactModal from './components/ContactModal';
 import Folder, { type FolderItem } from './components/Folder';
 import ClickSpark from './components/ClickSpark';
+import SoundToggle from './components/SoundToggle';
+import { playSound } from './utils/sound';
 import { FaLinkedin, FaGithub, FaEnvelope } from 'react-icons/fa6';
 import { LinkedInBrandIcon, GitHubBrandIcon, GmailBrandIcon } from './components/BrandIcons';
 
@@ -146,7 +148,7 @@ const PROJECTS_DATA: ProjectItem[] = [
   {
     index: 4,
     badge: 'Live Event Discovery Platform',
-    title: 'PLUTO',
+    title: 'PLUTO CAMPUS',
     tagline: 'Discover events, pick your seat, book your ticket, and connect across campuses.',
     metaTeam: '',
     metaDuration: '',
@@ -546,6 +548,7 @@ export const App: React.FC = () => {
   // Track docking transition when closing back to circle
   const isReturningToDockRef = useRef(false);
   const lastDockPosRef = useRef({ left: '0px', top: '0px', transform: 'rotate(10deg) scale(1)' });
+  const lastSoundPageRef = useRef<number>(-1);
 
   // Close sketch showcase and return folder smoothly to dock
   const handleCloseSketchShowcase = useCallback(() => {
@@ -574,6 +577,8 @@ export const App: React.FC = () => {
 
   // Open centered showcase (folder moves to center on dark backdrop, CLOSED)
   const handleOpenCenteredShowcase = useCallback(() => {
+    if (sketchModalStageRef.current !== 'idle') return;
+    playSound('click');
     sketchModalStageRef.current = 'centered';
     setSketchModalStage('centered');
     if (tg2Ref.current) {
@@ -583,6 +588,16 @@ export const App: React.FC = () => {
       tg2Ref.current.style.transform = 'translate(-50%, -50%) rotate(0deg)';
       tg2Ref.current.style.opacity = '1';
     }
+  }, []);
+
+  // Thruster whoosh plays exclusively when hovering the centered peeking sketches folder
+  const lastPeekSoundTimeRef = useRef(0);
+  const playPeekWhoosh = useCallback(() => {
+    if (sketchModalStageRef.current !== 'centered') return;
+    const now = performance.now();
+    if (now - lastPeekSoundTimeRef.current < 400) return;
+    lastPeekSoundTimeRef.current = now;
+    playSound('rocket');
   }, []);
 
   const activePageRef = useRef(0);
@@ -748,6 +763,7 @@ export const App: React.FC = () => {
               onMouseUp={(e) => e.stopPropagation()}
               onClick={(e) => {
                 e.stopPropagation();
+                playSound('stickerStamp');
                 if (proj.githubUrl) {
                   window.open(proj.githubUrl, '_blank', 'noopener,noreferrer');
                 }
@@ -834,12 +850,24 @@ export const App: React.FC = () => {
   const [heroActive, setHeroActive] = useState(true);
   const heroActiveRef = useRef(true);
 
+  // Synchronized scroll animation sound effects tracker
+  const scrollAudioStageRef = useRef({
+    heroToAbout: false,
+    aboutToBuilds: false,
+    bookOpen: false,
+    bookClose: false,
+    buildsToMoments: false,
+    momentsToContact: false,
+  });
+  const aboutToBuildsTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   // Mouse & tilt smoothing
   const mouseTargetRef = useRef({ x: 0, y: 0 });
   const mouseSmoothRef = useRef({ x: 0, y: 0 });
 
   // Smooth Navigation to section milestone
   const goTo = useCallback((n: number) => {
+    playSound('click');
     resetScrollDrive();
     const targetIdx = Math.max(0, Math.min(4, n));
     tgtRef.current = MILESTONES[targetIdx];
@@ -849,6 +877,7 @@ export const App: React.FC = () => {
 
   // 3D Book Page Turning Callbacks (exact, obstacle-free page targets)
   const turnNext = useCallback(() => {
+    playSound('pageFlip');
     resetScrollDrive();
     if (tgtRef.current < 0.46) {
       tgtRef.current = 0.48; // Open cleanly to Page 1
@@ -868,6 +897,7 @@ export const App: React.FC = () => {
   }, [goTo, resetScrollDrive]);
 
   const turnPrev = useCallback(() => {
+    playSound('pageFlip');
     resetScrollDrive();
     if (tgtRef.current <= 0.485) {
       tgtRef.current = 0.38; // Cleanly close back to cover
@@ -886,6 +916,7 @@ export const App: React.FC = () => {
   }, [resetScrollDrive]);
 
   const handleCoverClick = useCallback(() => {
+    playSound('bookOpen');
     resetScrollDrive();
     if (tgtRef.current < 0.46) {
       tgtRef.current = 0.48;
@@ -1148,6 +1179,72 @@ export const App: React.FC = () => {
       }
       if (stageRef.current) {
         stageRef.current.dataset.dk = p > 0.07 && p < 0.28 ? '1' : '0';
+      }
+
+      // =========================================================
+      // SYNCHRONIZED SCROLL ANIMATION SOUND EFFECTS
+      // =========================================================
+      const sfx = scrollAudioStageRef.current;
+      const isMovingDown = vel >= 0;
+
+      if (isMovingDown) {
+        // 1. Transition: Landing Page -> About Me
+        // When the white screen slides from left to right across the screen (Thruster Whoosh)
+        if (p >= 0.035 && !sfx.heroToAbout) {
+          sfx.heroToAbout = true;
+          playSound('rocket');
+        }
+
+        // 2. Transition: About Me -> Builds (Wins / 3D Book)
+        // When the white page of About Me shifts to convert into the book of builds
+        // (triggered while the BUILDS written animation is in process: p >= 0.320, delayed by 0.4 seconds)
+        if (p >= 0.320 && !sfx.aboutToBuilds) {
+          sfx.aboutToBuilds = true;
+          if (aboutToBuildsTimerRef.current) clearTimeout(aboutToBuildsTimerRef.current);
+          aboutToBuildsTimerRef.current = setTimeout(() => {
+            playSound('cardFlip');
+          }, 400);
+        }
+
+        // Inside Builds: Book cover opens around spine revealing Page 1
+        if (p >= 0.415 && !sfx.bookOpen) {
+          sfx.bookOpen = true;
+          playSound('bookOpen');
+        }
+
+        // Inside Builds: Book cover & leaves swing shut together
+        if (p >= 0.612 && !sfx.bookClose) {
+          sfx.bookClose = true;
+          playSound('bookClose');
+        }
+
+        // 3. Transition: Builds -> Moments
+        // When the wins page disappears and moments 3D dome appears (Thruster Whoosh)
+        if (p >= 0.640 && !sfx.buildsToMoments) {
+          sfx.buildsToMoments = true;
+          playSound('rocket');
+        }
+
+        // 4. Transition: Moments -> Let's Connect
+        // When transitioning from Moments to Contact (3D Card Moment Flip sound)
+        if (p >= 0.885 && !sfx.momentsToContact) {
+          sfx.momentsToContact = true;
+          playSound('cardFlip');
+        }
+      } else {
+        // Reverse scroll hysteresis resets (allows natural replay when scrolling back down)
+        if (p < 0.85) sfx.momentsToContact = false;
+        if (p < 0.60) sfx.buildsToMoments = false;
+        if (p < 0.58) sfx.bookClose = false;
+        if (p < 0.38) sfx.bookOpen = false;
+        if (p < 0.28) {
+          sfx.aboutToBuilds = false;
+          if (aboutToBuildsTimerRef.current) {
+            clearTimeout(aboutToBuildsTimerRef.current);
+            aboutToBuildsTimerRef.current = null;
+          }
+        }
+        if (p < 0.02) sfx.heroToAbout = false;
       }
 
       // =========================================================
@@ -1518,6 +1615,14 @@ export const App: React.FC = () => {
           const turnProgress = sg(p, 0.48, 0.60) * 4;
           const activePage = Math.min(4, Math.max(0, Math.round(turnProgress)));
           activePageRef.current = activePage;
+          if (p >= 0.47 && p <= 0.61) {
+            if (lastSoundPageRef.current !== -1 && lastSoundPageRef.current !== activePage) {
+              playSound('pageFlip');
+            }
+            lastSoundPageRef.current = activePage;
+          } else {
+            lastSoundPageRef.current = -1;
+          }
 
           // -----------------------------------------------------
           // Step 7: Book Closes After Last Page!
@@ -2007,7 +2112,13 @@ export const App: React.FC = () => {
 
   // Toggle card inspection: 1st click pops card out in 3D, 2nd click docks it back!
   const handleCardClick = useCallback((idx: number) => {
-    setActiveCard((prev) => (prev === idx ? null : idx));
+    playSound('click');
+    setActiveCard((prev) => {
+      if (prev === idx) {
+        return null;
+      }
+      return idx;
+    });
   }, []);
 
   // Pre-generate 3D Globe Gallery (Inside view: 3 rows with clean ~36px vertical gap, concave curvature)
@@ -2108,272 +2219,236 @@ export const App: React.FC = () => {
         ref={stageRef}
         tabIndex={0}
       >
-      {/* Top Navbar */}
-      <nav className="nav">
-        <div className="nav-links" style={{ marginLeft: 'auto' }}>
-          {SECTIONS.map((sec, i) => (
-            <span
-              key={sec}
-              className={`l ${cur === i ? 'on' : ''}`}
-              onClick={() => goTo(i)}
-            >
-              {sec === 'ABOUT' ? (
-                <>AB<span id="nav-about-o">O</span>U<span id="nav-about-t">T</span></>
-              ) : (
-                sec
-              )}
-            </span>
-          ))}
-        </div>
-      </nav>
+        {/* Top Navbar */}
+        <nav className="nav">
+          <SoundToggle />
+          <div className="nav-links" style={{ marginLeft: 'auto' }}>
+            {SECTIONS.map((sec, i) => (
+              <span
+                key={sec}
+                className={`l ${cur === i ? 'on' : ''}`}
+                onClick={() => goTo(i)}
+              >
+                {sec === 'ABOUT' ? (
+                  <>AB<span id="nav-about-o">O</span>U<span id="nav-about-t">T</span></>
+                ) : (
+                  sec
+                )}
+              </span>
+            ))}
+          </div>
+        </nav>
 
-      {/* =========================================================
+        {/* =========================================================
           Panel 0: HERO
           ========================================================= */}
-      <section ref={p0Ref} className="pn p0" style={{ zIndex: 1 }}>
-        {/* Split Name: DEBASHREE on Left, MAL on Right in exact #EFEAE0 (Recessed BEHIND Robot, Z-Index: 2) */}
-        <div className="hero-split-name">
-          <span ref={hLeftRef} className="hero-name-left l">
-            <FoldText
-              text="DEBASHREE"
-              foldStyle="paper"
-              splitBy="char"
-              hinge="top"
-              trigger="mount"
-              foldAngle={92}
-              duration={0.72}
-              stagger={0.038}
-              staggerFrom="start"
-              ease="power2.out"
-              perspective={700}
-              creaseShading={0.48}
-              hoverRefold={true}
-              refoldRadius={140}
-              refoldAngle={40}
-              color="#EFEAE0"
-            />
-          </span>
-          <span ref={hRightRef} className="hero-name-right l">
-            <FoldText
-              text="MAL"
-              foldStyle="paper"
-              splitBy="char"
-              hinge="top"
-              trigger="mount"
-              delay={0.34}
-              foldAngle={92}
-              duration={0.72}
-              stagger={0.038}
-              staggerFrom="start"
-              ease="power2.out"
-              perspective={700}
-              creaseShading={0.48}
-              hoverRefold={true}
-              refoldRadius={140}
-              refoldAngle={40}
-              color="var(--rd, #8F9BFF)"
-            />
-          </span>
-        </div>
+        <section ref={p0Ref} className="pn p0" style={{ zIndex: 1 }}>
+          {/* Split Name: DEBASHREE on Left, MAL on Right in exact #EFEAE0 (Recessed BEHIND Robot, Z-Index: 2) */}
+          <div className="hero-split-name">
+            <span ref={hLeftRef} className="hero-name-left l">
+              <FoldText
+                text="DEBASHREE"
+                foldStyle="paper"
+                splitBy="char"
+                hinge="top"
+                trigger="mount"
+                foldAngle={92}
+                duration={0.72}
+                stagger={0.038}
+                staggerFrom="start"
+                ease="power2.out"
+                perspective={700}
+                creaseShading={0.48}
+                hoverRefold={true}
+                refoldRadius={140}
+                refoldAngle={40}
+                color="#EFEAE0"
+                onCharHover={() => playSound('click')}
+              />
+            </span>
+            <span ref={hRightRef} className="hero-name-right l">
+              <FoldText
+                text="MAL"
+                foldStyle="paper"
+                splitBy="char"
+                hinge="top"
+                trigger="mount"
+                delay={0.34}
+                foldAngle={92}
+                duration={0.72}
+                stagger={0.038}
+                staggerFrom="start"
+                ease="power2.out"
+                perspective={700}
+                creaseShading={0.48}
+                hoverRefold={true}
+                refoldRadius={140}
+                refoldAngle={40}
+                color="var(--rd, #8F9BFF)"
+                onCharHover={() => playSound('click')}
+              />
+            </span>
+          </div>
 
-        {/* Left Bottom Corner: Vertical Social Icons (Portfolio Cream #EFEAE0 with Red Hover) */}
-        <div ref={hSocialRef} className="hero-social-col">
-          <a
-            href="mailto:debashreee87@gmail.com"
-            className="hero-social-btn"
-            title="Email • debashreee87@gmail.com"
-            aria-label="Send Direct Email"
-          >
-            <FaEnvelope />
-          </a>
-          <a
-            href="https://github.com/debashree-08"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hero-social-btn"
-            title="GitHub • @debashree-08"
-            aria-label="GitHub Profile"
-          >
-            <FaGithub />
-          </a>
-          <a
-            href="https://www.linkedin.com/in/debashree-mal-118837269/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hero-social-btn"
-            title="LinkedIn • Debashree Mal"
-            aria-label="LinkedIn Profile"
-          >
-            <FaLinkedin />
-          </a>
-        </div>
+          {/* Left Bottom Corner: Vertical Social Icons (Portfolio Cream #EFEAE0 with Red Hover) */}
+          <div ref={hSocialRef} className="hero-social-col">
+            <a
+              href="mailto:debashreee87@gmail.com"
+              className="hero-social-btn"
+              title="Email • debashreee87@gmail.com"
+              aria-label="Send Direct Email"
+              onClick={() => playSound('stickerStamp')}
+            >
+              <FaEnvelope />
+            </a>
+            <a
+              href="https://github.com/debashree-08"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hero-social-btn"
+              title="GitHub • @debashree-08"
+              aria-label="GitHub Profile"
+              onClick={() => playSound('stickerStamp')}
+            >
+              <FaGithub />
+            </a>
+            <a
+              href="https://www.linkedin.com/in/debashree-mal-118837269/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hero-social-btn"
+              title="LinkedIn • Debashree Mal"
+              aria-label="LinkedIn Profile"
+              onClick={() => playSound('stickerStamp')}
+            >
+              <FaLinkedin />
+            </a>
+          </div>
 
-        {/* 3D Robot Model centered, in front of text (Z-Index: 10) */}
-        <div ref={hRobotRef} className="hero-robot-wrap">
-          <Suspense fallback={null}>
-            <HeroRobot isVisible={heroActive} />
-          </Suspense>
-        </div>
-      </section>
+          {/* 3D Robot Model centered, in front of text (Z-Index: 10) */}
+          <div ref={hRobotRef} className="hero-robot-wrap">
+            <Suspense fallback={null}>
+              <HeroRobot isVisible={heroActive} />
+            </Suspense>
+          </div>
+        </section>
 
-      {/* =========================================================
+        {/* =========================================================
           Panel 1: ABOUT (FULL SCREEN)
           ========================================================= */}
-      <section ref={p1Ref} className="pn p1" style={{ zIndex: 4, display: 'none' }}>
-        <div className="sheet" id="sheet" ref={sheetRef} />
+        <section ref={p1Ref} className="pn p1" style={{ zIndex: 4, display: 'none' }}>
+          <div className="sheet" id="sheet" ref={sheetRef} />
 
-        <div ref={aLRef} className="grp">
-          <div
-            style={{
-              position: 'absolute',
-              left: 'clamp(24px, 6vw, 84px)',
-              top: 'clamp(38px, 7.5vh, 85px)',
-              width: 'min(720px, 49vw)',
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
-            {/* ABOUT ME Title Group */}
+          <div ref={aLRef} className="grp">
             <div
               style={{
+                position: 'absolute',
+                left: 'clamp(24px, 6vw, 84px)',
+                top: 'clamp(38px, 7.5vh, 85px)',
+                width: 'min(720px, 49vw)',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '0.5px',
-                width: 'fit-content',
               }}
             >
-              <div
-                className="rv"
-                style={{
-                  position: 'relative',
-                  overflow: 'hidden',
-                  lineHeight: 0.9,
-                }}
-              >
-                <span
-                  ref={(el) => { aRevealsRef.current[0] = el; }}
-                  style={{
-                    font: '400 clamp(53px, 8.5vw, 125px)/.9 var(--an)',
-                    color: '#111',
-                    display: 'block',
-                  }}
-                >
-                  ABOUT
-                </span>
-              </div>
-              <div
-                className="rv"
-                style={{
-                  position: 'relative',
-                  overflow: 'hidden',
-                  lineHeight: 0.9,
-                }}
-              >
-                <span
-                  ref={(el) => { aRevealsRef.current[1] = el; }}
-                  style={{
-                    font: '400 clamp(53px, 8.5vw, 125px)/.9 var(--an)',
-                    color: '#111',
-                    display: 'block',
-                  }}
-                >
-                  ME
-                </span>
-              </div>
-            </div>
-
-            {/* Blue Underline Bar */}
-            <div
-              ref={aBarRef}
-              style={{
-                marginTop: 'clamp(8px, 1.2vh, 14px)',
-                marginBottom: 'clamp(12px, 1.6vh, 18px)',
-                width: 'clamp(60px, 8vw, 100px)',
-                height: 'clamp(6px, 0.8vh, 10px)',
-                background: 'var(--rd)',
-                transformOrigin: 'left',
-              }}
-            />
-
-            {/* Text Group (Cursive Subheading + 3 Paragraphs) */}
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 'clamp(14px, 2vh, 22px)',
-              }}
-            >
-              {/* Cursive Blue Subheading */}
-              <div className="rv" style={{ position: 'relative', overflow: 'hidden', padding: '2px 0 10px' }}>
-                <span
-                  ref={(el) => { aRevealsRef.current[2] = el; }}
-                  style={{
-                    fontFamily: 'var(--ks, "Kaushan Script", "Kalam", cursive)',
-                    fontSize: 'clamp(24px, 2.5vw, 35px)',
-                    fontWeight: 400,
-                    lineHeight: 1.3,
-                    color: 'var(--rd, #8F9BFF)',
-                    letterSpacing: '0.015em',
-                    display: 'block',
-                  }}
-                >
-                  Full-Stack Developer building AI-powered products, with a Designer’s eye.
-                </span>
-              </div>
-
-              {/* 3 Body Paragraphs with Specified Typography */}
+              {/* ABOUT ME Title Group */}
               <div
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: 'clamp(10px, 1.4vh, 16px)',
+                  gap: '0.5px',
+                  width: 'fit-content',
                 }}
               >
-                <div className="rv" style={{ position: 'relative', overflow: 'hidden' }}>
+                <div
+                  className="rv"
+                  style={{
+                    position: 'relative',
+                    overflow: 'hidden',
+                    lineHeight: 0.9,
+                  }}
+                >
                   <span
-                    ref={(el) => { aRevealsRef.current[3] = el; }}
+                    ref={(el) => { aRevealsRef.current[0] = el; }}
                     style={{
-                      fontFamily: 'var(--in, "Inter", system-ui, -apple-system, sans-serif)',
-                      fontWeight: 500,
-                      fontSize: 'clamp(15px, 1.3vw, 18px)',
-                      color: '#4a4a4a',
-                      letterSpacing: '0.005em',
-                      lineHeight: 1.38,
+                      font: '400 clamp(53px, 8.5vw, 125px)/.9 var(--an)',
+                      color: '#111',
                       display: 'block',
                     }}
                   >
-                    Computer Engineering student at Mumbai University, graduating 2028. I build AI products end to end, across the frontend, backend and database, for real problems faced by students, small businesses and everyday users.
+                    ABOUT
                   </span>
                 </div>
-                <div className="rv" style={{ position: 'relative', overflow: 'hidden' }}>
+                <div
+                  className="rv"
+                  style={{
+                    position: 'relative',
+                    overflow: 'hidden',
+                    lineHeight: 0.9,
+                  }}
+                >
                   <span
-                    ref={(el) => { aRevealsRef.current[4] = el; }}
+                    ref={(el) => { aRevealsRef.current[1] = el; }}
                     style={{
-                      fontFamily: 'var(--in, "Inter", system-ui, -apple-system, sans-serif)',
-                      fontWeight: 500,
-                      fontSize: 'clamp(15px, 1.3vw, 18px)',
-                      color: '#4a4a4a',
-                      letterSpacing: '0.005em',
-                      lineHeight: 1.38,
+                      font: '400 clamp(53px, 8.5vw, 125px)/.9 var(--an)',
+                      color: '#111',
                       display: 'block',
                     }}
                   >
-                    Sketching taught me to see before I build. Light and shade decide where the eye goes, so I design every screen to lead people to the right thing, without them noticing.
+                    ME
                   </span>
                 </div>
-                <div className="rv" style={{ position: 'relative', overflow: 'hidden', borderRadius: '10px' }}>
-                  <div
-                    ref={(el) => { aRevealsRef.current[5] = el; }}
+              </div>
+
+              {/* Blue Underline Bar */}
+              <div
+                ref={aBarRef}
+                style={{
+                  marginTop: 'clamp(8px, 1.2vh, 14px)',
+                  marginBottom: 'clamp(12px, 1.6vh, 18px)',
+                  width: 'clamp(60px, 8vw, 100px)',
+                  height: 'clamp(6px, 0.8vh, 10px)',
+                  background: 'var(--rd)',
+                  transformOrigin: 'left',
+                }}
+              />
+
+              {/* Text Group (Cursive Subheading + 3 Paragraphs) */}
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 'clamp(14px, 2vh, 22px)',
+                }}
+              >
+                {/* Cursive Blue Subheading */}
+                <div className="rv" style={{ position: 'relative', overflow: 'hidden', padding: '2px 0 10px' }}>
+                  <span
+                    ref={(el) => { aRevealsRef.current[2] = el; }}
                     style={{
-                      background: 'transparent',
-                      border: '1px solid #d6d1c4',
-                      borderLeft: '5px solid var(--rd, #8F9BFF)',
-                      borderRadius: '10px',
-                      padding: 'clamp(9px, 1.2vh, 12px) clamp(13px, 1.4vw, 17px)',
-                      boxSizing: 'border-box',
+                      fontFamily: 'var(--ks, "Kaushan Script", "Kalam", cursive)',
+                      fontSize: 'clamp(24px, 2.5vw, 35px)',
+                      fontWeight: 400,
+                      lineHeight: 1.3,
+                      color: 'var(--rd, #8F9BFF)',
+                      letterSpacing: '0.015em',
+                      display: 'block',
                     }}
                   >
+                    Full-Stack Developer building AI-powered products, with a Designer’s eye.
+                  </span>
+                </div>
+
+                {/* 3 Body Paragraphs with Specified Typography */}
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 'clamp(10px, 1.4vh, 16px)',
+                  }}
+                >
+                  <div className="rv" style={{ position: 'relative', overflow: 'hidden' }}>
                     <span
+                      ref={(el) => { aRevealsRef.current[3] = el; }}
                       style={{
                         fontFamily: 'var(--in, "Inter", system-ui, -apple-system, sans-serif)',
                         fontWeight: 500,
@@ -2384,635 +2459,699 @@ export const App: React.FC = () => {
                         display: 'block',
                       }}
                     >
-                      Open to internships in full-stack and AI roles, where an idea can become a live product.
+                      Computer Engineering student at Mumbai University, graduating 2028. I build AI products end to end, across the frontend, backend and database, for real problems faced by students, small businesses and everyday users.
                     </span>
+                  </div>
+                  <div className="rv" style={{ position: 'relative', overflow: 'hidden' }}>
+                    <span
+                      ref={(el) => { aRevealsRef.current[4] = el; }}
+                      style={{
+                        fontFamily: 'var(--in, "Inter", system-ui, -apple-system, sans-serif)',
+                        fontWeight: 500,
+                        fontSize: 'clamp(15px, 1.3vw, 18px)',
+                        color: '#4a4a4a',
+                        letterSpacing: '0.005em',
+                        lineHeight: 1.38,
+                        display: 'block',
+                      }}
+                    >
+                      Sketching taught me to see before I build. Light and shade decide where the eye goes, so I design every screen to lead people to the right thing, without them noticing.
+                    </span>
+                  </div>
+                  <div className="rv" style={{ position: 'relative', overflow: 'hidden', borderRadius: '10px' }}>
+                    <div
+                      ref={(el) => { aRevealsRef.current[5] = el; }}
+                      style={{
+                        background: 'transparent',
+                        border: '1px solid #d6d1c4',
+                        borderLeft: '5px solid var(--rd, #8F9BFF)',
+                        borderRadius: '10px',
+                        padding: 'clamp(9px, 1.2vh, 12px) clamp(13px, 1.4vw, 17px)',
+                        boxSizing: 'border-box',
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontFamily: 'var(--in, "Inter", system-ui, -apple-system, sans-serif)',
+                          fontWeight: 500,
+                          fontSize: 'clamp(15px, 1.3vw, 18px)',
+                          color: '#4a4a4a',
+                          letterSpacing: '0.005em',
+                          lineHeight: 1.38,
+                          display: 'block',
+                        }}
+                      >
+                        Open to internships in full-stack and AI roles, where an idea can become a live product.
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Pill Badges */}
-          <div
-            ref={(el) => { pillsRef.current[0] = el; }}
-            className="pill"
-            style={{
-              left: 'clamp(24px, 6vw, 84px)',
-              bottom: 'clamp(40px, 8vh, 80px)',
-            }}
-          >
-            1ST / AXION HACKATHON
-          </div>
-          <div
-            ref={(el) => { pillsRef.current[1] = el; }}
-            className="pill"
-            style={{
-              left: 'calc(clamp(24px, 6vw, 84px) + clamp(170px, 18vw, 240px))',
-              bottom: 'clamp(40px, 8vh, 80px)',
-            }}
-          >
-            5+ PROJECTS
-          </div>
-          <div
-            ref={(el) => { pillsRef.current[2] = el; }}
-            className="pill"
-            style={{
-              left: 'calc(clamp(24px, 6vw, 84px) + clamp(280px, 28vw, 370px))',
-              bottom: 'clamp(40px, 8vh, 80px)',
-            }}
-          >
-            MUMBAI
-          </div>
-        </div>
-
-        {/* Full-screen Dark Backdrop for Sketches Showcase (matching Landing Page #0E0E10) */}
-        <div
-          className="sketch-showcase-backdrop"
-          style={{
-            position: 'absolute',
-            inset: 0,
-            zIndex: 99990,
-            background: '#0E0E10',
-            opacity: sketchModalStage !== 'idle' ? 1 : 0,
-            pointerEvents: sketchModalStage !== 'idle' ? 'auto' : 'none',
-            transition: 'opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
-          }}
-        >
-          {/* Close Button matching Contact Modal Say Hello */}
-          {sketchModalStage !== 'idle' && (
-            <button
-              type="button"
-              className="sketch-modal-close-btn"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleCloseSketchShowcase();
+            {/* Pill Badges */}
+            <div
+              ref={(el) => { pillsRef.current[0] = el; }}
+              className="pill"
+              style={{
+                left: 'clamp(24px, 6vw, 84px)',
+                bottom: 'clamp(40px, 8vh, 80px)',
               }}
-              aria-label="Close"
+            >
+              1ST / AXION HACKATHON
+            </div>
+            <div
+              ref={(el) => { pillsRef.current[1] = el; }}
+              className="pill"
+              style={{
+                left: 'calc(clamp(24px, 6vw, 84px) + clamp(170px, 18vw, 240px))',
+                bottom: 'clamp(40px, 8vh, 80px)',
+              }}
+            >
+              5+ PROJECTS
+            </div>
+            <div
+              ref={(el) => { pillsRef.current[2] = el; }}
+              className="pill"
+              style={{
+                left: 'calc(clamp(24px, 6vw, 84px) + clamp(280px, 28vw, 370px))',
+                bottom: 'clamp(40px, 8vh, 80px)',
+              }}
+            >
+              MUMBAI
+            </div>
+          </div>
+
+          {/* Full-screen Dark Backdrop for Sketches Showcase (matching Landing Page #0E0E10) */}
+          <div
+            className="sketch-showcase-backdrop"
+            style={{
+              position: 'absolute',
+              inset: 0,
+              zIndex: 99990,
+              background: '#0E0E10',
+              opacity: sketchModalStage !== 'idle' ? 1 : 0,
+              pointerEvents: sketchModalStage !== 'idle' ? 'auto' : 'none',
+              transition: 'opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
+            }}
+          >
+            {/* Close Button matching Contact Modal Say Hello */}
+            {sketchModalStage !== 'idle' && (
+              <button
+                type="button"
+                className="sketch-modal-close-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  playSound('pop');
+                  handleCloseSketchShowcase();
+                }}
+                aria-label="Close"
+                style={{
+                  position: 'absolute',
+                  top: 'clamp(20px, 4vh, 36px)',
+                  right: 'clamp(24px, 5vw, 64px)',
+                  zIndex: 100001,
+                  pointerEvents: 'auto',
+                }}
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            )}
+          </div>
+
+          <div ref={aRRef} className="grp">
+            {/* Red circle */}
+            <div ref={aCircRef} className="circ" />
+
+            {/* Arch cutout */}
+            <div ref={aPhRef} className="ph1">
+              <img
+                src={debashreePhoto}
+                alt="Debashree Mal"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  objectPosition: 'center 10%',
+                  filter: 'drop-shadow(0 10px 22px rgba(0, 0, 0, 0.2)) contrast(1.04) brightness(1.02)',
+                }}
+              />
+            </div>
+
+            <div
+              ref={tg1Ref}
+              className="tag"
+              style={{
+                background: 'rgba(18, 18, 22, 0.78)',
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
+                border: '1px solid rgba(255, 255, 255, 0.16)',
+                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
+                color: 'var(--cr)',
+              }}
+            >
+              CE '28
+            </div>
+            <div
+              ref={tg2Ref}
+              onMouseEnter={() => {
+                if (sketchModalStage === 'centered') {
+                  playPeekWhoosh();
+                }
+              }}
+              onClick={(e) => {
+                if (sketchModalStage === 'idle') {
+                  e.stopPropagation();
+                  handleOpenCenteredShowcase();
+                } else if (sketchModalStage === 'centered') {
+                  e.stopPropagation();
+                  playSound('folderOpen');
+                  setSketchModalStage('open');
+                } else if (sketchModalStage === 'open') {
+                  // Prevent closing when clicking on folder while open; only cross button exits
+                  e.stopPropagation();
+                }
+              }}
               style={{
                 position: 'absolute',
-                top: 'clamp(20px, 4vh, 36px)',
-                right: 'clamp(24px, 5vw, 64px)',
-                zIndex: 100001,
+                cursor: 'pointer',
+                zIndex: sketchModalStage !== 'idle' ? 100000 : 25,
                 pointerEvents: 'auto',
               }}
             >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
-          )}
-        </div>
-
-        <div ref={aRRef} className="grp">
-          {/* Red circle */}
-          <div ref={aCircRef} className="circ" />
-
-          {/* Arch cutout */}
-          <div ref={aPhRef} className="ph1">
-            <img
-              src={debashreePhoto}
-              alt="Debashree Mal"
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                objectPosition: 'center 10%',
-                filter: 'drop-shadow(0 10px 22px rgba(0, 0, 0, 0.2)) contrast(1.04) brightness(1.02)',
-              }}
-            />
-          </div>
-
-          <div
-            ref={tg1Ref}
-            className="tag"
-            style={{
-              background: 'rgba(18, 18, 22, 0.78)',
-              backdropFilter: 'blur(12px)',
-              WebkitBackdropFilter: 'blur(12px)',
-              border: '1px solid rgba(255, 255, 255, 0.16)',
-              boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
-              color: 'var(--cr)',
-            }}
-          >
-            CE '28
-          </div>
-          <div
-            ref={tg2Ref}
-            onClick={(e) => {
-              if (sketchModalStage === 'idle') {
-                e.stopPropagation();
-                handleOpenCenteredShowcase();
-              } else if (sketchModalStage === 'centered') {
-                e.stopPropagation();
-                setSketchModalStage('open');
-              } else if (sketchModalStage === 'open') {
-                // Prevent closing when clicking on folder while open; only cross button exits
-                e.stopPropagation();
-              }
-            }}
-            style={{
-              position: 'absolute',
-              cursor: 'pointer',
-              zIndex: sketchModalStage !== 'idle' ? 100000 : 25,
-              pointerEvents: 'auto',
-            }}
-          >
-            <div
-              style={{
-                transform: sketchModalStage !== 'idle'
-                  ? (sketchModalStage === 'open' ? 'scale(1.06)' : 'scale(1)')
-                  : 'scale(1)',
-                transformOrigin: 'center center',
-                transition: 'transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), filter 0.45s cubic-bezier(0.16, 1, 0.3, 1)',
-                filter: sketchModalStage !== 'idle'
-                  ? 'none'
-                  : 'drop-shadow(0 10px 22px rgba(0, 0, 0, 0.32))',
-              }}
-            >
-              <Folder
-                frontLabel={sketchModalStage === 'idle' ? 'SKETCHES' : undefined}
-                label={sketchModalStage !== 'idle' ? 'SKETCHES' : ''}
-                items={SKETCHES}
-                size={sketchModalStage !== 'idle' ? 1.65 : 0.34}
-                color="#2e2e34"
-                paperColor="#FDFBF7"
-                variant="solid"
-                mode="flap"
-                theme="dark"
-                tabPosition="right"
-                intro={false}
-                peek={sketchModalStage === 'centered'}
-                draggable={true}
-                zoomOnClick={true}
-                open={sketchModalStage === 'open'}
-                onOpenChange={(open) => {
-                  if (sketchModalStage === 'idle') {
-                    handleOpenCenteredShowcase();
-                  } else if (sketchModalStage === 'centered') {
-                    if (open) setSketchModalStage('open');
-                  }
-                  // When already open, do not close showcase on folder toggle; only cross button closes
+              <div
+                style={{
+                  transform: sketchModalStage !== 'idle'
+                    ? (sketchModalStage === 'open' ? 'scale(1.06)' : 'scale(1)')
+                    : 'scale(1)',
+                  transformOrigin: 'center center',
+                  transition: 'transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), filter 0.45s cubic-bezier(0.16, 1, 0.3, 1)',
+                  filter: sketchModalStage !== 'idle'
+                    ? 'none'
+                    : 'drop-shadow(0 10px 22px rgba(0, 0, 0, 0.32))',
                 }}
-              />
+              >
+                <Folder
+                  frontLabel={sketchModalStage === 'idle' ? 'SKETCHES' : undefined}
+                  label={sketchModalStage !== 'idle' ? 'SKETCHES' : ''}
+                  items={SKETCHES}
+                  size={sketchModalStage !== 'idle' ? 1.65 : 0.34}
+                  color="#2e2e34"
+                  paperColor="#FDFBF7"
+                  variant="solid"
+                  mode="flap"
+                  theme="dark"
+                  tabPosition="right"
+                  intro={false}
+                  peek={sketchModalStage === 'centered'}
+                  onPeek={playPeekWhoosh}
+                  draggable={true}
+                  zoomOnClick={true}
+                  onItemClick={() => {
+                    playSound('folderOpen');
+                  }}
+                  open={sketchModalStage === 'open'}
+                  onOpenChange={(open) => {
+                    if (sketchModalStage === 'idle') {
+                      handleOpenCenteredShowcase();
+                    } else if (sketchModalStage === 'centered') {
+                      if (open) {
+                        playSound('folderOpen');
+                        setSketchModalStage('open');
+                      }
+                    }
+                    // When already open, do not close showcase on folder toggle; only cross button closes
+                  }}
+                />
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* =========================================================
+        {/* =========================================================
           Panel 2: WINS (AUTHENTIC 3D BOOK / JOURNAL)
           ========================================================= */}
-      <section ref={p2Ref} className="pn p2" style={{ zIndex: 2, display: 'none' }}>
-        <div ref={bookStageRef} className="book-3d-stage">
-          {/* Dynamic Floor Shadow */}
-          <div ref={bookShadowRef} className="book-floor-shadow" />
+        <section ref={p2Ref} className="pn p2" style={{ zIndex: 2, display: 'none' }}>
+          <div ref={bookStageRef} className="book-3d-stage">
+            {/* Dynamic Floor Shadow */}
+            <div ref={bookShadowRef} className="book-floor-shadow" />
 
-          {/* 3D Book Assemble Wrapper */}
-          <div ref={bookWrapRef} className="book-wrap">
-            {/* Back Hardback Cover */}
-            <div ref={bookBackRef} className="book-back-cover" />
+            {/* 3D Book Assemble Wrapper */}
+            <div ref={bookWrapRef} className="book-wrap">
+              {/* Back Hardback Cover */}
+              <div ref={bookBackRef} className="book-back-cover" />
 
-            {/* Bound Spine Edge on Left */}
-            <div ref={bookSpineRef} className="book-spine">
-              <div className="book-spine-rib" />
-              <div className="book-spine-rib" />
-              <div className="book-spine-rib" />
-            </div>
-
-            {/* 3D Paper Fore-Edge on Right */}
-            <div ref={bookForeRef} className="book-fore-edge" />
-
-            {/* 3D Paper Top Edge */}
-            <div ref={bookTopEdgeRef} className="book-top-edge" />
-
-            {/* 3D Paper Bottom Edge */}
-            <div ref={bookBotEdgeRef} className="book-bot-edge" />
-
-            {/* Master Open 2-Page Spread Container */}
-            <div
-              ref={bookSpreadRef}
-              className="book-page-spread"
-              style={{ display: 'none' }}
-            >
-              {/* Base Right Page: Fixed base underneath right stack (Project 4: Sulajh AI Right) */}
-              <div
-                ref={baseRightRef}
-                className="book-base-right"
-                onClick={(e) => {
-                  if ((e.target as Element)?.closest?.('.cta, .gallery, .tabs, .ref-badge, button, a, input, select, textarea')) return;
-                  turnNext();
-                }}
-              >
-                {renderProjectRight(PROJECTS_DATA[4])}
+              {/* Bound Spine Edge on Left */}
+              <div ref={bookSpineRef} className="book-spine">
+                <div className="book-spine-rib" />
+                <div className="book-spine-rib" />
+                <div className="book-spine-rib" />
               </div>
 
-              {/* 4 Physical 3D Turning Leaves */}
-              {[0, 1, 2, 3].map((i) => (
+              {/* 3D Paper Fore-Edge on Right */}
+              <div ref={bookForeRef} className="book-fore-edge" />
+
+              {/* 3D Paper Top Edge */}
+              <div ref={bookTopEdgeRef} className="book-top-edge" />
+
+              {/* 3D Paper Bottom Edge */}
+              <div ref={bookBotEdgeRef} className="book-bot-edge" />
+
+              {/* Master Open 2-Page Spread Container */}
+              <div
+                ref={bookSpreadRef}
+                className="book-page-spread"
+                style={{ display: 'none' }}
+              >
+                {/* Base Right Page: Fixed base underneath right stack (Project 4: Sulajh AI Right) */}
                 <div
-                  key={`leaf-${i}`}
-                  ref={(el) => { leafRefs.current[i] = el; }}
-                  className="book-leaf-item"
+                  ref={baseRightRef}
+                  className="book-base-right"
+                  onClick={(e) => {
+                    if ((e.target as Element)?.closest?.('.cta, .gallery, .tabs, .ref-badge, button, a, input, select, textarea')) return;
+                    turnNext();
+                  }}
                 >
-                  <div
-                    className="leaf-face-front"
-                    onClick={(e) => {
-                      if ((e.target as Element)?.closest?.('.cta, .gallery, .tabs, .ref-badge, button, a, input, select, textarea')) return;
-                      turnNext();
-                    }}
-                  >
-                    {renderProjectRight(PROJECTS_DATA[i])}
-                  </div>
-                  <div
-                    className="leaf-face-back"
-                    onClick={(e) => {
-                      if ((e.target as Element)?.closest?.('.cta, .gallery, .tabs, .ref-badge, button, a, input, select, textarea')) return;
-                      turnPrev();
-                    }}
-                  >
-                    {renderProjectLeft(PROJECTS_DATA[i + 1])}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Front Hardback Cover */}
-            <div
-              ref={bookCoverRef}
-              className="book-cover"
-              onClick={(e) => {
-                if ((e.target as Element)?.closest?.('.cta, .gallery, .tabs, .ref-badge, button, a, input, select, textarea')) return;
-                handleCoverClick();
-              }}
-            >
-              {/* Front Face: The cream sheet that scales from full-screen down to the book */}
-              <div ref={bookFrontRef} className="book-cover-front">
-                <div ref={bookSpineStripRef} className="book-cover-spine-strip" aria-hidden="true" />
-
-                <div ref={bookCoverFrameRef} className="book-cover-frame">
-                  <p className="book-cover-eyebrow">Proof of work</p>
-                  <div className="book-cover-spacer" />
-                  <div ref={bookTitleWrapRef} className="book-cover-title-wrap">
-                    {['B', 'U', 'I', 'L', 'D', 'S'].map((ch, i) => (
-                      <span
-                        key={ch + i}
-                        ref={(el) => { bookLetterRefs.current[i] = el; }}
-                        className="book-cover-letter"
-                      >
-                        {ch}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="book-cover-bar" />
-                  <p className="book-cover-desc">Hackathon wins &amp; shipped systems</p>
-                  <p className="book-cover-script">Think. Build. Launch.</p>
-                  <div className="book-cover-foot">
-                    <p className="book-cover-who">DEBASHREE MAL<span>CE ’28</span></p>
-                    <p className="book-cover-yr">2024–2026</p>
-                  </div>
+                  {renderProjectRight(PROJECTS_DATA[4])}
                 </div>
 
-                {/* Specular sheen gliding across the cover */}
-                <div ref={bookShineRef} className="book-shine" />
+                {/* 4 Physical 3D Turning Leaves */}
+                {[0, 1, 2, 3].map((i) => (
+                  <div
+                    key={`leaf-${i}`}
+                    ref={(el) => { leafRefs.current[i] = el; }}
+                    className="book-leaf-item"
+                  >
+                    <div
+                      className="leaf-face-front"
+                      onClick={(e) => {
+                        if ((e.target as Element)?.closest?.('.cta, .gallery, .tabs, .ref-badge, button, a, input, select, textarea')) return;
+                        turnNext();
+                      }}
+                    >
+                      {renderProjectRight(PROJECTS_DATA[i])}
+                    </div>
+                    <div
+                      className="leaf-face-back"
+                      onClick={(e) => {
+                        if ((e.target as Element)?.closest?.('.cta, .gallery, .tabs, .ref-badge, button, a, input, select, textarea')) return;
+                        turnPrev();
+                      }}
+                    >
+                      {renderProjectLeft(PROJECTS_DATA[i + 1])}
+                    </div>
+                  </div>
+                ))}
               </div>
 
-              {/* Back Face of Cover: Spread 1 Left (Flowmind Left) */}
+              {/* Front Hardback Cover */}
               <div
-                ref={baseLeftRef}
-                className="book-cover-back"
+                ref={bookCoverRef}
+                className="book-cover"
                 onClick={(e) => {
                   if ((e.target as Element)?.closest?.('.cta, .gallery, .tabs, .ref-badge, button, a, input, select, textarea')) return;
-                  turnPrev();
+                  handleCoverClick();
                 }}
               >
-                {renderProjectLeft(PROJECTS_DATA[0])}
+                {/* Front Face: The cream sheet that scales from full-screen down to the book */}
+                <div ref={bookFrontRef} className="book-cover-front">
+                  <div ref={bookSpineStripRef} className="book-cover-spine-strip" aria-hidden="true" />
+
+                  <div ref={bookCoverFrameRef} className="book-cover-frame">
+                    <p className="book-cover-eyebrow">Proof of work</p>
+                    <div className="book-cover-spacer" />
+                    <div ref={bookTitleWrapRef} className="book-cover-title-wrap">
+                      {['B', 'U', 'I', 'L', 'D', 'S'].map((ch, i) => (
+                        <span
+                          key={ch + i}
+                          ref={(el) => { bookLetterRefs.current[i] = el; }}
+                          className="book-cover-letter"
+                        >
+                          {ch}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="book-cover-bar" />
+                    <p className="book-cover-desc">Hackathon wins &amp; shipped systems</p>
+                    <p className="book-cover-script">Think. Build. Launch.</p>
+                    <div className="book-cover-foot">
+                      <p className="book-cover-who">DEBASHREE MAL<span>CE ’28</span></p>
+                      <p className="book-cover-yr">2024–2026</p>
+                    </div>
+                  </div>
+
+                  {/* Specular sheen gliding across the cover */}
+                  <div ref={bookShineRef} className="book-shine" />
+                </div>
+
+                {/* Back Face of Cover: Spread 1 Left (Flowmind Left) */}
+                <div
+                  ref={baseLeftRef}
+                  className="book-cover-back"
+                  onClick={(e) => {
+                    if ((e.target as Element)?.closest?.('.cta, .gallery, .tabs, .ref-badge, button, a, input, select, textarea')) return;
+                    turnPrev();
+                  }}
+                >
+                  {renderProjectLeft(PROJECTS_DATA[0])}
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Floating Controls */}
+            <div ref={bookControlsRef} className="book-controls">
+              <div className="book-nav-bar">
+                <button
+                  type="button"
+                  ref={bookPrevBtnRef}
+                  className="book-nav-btn"
+                  onClick={() => turnPrev()}
+                >
+                  ‹ PREV
+                </button>
+                <div className="book-page-pill">
+                  <span ref={bookCounterRef}>
+                    01 / 05
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  ref={bookNextBtnRef}
+                  className="book-nav-btn"
+                  onClick={() => turnNext()}
+                >
+                  NEXT ›
+                </button>
               </div>
             </div>
           </div>
+        </section>
 
-          {/* Bottom Floating Controls */}
-          <div ref={bookControlsRef} className="book-controls">
-            <div className="book-nav-bar">
-              <button
-                type="button"
-                ref={bookPrevBtnRef}
-                className="book-nav-btn"
-                onClick={() => turnPrev()}
-              >
-                ‹ PREV
-              </button>
-              <div className="book-page-pill">
-                <span ref={bookCounterRef}>
-                  01 / 05
-                </span>
-              </div>
-              <button
-                type="button"
-                ref={bookNextBtnRef}
-                className="book-nav-btn"
-                onClick={() => turnNext()}
-              >
-                NEXT ›
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* =========================================================
+        {/* =========================================================
           Panel 3: MOMENTS (REACT BITS CIRCULAR CAROUSEL)
           ========================================================= */}
-      <section ref={p4Ref} className="pn p4" style={{ zIndex: 4, display: 'none' }}>
-        <div
-          className="domew"
-          id="domew"
-          ref={domewRef}
-          style={{ perspective: `${domeConfig.perspective}px` }}
-        >
-          <div className="dome" id="dome" ref={domeRef}>
-            {domeTiles}
-          </div>
-        </div>
-        <div className="vg2" />
-        <div
-          ref={mtlRef}
-          style={{
-            position: 'absolute',
-            left: 'clamp(24px, 5.5vw, 72px)',
-            top: 'clamp(50px, 10vh, 100px)',
-            font: '400 clamp(48px, 6.5vw, 92px)/.9 var(--an)',
-            color: 'var(--cr)',
-            pointerEvents: 'none',
-            zIndex: 10,
-          }}
-        >
-          MOMENTS
-        </div>
-
-        {/* 3D Pop-Out Expanded Card (1st click pops out, 2nd click docks back to place) */}
-        {activeCard !== null && (() => {
-          const r = Math.floor(activeCard / domeConfig.cols);
-          const i = activeCard % domeConfig.cols;
-          const mId = MOMENTS_GRID[r]?.[i] ?? 14;
-          const activeItem = MOMENTS_MAP[mId] || MOMENTS_ITEMS[0];
-
-          return (
-            <div
-              className="moments-modal-backdrop"
-              onClick={() => setActiveCard(null)}
-            >
-              <div
-                className="moments-modal-card-3d"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setActiveCard(null); // 2nd click on the card returns it back to its place!
-                }}
-                style={{
-                  background: activeItem.color,
-                  color: activeItem.color === '#171719' ? '#EFEAE0' : '#111',
-                  border: activeItem.color === '#171719' ? '1px solid rgba(255, 255, 255, 0.2)' : '2px solid #111',
-                }}
-              >
-                {/* Card Header */}
-                <div className="mm-card-head">
-                  <span className="mm-badge">
-                    {activeItem.category}
-                  </span>
-                  <span className="mm-num">
-                    #{('0' + activeItem.id).slice(-2)}
-                  </span>
-                </div>
-
-                {/* Card Center Visual: High-res Portrait Photograph */}
-                <div className="mm-card-img-wrap">
-                  <img
-                    src={activeItem.img}
-                    alt={activeItem.title}
-                    className="mm-card-img"
-                  />
-                </div>
-
-                {/* Card Body */}
-                <div className="mm-card-body">
-                  <div className="mm-tag">{activeItem.tag}</div>
-                  <h3 className="mm-title">{activeItem.title}</h3>
-                  <p className="mm-desc">{activeItem.desc}</p>
-                </div>
-
-                {/* Card Footer */}
-                <div className="mm-card-foot">
-                  <span className="mm-year">{activeItem.date} • MUMBAI</span>
-                  <button
-                    className="mm-close-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setActiveCard(null);
-                    }}
-                  >
-                    CLICK TO DOCK ✕
-                  </button>
-                </div>
-              </div>
-            </div>
-          );
-        })()}
-      </section>
-
-      {/* =========================================================
-          Panel 4: LET'S CONNECT (LAST SCREEN)
-          ========================================================= */}
-      <section ref={p5Ref} className="pn p5" style={{ zIndex: 5, display: 'none' }}>
-        {/* Ambient Top Title */}
-        <div
-          ref={cTitleRef}
-          style={{
-            position: 'absolute',
-            top: 'clamp(50px, 10vh, 90px)',
-            left: 'clamp(24px, 5.5vw, 72px)',
-            right: 'clamp(24px, 5.5vw, 72px)',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            zIndex: 10,
-          }}
-        >
-          <div>
-            <span
-              style={{
-                fontFamily: 'var(--bn, "Bebas Neue", "Anton", sans-serif)',
-                fontSize: 'clamp(54px, 8.5vw, 120px)',
-                lineHeight: 0.9,
-                color: '#EFEAE0',
-                letterSpacing: '0.02em',
-                display: 'block',
-                textTransform: 'uppercase',
-                userSelect: 'none',
-              }}
-              className="lets-connect-heading"
-            >
-              LET'S CONNEC<span id="connect-alpha-t">T</span>
-            </span>
-          </div>
-        </div>
-
-        {/* SAY HELLO Flying Rocket Button & Center Quote */}
-        <div
-          ref={cSayHelloRef}
-          style={{
-            position: 'absolute',
-            left: 0,
-            right: 0,
-            top: 0,
-            bottom: 'calc(clamp(260px, 42vh, 440px) + 6px)',
-            zIndex: 15,
-            opacity: 0,
-            pointerEvents: 'none',
-          }}
-        >
-          {/* Centered Quote line aligned with SAY HELLO rocket */}
+        <section ref={p4Ref} className="pn p4" style={{ zIndex: 4, display: 'none' }}>
           <div
-            className="contact-shipping-quote"
+            className="domew"
+            id="domew"
+            ref={domewRef}
+            style={{ perspective: `${domeConfig.perspective}px` }}
+          >
+            <div className="dome" id="dome" ref={domeRef}>
+              {domeTiles}
+            </div>
+          </div>
+          <div className="vg2" />
+          <div
+            ref={mtlRef}
             style={{
               position: 'absolute',
-              bottom: '10px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              pointerEvents: 'auto',
-              whiteSpace: 'nowrap',
-              zIndex: 2,
+              left: 'clamp(24px, 5.5vw, 72px)',
+              top: 'clamp(50px, 10vh, 100px)',
+              font: '400 clamp(48px, 6.5vw, 92px)/.9 var(--an)',
+              color: 'var(--cr)',
+              pointerEvents: 'none',
+              zIndex: 10,
             }}
           >
-            “Let’s build something worth shipping.”
+            MOMENTS
           </div>
 
-          <FlyingButton
-            theme="dark"
-            size="medium"
-            altitude={220}
-            hoverTime={2.4}
-            jets={2}
-            thrusters
-            trigger="click"
-            carryCursor
-            smoke={1.2}
-            turbulence={1.2}
-            wobble={1}
-            ramp={false}
-            buttonAlign="right"
-            buttonRight={() => Math.round(Math.max(40, Math.min(68, window.innerWidth * 0.025 + 32)))}
-            thrustColor="#8F9BFF"
-            smokeColor="#EFEAE0"
-            buttonColor="#18181b"
-            textColor="#EFEAE0"
+          {/* 3D Pop-Out Expanded Card (1st click pops out, 2nd click docks back to place) */}
+          {activeCard !== null && (() => {
+            const r = Math.floor(activeCard / domeConfig.cols);
+            const i = activeCard % domeConfig.cols;
+            const mId = MOMENTS_GRID[r]?.[i] ?? 14;
+            const activeItem = MOMENTS_MAP[mId] || MOMENTS_ITEMS[0];
+
+            return (
+              <div
+                className="moments-modal-backdrop"
+                onClick={() => {
+                  playSound('click');
+                  setActiveCard(null);
+                }}
+              >
+                <div
+                  className="moments-modal-card-3d"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    playSound('click');
+                    setActiveCard(null); // 2nd click on the card returns it back to its place!
+                  }}
+                  style={{
+                    background: activeItem.color,
+                    color: activeItem.color === '#171719' ? '#EFEAE0' : '#111',
+                    border: activeItem.color === '#171719' ? '1px solid rgba(255, 255, 255, 0.2)' : '2px solid #111',
+                  }}
+                >
+                  {/* Card Header */}
+                  <div className="mm-card-head">
+                    <span className="mm-badge">
+                      {activeItem.category}
+                    </span>
+                    <span className="mm-num">
+                      #{('0' + activeItem.id).slice(-2)}
+                    </span>
+                  </div>
+
+                  {/* Card Center Visual: High-res Portrait Photograph */}
+                  <div className="mm-card-img-wrap">
+                    <img
+                      src={activeItem.img}
+                      alt={activeItem.title}
+                      className="mm-card-img"
+                    />
+                  </div>
+
+                  {/* Card Body */}
+                  <div className="mm-card-body">
+                    <div className="mm-tag">{activeItem.tag}</div>
+                    <h3 className="mm-title">{activeItem.title}</h3>
+                    <p className="mm-desc">{activeItem.desc}</p>
+                  </div>
+
+                  {/* Card Footer */}
+                  <div className="mm-card-foot">
+                    <span className="mm-year">{activeItem.date} • MUMBAI</span>
+                    <button
+                      className="mm-close-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveCard(null);
+                      }}
+                    >
+                      CLICK TO DOCK ✕
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+        </section>
+
+        {/* =========================================================
+          Panel 4: LET'S CONNECT (LAST SCREEN)
+          ========================================================= */}
+        <section ref={p5Ref} className="pn p5" style={{ zIndex: 5, display: 'none' }}>
+          {/* Ambient Top Title */}
+          <div
+            ref={cTitleRef}
             style={{
-              '--fly-px': '18px',
-              '--fly-h': '40px',
-              '--fly-fs': '13px',
-            } as React.CSSProperties}
-            onClick={() => {
-              setIsContactModalOpen(true);
+              position: 'absolute',
+              top: 'clamp(50px, 10vh, 90px)',
+              left: 'clamp(24px, 5.5vw, 72px)',
+              right: 'clamp(24px, 5.5vw, 72px)',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              zIndex: 10,
             }}
           >
-            SAY HELLO
-          </FlyingButton>
-        </div>
+            <div>
+              <span
+                style={{
+                  fontFamily: 'var(--bn, "Bebas Neue", "Anton", sans-serif)',
+                  fontSize: 'clamp(54px, 8.5vw, 120px)',
+                  lineHeight: 0.9,
+                  color: '#EFEAE0',
+                  letterSpacing: '0.02em',
+                  display: 'block',
+                  textTransform: 'uppercase',
+                  userSelect: 'none',
+                }}
+                className="lets-connect-heading"
+              >
+                LET'S CONNEC<span id="connect-alpha-t">T</span>
+              </span>
+            </div>
+          </div>
 
-        {/* Clean Beige Color Block Below */}
-        <div ref={cSheetRef} className="contact-bottom-sheet">
-          {/* Horizontal Social Icons placed directly below the SAY HELLO Rocket */}
-          <div className="contact-social-row">
-            <a
-              href="mailto:debashreee87@gmail.com"
-              className="contact-social-btn"
-              title="Email • debashreee87@gmail.com"
-              aria-label="Send Direct Email"
-              onClick={(e) => {
-                e.preventDefault();
+          {/* SAY HELLO Flying Rocket Button & Center Quote */}
+          <div
+            ref={cSayHelloRef}
+            style={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              top: 0,
+              bottom: 'calc(clamp(260px, 42vh, 440px) + 6px)',
+              zIndex: 15,
+              opacity: 0,
+              pointerEvents: 'none',
+            }}
+          >
+            {/* Centered Quote line aligned with SAY HELLO rocket */}
+            <div
+              className="contact-shipping-quote"
+              style={{
+                position: 'absolute',
+                bottom: '10px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                pointerEvents: 'auto',
+                whiteSpace: 'nowrap',
+                zIndex: 2,
+              }}
+            >
+              “Let’s build something worth shipping.”
+            </div>
+
+            <FlyingButton
+              theme="dark"
+              size="medium"
+              altitude={220}
+              hoverTime={2.4}
+              jets={2}
+              thrusters
+              trigger="click"
+              carryCursor
+              smoke={1.2}
+              turbulence={1.2}
+              wobble={1}
+              ramp={false}
+              buttonAlign="right"
+              buttonRight={() => Math.round(Math.max(40, Math.min(68, window.innerWidth * 0.025 + 32)))}
+              thrustColor="#8F9BFF"
+              smokeColor="#EFEAE0"
+              buttonColor="#18181b"
+              textColor="#EFEAE0"
+              style={{
+                '--fly-px': '18px',
+                '--fly-h': '40px',
+                '--fly-fs': '13px',
+              } as React.CSSProperties}
+              onClick={() => {
+                playSound('rocket');
                 setIsContactModalOpen(true);
               }}
             >
-              <GmailBrandIcon />
-            </a>
-            <a
-              href="https://github.com/debashree-08"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="contact-social-btn"
-              title="GitHub • @debashree-08"
-              aria-label="GitHub Profile"
-            >
-              <GitHubBrandIcon />
-            </a>
-            <a
-              href="https://www.linkedin.com/in/debashree-mal-118837269/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="contact-social-btn"
-              title="LinkedIn • Debashree Mal"
-              aria-label="LinkedIn Profile"
-            >
-              <LinkedInBrandIcon />
-            </a>
+              SAY HELLO
+            </FlyingButton>
+          </div>
+
+          {/* Clean Beige Color Block Below */}
+          <div ref={cSheetRef} className="contact-bottom-sheet">
+            {/* Horizontal Social Icons placed directly below the SAY HELLO Rocket */}
+            <div className="contact-social-row">
+              <a
+                href="mailto:debashreee87@gmail.com"
+                className="contact-social-btn"
+                title="Email • debashreee87@gmail.com"
+                aria-label="Send Direct Email"
+                onClick={(e) => {
+                  e.preventDefault();
+                  playSound('stickerStamp');
+                  setIsContactModalOpen(true);
+                }}
+              >
+                <GmailBrandIcon />
+              </a>
+              <a
+                href="https://github.com/debashree-08"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="contact-social-btn"
+                title="GitHub • @debashree-08"
+                aria-label="GitHub Profile"
+                onClick={() => playSound('stickerStamp')}
+              >
+                <GitHubBrandIcon />
+              </a>
+              <a
+                href="https://www.linkedin.com/in/debashree-mal-118837269/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="contact-social-btn"
+                title="LinkedIn • Debashree Mal"
+                aria-label="LinkedIn Profile"
+                onClick={() => playSound('stickerStamp')}
+              >
+                <LinkedInBrandIcon />
+              </a>
+            </div>
+          </div>
+        </section>
+
+        {/* Hero Flying Coin-to-Sticker Card (Transitions from Moments Zoom -> Contact Sticker) */}
+        <div
+          ref={coinCardRef}
+          className="coin-sticker-wrap"
+          onClick={() => {
+            if (coinCardRef.current?.dataset.stuck === 'true') {
+              goTo(3); // Jump back to moments on click (goTo already triggers physical mouse switch click)
+            }
+          }}
+          title="Featured Moment • Click to explore archive"
+          style={{ display: 'none' }}
+        >
+          <div ref={coinFlipperRef} className="coin-flipper">
+            {/* FRONT FACE: The Moment Card */}
+            <div className="coin-face coin-front portrait-card-3d" style={{ padding: '12px 10px' }}>
+              <div className="portrait-img-box">
+                <img
+                  src={HERO_MOMENT.img}
+                  alt={HERO_MOMENT.title}
+                  className="portrait-img"
+                />
+                <div className="portrait-vignette" />
+              </div>
+
+              {/* Bottom: Heading from image filename */}
+              <div className="portrait-card-footer">
+                <h4 className="portrait-card-bottom-title">{HERO_MOMENT.title}</h4>
+              </div>
+              <div className="coin-sheen" />
+            </div>
+
+            {/* BACK FACE: Identical to Front Face */}
+            <div className="coin-face coin-back portrait-card-3d" style={{ padding: '12px 10px' }}>
+              <div className="portrait-img-box">
+                <img
+                  src={HERO_MOMENT.img}
+                  alt={HERO_MOMENT.title}
+                  className="portrait-img"
+                />
+                <div className="portrait-vignette" />
+              </div>
+
+              {/* Bottom: Heading from image filename */}
+              <div className="portrait-card-footer">
+                <h4 className="portrait-card-bottom-title">{HERO_MOMENT.title}</h4>
+              </div>
+              <div className="coin-sheen" />
+            </div>
           </div>
         </div>
-      </section>
 
-      {/* Hero Flying Coin-to-Sticker Card (Transitions from Moments Zoom -> Contact Sticker) */}
-      <div
-        ref={coinCardRef}
-        className="coin-sticker-wrap"
-        onClick={() => {
-          if (coinCardRef.current?.dataset.stuck === 'true') {
-            goTo(3); // Jump back to moments on click
-          }
-        }}
-        title="Featured Moment • Click to explore archive"
-        style={{ display: 'none' }}
-      >
-        <div ref={coinFlipperRef} className="coin-flipper">
-          {/* FRONT FACE: The Moment Card */}
-          <div className="coin-face coin-front portrait-card-3d" style={{ padding: '12px 10px' }}>
-            <div className="portrait-img-box">
-              <img
-                src={HERO_MOMENT.img}
-                alt={HERO_MOMENT.title}
-                className="portrait-img"
-              />
-              <div className="portrait-vignette" />
-            </div>
-
-            {/* Bottom: Heading from image filename */}
-            <div className="portrait-card-footer">
-              <h4 className="portrait-card-bottom-title">{HERO_MOMENT.title}</h4>
-            </div>
-            <div className="coin-sheen" />
-          </div>
-
-          {/* BACK FACE: Identical to Front Face */}
-          <div className="coin-face coin-back portrait-card-3d" style={{ padding: '12px 10px' }}>
-            <div className="portrait-img-box">
-              <img
-                src={HERO_MOMENT.img}
-                alt={HERO_MOMENT.title}
-                className="portrait-img"
-              />
-              <div className="portrait-vignette" />
-            </div>
-
-            {/* Bottom: Heading from image filename */}
-            <div className="portrait-card-footer">
-              <h4 className="portrait-card-bottom-title">{HERO_MOMENT.title}</h4>
-            </div>
-            <div className="coin-sheen" />
-          </div>
-        </div>
-      </div>
-
-      {/* Contact Form Modal with FormSubmit Public API */}
-      <ContactModal
-        isOpen={isContactModalOpen}
-        onClose={() => setIsContactModalOpen(false)}
-      />
+        {/* Contact Form Modal with FormSubmit Public API */}
+        <ContactModal
+          isOpen={isContactModalOpen}
+          onClose={() => setIsContactModalOpen(false)}
+        />
       </div>
     </ClickSpark>
   );

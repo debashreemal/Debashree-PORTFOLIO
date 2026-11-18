@@ -5,6 +5,7 @@ import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from
 import type { SpringOptions, MotionValue } from 'motion/react';
 import React, { Children, cloneElement, useEffect, useMemo, useRef, useState } from 'react';
 import type { PanelType, DockProps } from '../types';
+import { playSound } from '../utils/sound';
 import './Dock.css';
 
 // Generic Lord Icon wrapper for the dock
@@ -265,6 +266,7 @@ export default function Dock({
             <React.Fragment key={item.id ?? index}>
               <DockItem
                 onClick={() => {
+                  playSound('click');
                   if (item.isLink) {
                     window.open(item.url, '_blank', 'noopener,noreferrer');
                   } else {

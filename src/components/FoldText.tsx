@@ -64,6 +64,7 @@ export interface FoldTextProps {
   color?: string;
   className?: string;
   style?: CSSProperties;
+  onCharHover?: (char: string, index: number) => void;
 }
 
 interface Piece {
@@ -97,9 +98,24 @@ export const FoldText: React.FC<FoldTextProps> = ({
   fontWeight = 'inherit',
   color = 'currentColor',
   className = '',
-  style = {}
+  style = {},
+  onCharHover
 }) => {
   const rootRef = useRef<HTMLSpanElement>(null);
+  const onCharHoverRef = useRef(onCharHover);
+  onCharHoverRef.current = onCharHover;
+
+  const lastTriggeredCharRef = useRef<{ index: number; time: number }>({ index: -1, time: 0 });
+
+  const handleCharHoverTrigger = (char: string, index: number) => {
+    const now = performance.now();
+    if (lastTriggeredCharRef.current.index === index && now - lastTriggeredCharRef.current.time < 120) {
+      return;
+    }
+    lastTriggeredCharRef.current = { index, time: now };
+    onCharHoverRef.current?.(char, index);
+  };
+
   const safeHinge: HingeType = HINGES[hinge] ? hinge : 'top';
   const hingeConfig = HINGES[safeHinge];
   const safeStyle: FoldStyleType = FOLD_STYLES.includes(foldStyle) ? foldStyle : 'paper';
@@ -112,8 +128,28 @@ export const FoldText: React.FC<FoldTextProps> = ({
   const startsFolded = trigger !== 'hover';
 
   const segments = useMemo(() => {
-    const renderPiece = (content: string, key: string, isLine = false) => (
-      <span className="fold-text-segment" data-fold-split={isLine ? 'line' : undefined} key={key}>
+    const renderPiece = (content: string, key: string, charIndex = -1, isLine = false) => (
+      <span
+        className="fold-text-segment"
+        data-fold-split={isLine ? 'line' : undefined}
+        key={key}
+        style={{ pointerEvents: 'auto', display: 'inline-block' }}
+        onMouseEnter={() => {
+          if (charIndex >= 0) {
+            handleCharHoverTrigger(content, charIndex);
+          }
+        }}
+        onPointerEnter={() => {
+          if (charIndex >= 0) {
+            handleCharHoverTrigger(content, charIndex);
+          }
+        }}
+        onMouseLeave={() => {
+          if (lastTriggeredCharRef.current.index === charIndex) {
+            lastTriggeredCharRef.current.index = -1;
+          }
+        }}
+      >
         {safeStyle === 'blinds' ? (
           <span
             className="fold-text-piece"
@@ -142,8 +178,10 @@ export const FoldText: React.FC<FoldTextProps> = ({
       </span>
     );
 
+    let charCounter = 0;
+
     if (splitBy === 'line') {
-      return text.split('\n').map((line, index) => renderPiece(line || '\u00A0', `line-${index}`, true));
+      return text.split('\n').map((line, index) => renderPiece(line || '\u00A0', `line-${index}`, charCounter++, true));
     }
 
     return text.split(/(\s+)/).flatMap((part, partIndex) => {
@@ -156,11 +194,17 @@ export const FoldText: React.FC<FoldTextProps> = ({
           .filter(Boolean);
       }
 
-      if (splitBy === 'word') return [renderPiece(part, `word-${partIndex}`)];
+      if (splitBy === 'word') {
+        const idx = charCounter++;
+        return [renderPiece(part, `word-${partIndex}`, idx)];
+      }
 
       return [
         <span className="fold-text-word" key={`word-${partIndex}`}>
-          {Array.from(part).map((char, charIndex) => renderPiece(char, `char-${partIndex}-${charIndex}`))}
+          {Array.from(part).map((char, charIndex) => {
+            const idx = charCounter++;
+            return renderPiece(char, `char-${partIndex}-${charIndex}`, idx);
+          })}
         </span>
       ];
     });
@@ -304,6 +348,8 @@ export const FoldText: React.FC<FoldTextProps> = ({
       }
     };
 
+    let lastHoveredCharPiece = -1;
+
     const aim = () => {
       const box = root.getBoundingClientRect();
       const near =
@@ -319,6 +365,30 @@ export const FoldText: React.FC<FoldTextProps> = ({
       if (near && pointer && centers) {
         const pt = pointer;
         const currentCenters = centers;
+
+        if (onCharHoverRef.current) {
+          let currentHovered = -1;
+          for (let i = 0; i < pieces.length; i++) {
+            const rect = pieces[i].element.getBoundingClientRect();
+            if (
+              pt.x >= rect.left &&
+              pt.x <= rect.right &&
+              pt.y >= rect.top &&
+              pt.y <= rect.bottom
+            ) {
+              currentHovered = i;
+              break;
+            }
+          }
+          if (currentHovered !== lastHoveredCharPiece) {
+            lastHoveredCharPiece = currentHovered;
+            if (currentHovered !== -1) {
+              const charText = pieces[currentHovered].element.textContent || '';
+              handleCharHoverTrigger(charText, currentHovered);
+            }
+          }
+        }
+
         pieces.forEach((piece, index) => {
           let value = 0;
           const center = currentCenters[index];
@@ -330,6 +400,7 @@ export const FoldText: React.FC<FoldTextProps> = ({
           piece.aim = value;
         });
       } else {
+        lastHoveredCharPiece = -1;
         pieces.forEach(piece => {
           if (piece.aim !== 0) changed = true;
           piece.aim = 0;
@@ -351,12 +422,50 @@ export const FoldText: React.FC<FoldTextProps> = ({
       }
     };
 
+    const checkCharHover = (clientX: number, clientY: number) => {
+      if (!onCharHoverRef.current || !rootRef.current || pieces.length === 0) return;
+      const box = rootRef.current.getBoundingClientRect();
+      if (
+        clientX < box.left - 5 ||
+        clientX > box.right + 5 ||
+        clientY < box.top - 5 ||
+        clientY > box.bottom + 5
+      ) {
+        lastHoveredCharPiece = -1;
+        return;
+      }
+
+      let currentHovered = -1;
+      for (let i = 0; i < pieces.length; i++) {
+        const rect = pieces[i].element.getBoundingClientRect();
+        if (
+          clientX >= rect.left &&
+          clientX <= rect.right &&
+          clientY >= rect.top &&
+          clientY <= rect.bottom
+        ) {
+          currentHovered = i;
+          break;
+        }
+      }
+
+      if (currentHovered !== lastHoveredCharPiece) {
+        lastHoveredCharPiece = currentHovered;
+        if (currentHovered !== -1) {
+          const charText = pieces[currentHovered].element.textContent || '';
+          handleCharHoverTrigger(charText, currentHovered);
+        }
+      }
+    };
+
     const handleMove = (event: PointerEvent) => {
+      checkCharHover(event.clientX, event.clientY);
       pointer = { x: event.clientX, y: event.clientY };
       requestAim();
     };
 
     const handleLeave = () => {
+      lastHoveredCharPiece = -1;
       pointer = null;
       requestAim();
     };
@@ -365,7 +474,7 @@ export const FoldText: React.FC<FoldTextProps> = ({
       if (pointer) requestAim();
     };
 
-    if (refold) {
+    if (refold || onCharHover) {
       window.addEventListener('pointermove', handleMove as EventListener, { passive: true });
       window.addEventListener('scroll', handleScroll, { passive: true, capture: true });
       document.documentElement.addEventListener('pointerleave', handleLeave);

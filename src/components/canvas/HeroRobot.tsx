@@ -97,6 +97,7 @@ export default function HeroRobot({ isVisible = true }: HeroRobotProps) {
         alignItems: 'center',
         justifyContent: 'center',
         pointerEvents: 'auto',
+        cursor: 'grab',
       }}
     >
       <Canvas

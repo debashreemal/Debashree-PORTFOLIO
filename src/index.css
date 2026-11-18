@@ -245,7 +245,7 @@ body {
   align-items: center;
   gap: clamp(16px, 2.5vw, 42px);
   z-index: 2;
-  /* Recessed behind robot if any slight overlap */
+  /* Recessed BEHIND robot (z-index: 10) in exact OG position */
   pointer-events: none;
   font-family: var(--bn);
   font-size: clamp(58px, 10vw, 160px);
@@ -325,18 +325,20 @@ body {
   justify-content: center;
   color: #EFEAE0;
   text-decoration: none;
-  transition: color 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), filter 0.25s ease;
+  transition: color 0.25s ease;
   cursor: pointer;
   user-select: none;
+  transform: none !important;
+  filter: none !important;
 }
 
 .hero-social-btn:hover {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  color: var(--rd, #8F9BFF) !important;
-  transform: translateY(-3px) scale(1.08) !important;
-  filter: drop-shadow(0 6px 14px rgba(143, 155, 255, 0.45)) brightness(1.15) !important;
+  color: #8F9BFF !important;
+  transform: none !important;
+  filter: none !important;
 }
 
 .hero-social-btn svg {
@@ -1995,17 +1997,20 @@ body {
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), filter 0.25s ease;
+  transition: opacity 0.25s ease;
   cursor: pointer;
   user-select: none;
+  transform: none !important;
+  filter: none !important;
 }
 
 .contact-social-btn:hover {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  transform: translateY(-5px) scale(1.1) !important;
-  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.22)) brightness(1.08) !important;
+  transform: none !important;
+  filter: none !important;
+  opacity: 0.85;
 }
 
 .contact-social-btn svg {
