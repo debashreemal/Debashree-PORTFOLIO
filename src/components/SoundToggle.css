@@ -35,11 +35,11 @@
 }
 
 .sound-nav-icon-btn.active {
-  opacity: 0.9;
+  opacity: 1;
 }
 
 .sound-nav-icon-btn.muted {
-  opacity: 0.55;
+  opacity: 0.82;
 }
 
 .sound-nav-icon-btn.muted:hover,

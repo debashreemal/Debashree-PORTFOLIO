@@ -1582,6 +1582,29 @@ body {
   font-weight: 450;
 }
 
+.page .sec ul.project-solution-list {
+  margin: 2px 0 0;
+  padding-left: 1.15rem;
+  list-style-type: disc;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2px, 0.35vh, 4px);
+}
+
+.page .sec ul.project-solution-list li {
+  font-size: clamp(11.5px, 0.92vw, 12.8px);
+  line-height: 1.4;
+  color: var(--ink);
+  font-family: "Inter", system-ui, sans-serif;
+  font-weight: 450;
+  max-width: 54ch;
+}
+
+.page .sec ul.project-solution-list li::marker {
+  color: var(--ink);
+  font-size: 0.85em;
+}
+
 .page .sec+.sec,
 .ref-divider {
   border-top: 1px solid var(--edge);

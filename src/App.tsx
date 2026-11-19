@@ -61,7 +61,7 @@ export interface ProjectItem {
   roleLabel?: string;
   role: string;
   problem: string;
-  solution: string;
+  solution: string | string[];
   stack: string[];
   quote: string;
   liveLabel?: string;
@@ -89,7 +89,12 @@ const PROJECTS_DATA: ProjectItem[] = [
     aspectRatio: '1600 / 828',
     role: 'Designed the frontend interface, researched and scoped new features, architected the end-to-end workflow, and built the real-time chat backend.',
     problem: 'Teams waste hours managing work (planning, assigning, chasing updates) instead of actually doing it. Existing tools like Trello, Jira, and Asana only record your plan. You still have to create, assign, and update every task yourself.',
-    solution: 'FlowMind turns your goal into a clear plan, listens to your meetings in any language, automatically assigns tasks from what is discussed to a desired member, and adjusts the plan when things change.',
+    solution: [
+      'Plan: Converts your goal into a clear plan',
+      'Listen: Understands meetings in any language',
+      'Assign: Gives tasks to the right person automatically',
+      'Adapt: Updates the plan when things change',
+    ],
     stack: ['React 18', 'TypeScript', 'Vite', 'Express.js', 'Node.js', 'Supabase Realtime', 'Neo4j Aura', 'Groq', 'Gnani Prisma STT', 'Gnani Timbre TTS', 'Agora WebRTC', 'Hindsight Memory API', 'Vercel', 'Render'],
     quote: '“FlowMind never forgets – so your team doesn\'t have to.”',
     liveUrl: 'https://flowwithmind.vercel.app/',
@@ -114,7 +119,12 @@ const PROJECTS_DATA: ProjectItem[] = [
     roleLabel: 'Solo Architect',
     role: 'Solo-developed from concept to deployment, covering the design, frontend, backend, and database.',
     problem: 'In unsafe moments, people often cannot ask for help openly, because opening a normal safety app or calling someone can alert the person causing the danger.',
-    solution: 'Zwiggy looks like a normal food delivery app, so nobody suspects it is a safety tool. A secret PIN opens safety mode, and three taps send an SOS with your live location to your trusted contacts. Your current location and recordings are saved automatically, hidden inside the orders section.',
+    solution: [
+      'Disguise: Looks like a normal food delivery app, so nobody suspects it',
+      'Unlock: A secret PIN opens safety mode',
+      'Alert: Three taps send an SOS with live location to trusted contacts',
+      'Hide: Location and recordings are saved automatically inside the orders section',
+    ],
     stack: ['React', 'Vite', 'Tailwind CSS', 'JavaScript', 'Capacitor.js', 'Android', 'iOS', 'Supabase', 'React-Leaflet', 'Twilio API', 'Vercel'],
     quote: '“Real help doesn’t always announce itself, and Zwiggy proves it.”',
     liveUrl: 'https://zwiggy-app.vercel.app/',
@@ -138,7 +148,12 @@ const PROJECTS_DATA: ProjectItem[] = [
     aspectRatio: '424 / 900',
     role: 'Crafted NHAIFaceIDs every screen and component of the frontend, turning complex offline face recognition into an interface anyone can use in seconds effortlessly.',
     problem: 'NHAI field workers on remote highway sites often have no internet, so they can’t verify identity or mark attendance, and fake photos or videos can be used to cheat the system.',
-    solution: 'We Delivered a tiny AI system (under 3MB) that recognizes real faces on the device itself and syncs attendance logs to NHAI’s cloud once the network returns.',
+    solution: [
+      'Tiny: An AI system under 3MB',
+      'On-device: Recognizes real faces on the device itself',
+      'Offline: Works without internet',
+      'Sync: Sends attendance logs to NHAI’s cloud once the network returns',
+    ],
     stack: ['React Native', 'JavaScript', 'Kotlin', 'TensorFlow Lite', 'ONNX Runtime', 'BlazeFace', 'MobileFaceNet', 'SQLite', 'AWS (offline sync)'],
     quote: '“Our goal was simple: accurate, spoof-resistant face recognition that works on any standard mobile device, anywhere”',
     liveLabel: 'Android App',
@@ -150,8 +165,8 @@ const PROJECTS_DATA: ProjectItem[] = [
     badge: 'Live Event Discovery Platform',
     title: 'PLUTO CAMPUS',
     tagline: 'Discover events, pick your seat, book your ticket, and connect across campuses.',
-    metaTeam: '',
-    metaDuration: '',
+    metaTeam: 'Team of 3 people',
+    metaDuration: 'Live',
     metaYear: '2026',
     tabs: ['Browse Events', 'User Ranks', 'Create Event', 'Transactions'],
     screenshots: [
@@ -163,7 +178,12 @@ const PROJECTS_DATA: ProjectItem[] = [
     aspectRatio: '1600 / 819',
     role: 'Shaped how PLUTO looks and feels, designed its logo, and opened the doors to colleges and organizers.',
     problem: 'College events in India are scattered across WhatsApp groups, Instagram posts and notice boards, so students miss them and organizers struggle to reach and manage their audience.',
-    solution: 'PLUTO integrates discovery, competitions, seat selection, payment and booking into one campus event platform. Students explore events across campuses, pick their seat, pay online and get a QR e-ticket, while organizers create events, design seat layouts and track bookings and payments in one place.',
+    solution: [
+      'Discover: Students explore events and competitions across campuses',
+      'Book: Pick your seat and pay online in one place',
+      'Ticket: Get a QR e-ticket instantly',
+      'Organize: Organizers create events, design seat layouts and track bookings and payments',
+    ],
     stack: ['React Native', 'React', 'JavaScript', 'Node.js', 'Supabase', 'Razorpay', 'Groq (LLaMA)', 'Firebase FCM', 'Three.js'],
     quote: '“Others show events. PLUTO connects the whole campus world.”',
     liveUrl: 'https://www.plutocampus.in/',
@@ -186,9 +206,14 @@ const PROJECTS_DATA: ProjectItem[] = [
     aspectRatio: '1919 / 907',
     role: 'Analyzed the whole system, integrated text-to-speech and speech-to-text into the merchant chat, redesigned merchant dashboard and pages so everything fits cleanly on every screen.',
     problem: 'When a payout fails or a chargeback dispute arrives, merchants are left waiting for answers while their money is stuck, and support teams handle each case by hand. Both sides need faster resolution that still follows policy.',
-    solution: 'Sulajh AI is an AI teammate that handles payout failures and chargeback disputes automatically. It merges similar cases into one ticket, resolves small amounts on its own, and sends larger ones to Paytm with all details ready for one-click approval.',
+    solution: [
+      'Handle: Automatically handles payout failures and chargeback disputes',
+      'Merge: Combines similar cases into one ticket',
+      'Resolve: Settles small amounts on its own',
+      'Escalate: Sends larger ones to Paytm with all details ready for one-click approval',
+    ],
     stack: ['React', 'Vite', 'Tailwind CSS', 'TypeScript', 'Express', 'Supabase', 'Groq (Llama)', 'Sarvam AI (STT and TTS)', 'Qdrant (Vector DB)', 'Zod', 'Vitest'],
-    quote: '“Sulajh means untangle, AI that untangles merchant payouts problems and gives Paytm team ready for one click approval.”',
+    quote: '“Sulajh AI that untangles merchant payouts problems and gives Paytm team ready for one click approval.”',
     liveUrl: 'https://sulajh-ai.vercel.app/',
     githubUrl: 'https://github.com/piyushyenorkar/Sulajh-AI',
   },
@@ -648,6 +673,7 @@ export const App: React.FC = () => {
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
+                    playSound('glassTap');
                     setProjectActiveTabs((prev) => ({ ...prev, [proj.index]: tIdx }));
                   }}
                 >
@@ -688,7 +714,26 @@ export const App: React.FC = () => {
       </div>
       <div className="sec">
         <p className="label">What we built</p>
-        <p>{proj.solution}</p>
+        {Array.isArray(proj.solution) ? (
+          <ul className="project-solution-list">
+            {proj.solution.map((item, idx) => {
+              const colonIdx = item.indexOf(':');
+              if (colonIdx !== -1) {
+                const lead = item.slice(0, colonIdx + 1);
+                const rest = item.slice(colonIdx + 1);
+                return (
+                  <li key={idx}>
+                    <strong style={{ fontWeight: 600, color: 'var(--ink)' }}>{lead}</strong>
+                    {rest}
+                  </li>
+                );
+              }
+              return <li key={idx}>{item}</li>;
+            })}
+          </ul>
+        ) : (
+          <p>{proj.solution}</p>
+        )}
       </div>
       <div className="sec">
         <p className="label">Tech stack</p>
@@ -715,12 +760,14 @@ export const App: React.FC = () => {
                 href={proj.liveUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                onMouseEnter={() => playSound('glassTap')}
                 onPointerDown={(e) => e.stopPropagation()}
                 onPointerUp={(e) => e.stopPropagation()}
                 onMouseDown={(e) => e.stopPropagation()}
                 onMouseUp={(e) => e.stopPropagation()}
                 onClick={(e) => {
                   e.stopPropagation();
+                  playSound('stickerStamp');
                   if (proj.liveUrl) {
                     window.open(proj.liveUrl, '_blank', 'noopener,noreferrer');
                   }
@@ -736,11 +783,15 @@ export const App: React.FC = () => {
             ) : (
               <span
                 className="p no-link"
+                onMouseEnter={() => playSound('glassTap')}
                 onPointerDown={(e) => e.stopPropagation()}
                 onPointerUp={(e) => e.stopPropagation()}
                 onMouseDown={(e) => e.stopPropagation()}
                 onMouseUp={(e) => e.stopPropagation()}
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  playSound('stickerStamp');
+                }}
               >
                 {proj.liveLabel}
                 <span className="ic">
@@ -757,6 +808,7 @@ export const App: React.FC = () => {
               href={proj.githubUrl}
               target="_blank"
               rel="noopener noreferrer"
+              onMouseEnter={() => playSound('glassTap')}
               onPointerDown={(e) => e.stopPropagation()}
               onPointerUp={(e) => e.stopPropagation()}
               onMouseDown={(e) => e.stopPropagation()}
@@ -853,10 +905,17 @@ export const App: React.FC = () => {
   // Synchronized scroll animation sound effects tracker
   const scrollAudioStageRef = useRef({
     heroToAbout: false,
+    aboutItemCircle: false,
+    aboutItemPortrait: false,
+    aboutItemTag1: false,
+    aboutItemTag2: false,
+    aboutItemPills: false,
+    aboutFolding: false,
     aboutToBuilds: false,
     bookOpen: false,
     bookClose: false,
     buildsToMoments: false,
+    cardCoinFlip: false,
     momentsToContact: false,
   });
   const aboutToBuildsTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -1195,6 +1254,42 @@ export const App: React.FC = () => {
           playSound('rocket');
         }
 
+        // ---------------------------------------------------------
+        // ABOUT ME PAGE: Dynamic UI Item Blossom (ONLY ON ABOUT ME PAGE)
+        // ---------------------------------------------------------
+        // 1. Purple Halo circle blooms
+        if (p >= 0.080 && !sfx.aboutItemCircle) {
+          sfx.aboutItemCircle = true;
+          playSound('aboutBloom', 1.0);
+        }
+        // 2. Cutout portrait glides up into frame
+        if (p >= 0.135 && !sfx.aboutItemPortrait) {
+          sfx.aboutItemPortrait = true;
+          playSound('aboutBloom', 1.05);
+        }
+        // 3. CE '28 badge pops into orbit
+        if (p >= 0.186 && !sfx.aboutItemTag1) {
+          sfx.aboutItemTag1 = true;
+          playSound('aboutBloom', 1.10);
+        }
+        // 4. Sketches interactive folder docks
+        if (p >= 0.198 && !sfx.aboutItemTag2) {
+          sfx.aboutItemTag2 = true;
+          playSound('aboutBloom', 1.15);
+        }
+        // 5. Achievement metric pills ripple up
+        if (p >= 0.216 && !sfx.aboutItemPills) {
+          sfx.aboutItemPills = true;
+          playSound('aboutBloom', 1.20);
+        }
+
+        // 1b. Transition: About Me Page Folding into the Book
+        // When the cream About Me sheet begins shrinking and folding into the leather book cover (p >= 0.265)
+        if (p >= 0.265 && !sfx.aboutFolding) {
+          sfx.aboutFolding = true;
+          playSound('rocket');
+        }
+
         // 2. Transition: About Me -> Builds (Wins / 3D Book)
         // When the white page of About Me shifts to convert into the book of builds
         // (triggered while the BUILDS written animation is in process: p >= 0.320, delayed by 0.4 seconds)
@@ -1225,15 +1320,23 @@ export const App: React.FC = () => {
           playSound('rocket');
         }
 
-        // 4. Transition: Moments -> Let's Connect
-        // When transitioning from Moments to Contact (3D Card Moment Flip sound)
-        if (p >= 0.885 && !sfx.momentsToContact) {
+        // 4. Moments -> Let's Connect:
+        // When the card flips like a coin in 3D flight (Thruster Whoosh)
+        if (p >= 0.880 && !sfx.cardCoinFlip) {
+          sfx.cardCoinFlip = true;
+          playSound('rocket');
+        }
+
+        // 5. Moments -> Let's Connect:
+        // Settling into sticker destination (~0.3s before settle)
+        if (p >= 0.955 && !sfx.momentsToContact) {
           sfx.momentsToContact = true;
           playSound('cardFlip');
         }
       } else {
         // Reverse scroll hysteresis resets (allows natural replay when scrolling back down)
-        if (p < 0.85) sfx.momentsToContact = false;
+        if (p < 0.91) sfx.momentsToContact = false;
+        if (p < 0.86) sfx.cardCoinFlip = false;
         if (p < 0.60) sfx.buildsToMoments = false;
         if (p < 0.58) sfx.bookClose = false;
         if (p < 0.38) sfx.bookOpen = false;
@@ -1244,6 +1347,12 @@ export const App: React.FC = () => {
             aboutToBuildsTimerRef.current = null;
           }
         }
+        if (p < 0.24) sfx.aboutFolding = false;
+        if (p < 0.205) sfx.aboutItemPills = false;
+        if (p < 0.190) sfx.aboutItemTag2 = false;
+        if (p < 0.178) sfx.aboutItemTag1 = false;
+        if (p < 0.125) sfx.aboutItemPortrait = false;
+        if (p < 0.070) sfx.aboutItemCircle = false;
         if (p < 0.02) sfx.heroToAbout = false;
       }
 
@@ -2110,6 +2219,33 @@ export const App: React.FC = () => {
     return () => cancelAnimationFrame(animId);
   }, []);
 
+  // Intentional mouse move & scroll velocity tracking for card hover audio
+  const lastMouseMoveTimeRef = useRef(0);
+  const lastMomentsHoverTimeRef = useRef(0);
+
+  useEffect(() => {
+    const handlePointerMove = () => {
+      lastMouseMoveTimeRef.current = performance.now();
+    };
+    window.addEventListener('pointermove', handlePointerMove, { passive: true });
+    return () => window.removeEventListener('pointermove', handlePointerMove);
+  }, []);
+
+  const handleMomentsCardHover = useCallback(() => {
+    const now = performance.now();
+    // 1. Must not be dragging the 3D globe
+    if (domeState.current?.drag) return;
+    // 2. Must not be rapidly scrolling through sections
+    if (Math.abs(scrollDriveRef.current.currentVelocity) > 0.0005) return;
+    // 3. User must have moved the mouse intentionally recently (< 250ms)
+    if (now - lastMouseMoveTimeRef.current > 250) return;
+    // 4. Throttle sweeps so intentional hovers sound distinct and tactile
+    if (now - lastMomentsHoverTimeRef.current < 85) return;
+    lastMomentsHoverTimeRef.current = now;
+
+    playSound('glassTap');
+  }, []);
+
   // Toggle card inspection: 1st click pops card out in 3D, 2nd click docks it back!
   const handleCardClick = useCallback((idx: number) => {
     playSound('click');
@@ -2142,6 +2278,7 @@ export const App: React.FC = () => {
           <div
             key={currentIdx}
             className="dt"
+            onMouseEnter={handleMomentsCardHover}
             onClick={(e) => {
               e.stopPropagation();
               handleCardClick(currentIdx);
@@ -2198,7 +2335,7 @@ export const App: React.FC = () => {
     });
 
     return tiles;
-  }, [domeConfig, activeCard, handleCardClick]);
+  }, [domeConfig, activeCard, handleCardClick, handleMomentsCardHover]);
 
   return (
     <ClickSpark
@@ -2297,6 +2434,7 @@ export const App: React.FC = () => {
               className="hero-social-btn"
               title="Email • debashreee87@gmail.com"
               aria-label="Send Direct Email"
+              onMouseEnter={() => playSound('glassTap')}
               onClick={() => playSound('stickerStamp')}
             >
               <FaEnvelope />
@@ -2308,6 +2446,7 @@ export const App: React.FC = () => {
               className="hero-social-btn"
               title="GitHub • @debashree-08"
               aria-label="GitHub Profile"
+              onMouseEnter={() => playSound('glassTap')}
               onClick={() => playSound('stickerStamp')}
             >
               <FaGithub />
@@ -2319,6 +2458,7 @@ export const App: React.FC = () => {
               className="hero-social-btn"
               title="LinkedIn • Debashree Mal"
               aria-label="LinkedIn Profile"
+              onMouseEnter={() => playSound('glassTap')}
               onClick={() => playSound('stickerStamp')}
             >
               <FaLinkedin />
@@ -2604,6 +2744,9 @@ export const App: React.FC = () => {
             <div
               ref={tg1Ref}
               className="tag"
+              onMouseEnter={() => {
+                playSound('glassTap');
+              }}
               style={{
                 background: 'rgba(18, 18, 22, 0.78)',
                 backdropFilter: 'blur(12px)',
@@ -2620,6 +2763,8 @@ export const App: React.FC = () => {
               onMouseEnter={() => {
                 if (sketchModalStage === 'centered') {
                   playPeekWhoosh();
+                } else if (sketchModalStage === 'idle') {
+                  playSound('glassTap');
                 }
               }}
               onClick={(e) => {
@@ -3044,6 +3189,9 @@ export const App: React.FC = () => {
                 '--fly-h': '40px',
                 '--fly-fs': '13px',
               } as React.CSSProperties}
+              onHover={() => {
+                playSound('glassTap');
+              }}
               onClick={() => {
                 playSound('rocket');
                 setIsContactModalOpen(true);
@@ -3062,6 +3210,7 @@ export const App: React.FC = () => {
                 className="contact-social-btn"
                 title="Email • debashreee87@gmail.com"
                 aria-label="Send Direct Email"
+                onMouseEnter={() => playSound('glassTap')}
                 onClick={(e) => {
                   e.preventDefault();
                   playSound('stickerStamp');
@@ -3077,6 +3226,7 @@ export const App: React.FC = () => {
                 className="contact-social-btn"
                 title="GitHub • @debashree-08"
                 aria-label="GitHub Profile"
+                onMouseEnter={() => playSound('glassTap')}
                 onClick={() => playSound('stickerStamp')}
               >
                 <GitHubBrandIcon />
@@ -3088,6 +3238,7 @@ export const App: React.FC = () => {
                 className="contact-social-btn"
                 title="LinkedIn • Debashree Mal"
                 aria-label="LinkedIn Profile"
+                onMouseEnter={() => playSound('glassTap')}
                 onClick={() => playSound('stickerStamp')}
               >
                 <LinkedInBrandIcon />
@@ -3100,6 +3251,7 @@ export const App: React.FC = () => {
         <div
           ref={coinCardRef}
           className="coin-sticker-wrap"
+          onMouseEnter={handleMomentsCardHover}
           onClick={() => {
             if (coinCardRef.current?.dataset.stuck === 'true') {
               goTo(3); // Jump back to moments on click (goTo already triggers physical mouse switch click)

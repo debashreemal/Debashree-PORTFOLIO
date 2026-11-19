@@ -16,6 +16,16 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
   const [navBottom, setNavBottom] = useState<number>(55);
   const [cardLeft, setCardLeft] = useState<number | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
+  const stampPlayedRef = useRef(false);
+
+  const handleSendStampSound = () => {
+    if (stampPlayedRef.current) return;
+    stampPlayedRef.current = true;
+    playSound('stickerStamp');
+    setTimeout(() => {
+      stampPlayedRef.current = false;
+    }, 250);
+  };
 
   // Measure exact bottom coordinate of navbar & position anchored to navbar 'ABOUT' letter 'O'
   useEffect(() => {
@@ -79,9 +89,9 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    handleSendStampSound();
     if (!name.trim() || !email.trim() || !message.trim()) return;
 
-    playSound('stickerStamp');
     setStatus('sending');
     setErrorMessage('');
 
@@ -237,6 +247,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
               type="submit"
               className="contact-modal-submit-btn"
               disabled={status === 'sending'}
+              onPointerDown={handleSendStampSound}
             >
               {status === 'sending' ? (
                 <>

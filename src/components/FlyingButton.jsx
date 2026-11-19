@@ -1487,8 +1487,16 @@ function createEngine({ root, canvas, button, cursor, ramp, props }) {
     const over = p.in && overCraft(fx, fy, s.attached || s.drag ? 10 : 0);
     if (over !== s.hover) {
       s.hover = over;
-      if (over) button.dataset.hover = '';
-      else delete button.dataset.hover;
+      if (over) {
+        button.dataset.hover = '';
+        const now = performance.now();
+        if (P.onHover && (!s.lastHoverTime || now - s.lastHoverTime > 250)) {
+          s.lastHoverTime = now;
+          P.onHover();
+        }
+      } else {
+        delete button.dataset.hover;
+      }
     }
     if (!over && !s.drag) {
       s.attached = false;
@@ -2032,6 +2040,7 @@ function createSim(gl) {
 export default function FlyingButton({
   children = 'Take off',
   onClick,
+  onHover,
   theme = 'dark',
   size = 'medium',
   radius,
@@ -2095,7 +2104,8 @@ export default function FlyingButton({
     buttonAlign,
     buttonRight,
     groundY,
-    onClick
+    onClick,
+    onHover
   };
 
   useEffect(() => {
@@ -2156,6 +2166,11 @@ export default function FlyingButton({
         type="button"
         className="flying-button__craft"
         onClick={e => propsRef.current.onClick && propsRef.current.onClick(e)}
+        onMouseEnter={e => {
+          if (propsRef.current.onHover) {
+            propsRef.current.onHover(e);
+          }
+        }}
       >
         <span className="flying-button__face" aria-hidden="true" />
         <span className="flying-button__label">{children}</span>

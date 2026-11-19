@@ -26,6 +26,7 @@ export interface FlyingButtonProps {
   className?: string;
   style?: React.CSSProperties;
   onClick?: (e?: React.MouseEvent) => void;
+  onHover?: (e?: React.MouseEvent) => void;
 }
 
 declare const FlyingButton: React.FC<FlyingButtonProps>;

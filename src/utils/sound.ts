@@ -8,11 +8,13 @@ export type SoundEffect =
   | 'folderOpen'
   | 'rocket'
   | 'stickerStamp'
+  | 'glassTap'
   // Scroll Timeline Transitions
   | 'bookOpen'
   | 'pageFlip'
   | 'bookClose'
-  | 'cardFlip';
+  | 'cardFlip'
+  | 'aboutBloom';
 
 export interface SoundMetadata {
   id: SoundEffect;
@@ -147,6 +149,14 @@ export const SOUND_CATALOG: SoundMetadata[] = [
     file: '/sounds/card-flip.mp3',
     volume: 0.6,
   },
+  {
+    id: 'aboutBloom',
+    name: 'Organic Bubble Pop',
+    category: 'scroll',
+    description: 'Crisp, playful organic bubble pop as elements surface into view on the About Me page',
+    file: '/sounds/about-bloom.wav',
+    volume: 0.55,
+  },
 
   // Interactions
   {
@@ -188,6 +198,14 @@ export const SOUND_CATALOG: SoundMetadata[] = [
     description: 'Cinematic rocket thruster ignition blast on Say Hello rocket click & centered sketch folder peek hover',
     file: '/sounds/rocket.wav',
     volume: 0.45,
+  },
+  {
+    id: 'glassTap',
+    name: 'Glass Micro-Tap',
+    category: 'interaction',
+    description: 'High-precision sleek glass micro-tap when the Open Discussion card emerges',
+    file: '/sounds/click-glass.wav',
+    volume: 0.6,
   },
 ];
 
@@ -263,15 +281,13 @@ function preloadAllSounds() {
 // Fallback HTMLAudioElement pool if Web Audio API decode is pending
 const audioPool: Record<SoundEffect, HTMLAudioElement[]> = {} as Record<SoundEffect, HTMLAudioElement[]>;
 const POOL_SIZE = 8;
-let muted = false;
+let muted = true; // Strictly muted by default on every page load: user must click manually to turn on
 
-// Check localStorage for persisted mute preference
+// Ensure every fresh page load starts muted
 if (typeof window !== 'undefined') {
   try {
-    const saved = localStorage.getItem('portfolio_audio_muted');
-    if (saved !== null) {
-      muted = saved === 'true';
-    }
+    localStorage.removeItem('portfolio_audio_user_toggled');
+    localStorage.setItem('portfolio_audio_muted', 'true');
   } catch { }
 }
 
@@ -296,7 +312,7 @@ let isAudioUnlocked = false;
 function unlockAudioEngine() {
   const ctx = getAudioContext();
   if (ctx && ctx.state === 'suspended') {
-    ctx.resume().catch(() => {});
+    ctx.resume().catch(() => { });
   }
   if (!isAudioUnlocked) {
     isAudioUnlocked = true;
@@ -325,7 +341,7 @@ function fallbackPlay(name: SoundEffect) {
     audio.currentTime = 0;
     const playPromise = audio.play();
     if (playPromise !== undefined) {
-      playPromise.catch(() => {});
+      playPromise.catch(() => { });
     }
   } catch { }
 }
@@ -335,7 +351,7 @@ function fallbackPlay(name: SoundEffect) {
  * Uses Web Audio API hardware buffer source when available (< 1ms execution time).
  * Truly polyphonic: simultaneous or rapid clicks never stutter, clip, or lag.
  */
-export function playSound(name: SoundEffect) {
+export function playSound(name: SoundEffect, playbackRate = 1.0) {
   if (muted || typeof window === 'undefined') return;
 
   const config = SOUND_CONFIG[name];
@@ -344,13 +360,16 @@ export function playSound(name: SoundEffect) {
   const ctx = getAudioContext();
   if (ctx) {
     if (ctx.state === 'suspended') {
-      ctx.resume().catch(() => {});
+      ctx.resume().catch(() => { });
     }
     const buffer = audioBufferCache.get(config.src);
     if (buffer) {
       try {
         const source = ctx.createBufferSource();
         source.buffer = buffer;
+        if (playbackRate !== 1.0) {
+          source.playbackRate.value = playbackRate;
+        }
         const gainNode = ctx.createGain();
         gainNode.gain.value = config.volume;
         source.connect(gainNode);
@@ -376,7 +395,7 @@ export function playCustomAudio(file: string, volume = 0.5) {
   const ctx = getAudioContext();
   if (ctx) {
     if (ctx.state === 'suspended') {
-      ctx.resume().catch(() => {});
+      ctx.resume().catch(() => { });
     }
     const buffer = audioBufferCache.get(file);
     if (buffer) {
@@ -398,7 +417,7 @@ export function playCustomAudio(file: string, volume = 0.5) {
   try {
     const audio = new Audio(file);
     audio.volume = volume;
-    audio.play().catch(() => {});
+    audio.play().catch(() => { });
   } catch { }
 }
 
@@ -444,6 +463,7 @@ export function isSoundMuted(): boolean {
 export function toggleSoundMute(): boolean {
   muted = !muted;
   try {
+    localStorage.setItem('portfolio_audio_user_toggled', 'true');
     localStorage.setItem('portfolio_audio_muted', String(muted));
   } catch { }
   muteListeners.forEach((listener) => listener(muted));
@@ -453,6 +473,7 @@ export function toggleSoundMute(): boolean {
 export function setSoundMuted(val: boolean) {
   muted = val;
   try {
+    localStorage.setItem('portfolio_audio_user_toggled', 'true');
     localStorage.setItem('portfolio_audio_muted', String(muted));
   } catch { }
   muteListeners.forEach((listener) => listener(muted));
