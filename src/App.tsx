@@ -162,36 +162,6 @@ const PROJECTS_DATA: ProjectItem[] = [
   },
   {
     index: 4,
-    badge: 'Live Event Discovery Platform',
-    title: 'PLUTO CAMPUS',
-    tagline: 'Discover events, pick your seat, book your ticket, and connect across campuses.',
-    metaTeam: 'Team of 3 people',
-    metaDuration: 'Live',
-    metaYear: '2026',
-    tabs: ['Browse Events', 'User Ranks', 'Create Event', 'Transactions'],
-    screenshots: [
-      '/Pluto/pluto1 - Events.jpeg',
-      '/Pluto/pluto2 - User Rank.jpeg',
-      '/Pluto/pluto3 - Create Event.jpeg',
-      '/Pluto/pluto4 - Transactions.jpeg',
-    ],
-    aspectRatio: '1600 / 819',
-    role: 'Shaped how PLUTO looks and feels, designed its logo, and opened the doors to colleges and organizers.',
-    problem: 'College events in India are scattered across WhatsApp groups, Instagram posts and notice boards, so students miss them and organizers struggle to reach and manage their audience.',
-    solution: [
-      'Discover: Students explore events and competitions across campuses',
-      'Book: Pick your seat and pay online in one place',
-      'Ticket: Get a QR e-ticket instantly',
-      'Organize: Organizers create events, design seat layouts and track bookings and payments',
-    ],
-    stack: ['React Native', 'React', 'JavaScript', 'Node.js', 'Supabase', 'Razorpay', 'Groq (LLaMA)', 'Firebase FCM', 'Three.js'],
-    quote: '“Others show events. PLUTO connects the whole campus world.”',
-    liveUrl: 'https://www.plutocampus.in/',
-    githubLabel: 'Download now',
-    githubUrl: 'https://play.google.com/store/apps/details?id=com.pluto_app',
-  },
-  {
-    index: 5,
     badge: 'Finalist at Paytm Build AI Hackathon',
     title: 'SULAJH AI',
     tagline: 'The autonomous AI teammate that fixes merchant payout failures and chargeback disputes, within the rules.',
@@ -941,12 +911,12 @@ export const App: React.FC = () => {
     if (tgtRef.current < 0.46) {
       tgtRef.current = 0.48; // Open cleanly to Page 1
     } else {
-      const curTurn = sg(tgtRef.current, 0.48, 0.60) * 4;
-      const curPage = Math.min(4, Math.floor(curTurn + 0.1));
-      if (curPage < 4) {
-        tgtRef.current = 0.48 + (curPage + 1) * (0.12 / 4);
-      } else if (curPage === 4) {
-        // At Page 5: CLOSE THE BOOK!
+      const curTurn = sg(tgtRef.current, 0.48, 0.60) * 3;
+      const curPage = Math.min(3, Math.floor(curTurn + 0.1));
+      if (curPage < 3) {
+        tgtRef.current = 0.48 + (curPage + 1) * (0.12 / 3);
+      } else if (curPage === 3) {
+        // At Page 4: CLOSE THE BOOK!
         tgtRef.current = 0.64;
       } else {
         // From closed book: GO TO MOMENTS!
@@ -961,13 +931,13 @@ export const App: React.FC = () => {
     if (tgtRef.current <= 0.485) {
       tgtRef.current = 0.38; // Cleanly close back to cover
     } else if (tgtRef.current >= 0.61) {
-      // Re-open from closed book back to Page 5
+      // Re-open from closed book back to Page 4
       tgtRef.current = 0.60;
     } else {
-      const curTurn = sg(tgtRef.current, 0.48, 0.60) * 4;
-      const curPage = Math.min(4, Math.floor(curTurn + 0.1));
+      const curTurn = sg(tgtRef.current, 0.48, 0.60) * 3;
+      const curPage = Math.min(3, Math.floor(curTurn + 0.1));
       if (curPage > 0) {
-        tgtRef.current = 0.48 + (curPage - 1) * (0.12 / 4);
+        tgtRef.current = 0.48 + (curPage - 1) * (0.12 / 3);
       } else {
         tgtRef.current = 0.38; // Cleanly close back to cover
       }
@@ -1719,10 +1689,10 @@ export const App: React.FC = () => {
 
           // -----------------------------------------------------
           // Step 6: Interactive 3D Physical Page Turns
-          // p: 0.48 -> 0.60 (4 physical turns across 5 projects)
+          // p: 0.48 -> 0.60 (3 physical turns across 4 projects)
           // -----------------------------------------------------
-          const turnProgress = sg(p, 0.48, 0.60) * 4;
-          const activePage = Math.min(4, Math.max(0, Math.round(turnProgress)));
+          const turnProgress = sg(p, 0.48, 0.60) * 3;
+          const activePage = Math.min(3, Math.max(0, Math.round(turnProgress)));
           activePageRef.current = activePage;
           if (p >= 0.47 && p <= 0.61) {
             if (lastSoundPageRef.current !== -1 && lastSoundPageRef.current !== activePage) {
@@ -1875,7 +1845,7 @@ export const App: React.FC = () => {
             leafRefs.current.forEach((leaf, i) => {
               if (!leaf) return;
               leaf.style.display = 'block';
-              const stackZ = (3 - i) * 0.4;
+              const stackZ = (2 - i) * 0.4;
               leaf.style.transform = `translate3d(0, 0, ${stackZ.toFixed(1)}px) rotateY(0deg)`;
               leaf.style.zIndex = `${15 - i}`;
               leaf.style.pointerEvents = 'none';
@@ -1895,12 +1865,12 @@ export const App: React.FC = () => {
             leafRefs.current.forEach((leaf, i) => {
               if (!leaf) return;
               leaf.style.display = 'block';
-              // When lifting off left desk (isOpenOnLeft), Leaf 3 must stay on top facing user (stackZ = i * 0.4)!
-              // When landing on right desk, Leaf 0 is on top under front cover (stackZ = (3 - i) * 0.4).
-              const stackZ = isOpenOnLeft ? (i * 0.4) : ((3 - i) * 0.4);
+              // When lifting off left desk (isOpenOnLeft), Leaf 2 must stay on top facing user (stackZ = i * 0.4)!
+              // When landing on right desk, Leaf 0 is on top under front cover (stackZ = (2 - i) * 0.4).
+              const stackZ = isOpenOnLeft ? (i * 0.4) : ((2 - i) * 0.4);
               leaf.style.transform = `translate3d(0, 0, ${stackZ.toFixed(1)}px) rotateY(${closedLeafRotY.toFixed(1)}deg)`;
               if (isOpenOnLeft) {
-                // Lifting off the left desk: Leaf 3 Back (Sulajh AI Left) is on top facing the user!
+                // Lifting off the left desk: Leaf 2 Back (Sulajh AI Left) is on top facing the user!
                 leaf.style.zIndex = `${20 + i}`;
               } else {
                 // Coming down onto the right desk: underneath front cover (zIndex: 45)
@@ -1909,7 +1879,7 @@ export const App: React.FC = () => {
               leaf.style.pointerEvents = 'none';
             });
           } else {
-            // OPEN 2-PAGE SPREAD & DYNAMIC 3D PAGE TURNS (turnProgress: 0.0 -> 4.0 across 5 projects)
+            // OPEN 2-PAGE SPREAD & DYNAMIC 3D PAGE TURNS (turnProgress: 0.0 -> 3.0 across 4 projects)
             if (bookSpreadRef.current) {
               bookSpreadRef.current.style.display = 'block';
               bookSpreadRef.current.style.opacity = '1';
@@ -1918,10 +1888,10 @@ export const App: React.FC = () => {
               baseRightRef.current.style.display = 'block';
               baseRightRef.current.style.opacity = '1';
               baseRightRef.current.style.zIndex = '4';
-              baseRightRef.current.style.pointerEvents = activePage === 4 ? 'auto' : 'none';
+              baseRightRef.current.style.pointerEvents = activePage === 3 ? 'auto' : 'none';
             }
 
-            for (let i = 0; i < 4; i++) {
+            for (let i = 0; i < 3; i++) {
               const leaf = leafRefs.current[i];
               if (!leaf) continue;
               leaf.style.display = 'block';
@@ -1931,7 +1901,7 @@ export const App: React.FC = () => {
 
               if (turnProgress <= i) {
                 // Flat on right side stack (unturned)
-                const stackZ = (3 - i) * 0.4;
+                const stackZ = (2 - i) * 0.4;
                 leaf.style.transform = `translate3d(0, 0, ${stackZ.toFixed(1)}px) rotateY(0deg)`;
                 leaf.style.zIndex = `${15 - i}`;
                 const isCurrent = activePage === i;
@@ -1986,14 +1956,14 @@ export const App: React.FC = () => {
             } else if (p > 0.60) {
               bookCounterRef.current.textContent = 'CLOSED';
             } else {
-              bookCounterRef.current.textContent = `0${activePageRef.current + 1} / 05`;
+              bookCounterRef.current.textContent = `0${activePageRef.current + 1} / 04`;
             }
           }
 
           if (bookNextBtnRef.current) {
             if (p > 0.60) {
               bookNextBtnRef.current.textContent = 'MOMENTS →';
-            } else if (activePageRef.current >= 4) {
+            } else if (activePageRef.current >= 3) {
               bookNextBtnRef.current.textContent = 'CLOSE BOOK ›';
             } else {
               bookNextBtnRef.current.textContent = 'NEXT ›';
@@ -2871,7 +2841,7 @@ export const App: React.FC = () => {
                 className="book-page-spread"
                 style={{ display: 'none' }}
               >
-                {/* Base Right Page: Fixed base underneath right stack (Project 4: Sulajh AI Right) */}
+                {/* Base Right Page: Fixed base underneath right stack (Project 3: Sulajh AI Right) */}
                 <div
                   ref={baseRightRef}
                   className="book-base-right"
@@ -2880,11 +2850,11 @@ export const App: React.FC = () => {
                     turnNext();
                   }}
                 >
-                  {renderProjectRight(PROJECTS_DATA[4])}
+                  {renderProjectRight(PROJECTS_DATA[3])}
                 </div>
 
-                {/* 4 Physical 3D Turning Leaves */}
-                {[0, 1, 2, 3].map((i) => (
+                {/* 3 Physical 3D Turning Leaves */}
+                {[0, 1, 2].map((i) => (
                   <div
                     key={`leaf-${i}`}
                     ref={(el) => { leafRefs.current[i] = el; }}
@@ -2979,7 +2949,7 @@ export const App: React.FC = () => {
                 </button>
                 <div className="book-page-pill">
                   <span ref={bookCounterRef}>
-                    01 / 05
+                    01 / 04
                   </span>
                 </div>
                 <button
