@@ -25,8 +25,7 @@ export const SoundToggle: React.FC = () => {
         type="button"
         className={`sound-nav-icon-btn ${muted ? 'muted' : 'active'}`}
         onClick={handleMuteClick}
-        aria-label={muted ? 'Unmute Sound' : 'Mute Sound'}
-        title={muted ? 'Unmute sound effects (Click to enable audio)' : 'Mute sound effects'}
+        aria-label={muted ? 'Unmute' : 'Mute'}
       >
         {muted ? <FiVolumeX size={21} /> : <FiVolume2 size={21} />}
       </button>
