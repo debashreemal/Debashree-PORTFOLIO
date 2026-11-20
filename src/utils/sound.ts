@@ -171,7 +171,7 @@ export const SOUND_CATALOG: SoundMetadata[] = [
     id: 'pop',
     name: 'Organic Bubble Pop',
     category: 'interaction',
-    description: 'Organic bubble pop for ClickSpark cancel cross buttons',
+    description: 'Organic bubble pop for modal cancel cross buttons',
     file: '/sounds/click-pop.wav',
     volume: 0.55,
   },

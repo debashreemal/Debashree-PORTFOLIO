@@ -4,7 +4,6 @@ import FlyingButton from './components/FlyingButton';
 import FoldText from './components/FoldText';
 import ContactModal from './components/ContactModal';
 import Folder, { type FolderItem } from './components/Folder';
-import ClickSpark from './components/ClickSpark';
 import SoundToggle from './components/SoundToggle';
 import { playSound } from './utils/sound';
 import { FaLinkedin, FaGithub, FaEnvelope } from 'react-icons/fa6';
@@ -2308,24 +2307,12 @@ export const App: React.FC = () => {
   }, [domeConfig, activeCard, handleCardClick, handleMomentsCardHover]);
 
   return (
-    <ClickSpark
-      sparkColor="#8F9BFF"
-      sparkCount={9}
-      sparkSize={15}
-      sparkRadius={32}
-      duration={450}
-      extraScale={1}
-      shape="line"
-      glow={0.35}
-      targetSelector=".contact-modal-close-btn, .sketch-modal-close-btn"
-      style={{ width: '100vw', height: '100vh', position: 'fixed', inset: 0 }}
+    <div
+      className="stage"
+      id="st"
+      ref={stageRef}
+      tabIndex={0}
     >
-      <div
-        className="stage"
-        id="st"
-        ref={stageRef}
-        tabIndex={0}
-      >
         {/* Top Navbar */}
         <nav className="nav">
           <SoundToggle />
@@ -3275,7 +3262,6 @@ export const App: React.FC = () => {
           onClose={() => setIsContactModalOpen(false)}
         />
       </div>
-    </ClickSpark>
   );
 };
 
