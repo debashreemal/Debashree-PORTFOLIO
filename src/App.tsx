@@ -324,9 +324,9 @@ const MOMENTS_ITEMS = [
   },
   {
     id: 14,
-    title: 'Open Discussion',
+    title: 'Open to Discuss',
     category: 'FEATURED MOMENT',
-    tag: 'Open Discussion',
+    tag: 'Open to Discuss',
     desc: 'Panel discussions, Q&A, and technical deep-dives with mentors.',
     date: '2026',
     color: '#8F9BFF',
@@ -435,7 +435,7 @@ MOMENTS_ITEMS.forEach((item) => {
 // - Col 3:             m1 (Paytm Headquaters), m5 (Team STARCY), m6 (Saavishkar)
 // - Col 2 (mid-left):  m10 (Official Participant), m4 (Connections), m21 (Waterstone)
 // - Col 1 (near-left): m16 (Paytm Collab Coding), m13 (1st Rank at Ent Quest), m22 (Calm Confidence)
-// - Col 0 (center):    m3 (Pitching ZOKU), m14 (Open Discussion hero), m2 (Pluto Campus)
+// - Col 0 (center):    m3 (Pitching ZOKU), m14 (Open to Discuss hero), m2 (Pluto Campus)
 // - Col 22 (near-right): m15 (SIH Presentation), m8 (WON AXION Hackathon), m17 (Paytm Hackathon)
 // - Col 21 (mid-right):  m19 (Paytm AI Hackathon), m20 (Enterpreneurship Quest), m9 (SIH Internal Round)
 // - Col 20:            m18 (Audience Agreement), m23 (Paytm Innovators), m7 (Hack with Mumbai)
@@ -448,7 +448,7 @@ const MOMENTS_GRID: number[][] = [
 // The hero moment card in slot (Row 1, Col 0):
 const HERO_MOMENT = MOMENTS_MAP[MOMENTS_GRID[1][0]];
 
-const MILESTONES = [0, 0.24, 0.48, 0.74, 1.0];
+const MILESTONES = [0, 0.24, 0.47, 0.74, 1.0];
 const THRESHOLDS = [0, 0.12, 0.31, 0.65, 0.88];
 const SECTIONS = ['HOME', 'ABOUT', 'BUILDS', 'MOMENTS', 'CONTACT'];
 
@@ -627,8 +627,14 @@ export const App: React.FC = () => {
             {proj.metaTeam}, {proj.metaDuration}, {proj.metaYear}
           </p>
         </div>
-        <div className="gallery">
-          <div className="tabs" role="tablist" data-active={curTabIdx}>
+        <div className="gallery" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="tabs"
+            role="tablist"
+            data-active={curTabIdx}
+            onClick={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+          >
             {proj.tabs.map((tName, tIdx) => {
               const isActive = curTabIdx === tIdx;
               return (
@@ -638,7 +644,9 @@ export const App: React.FC = () => {
                   className={isActive ? 'on' : ''}
                   role="tab"
                   data-i={tIdx}
-                  onPointerDown={(e) => e.stopPropagation()}
+                  onPointerDown={(e) => {
+                    e.stopPropagation();
+                  }}
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -654,6 +662,8 @@ export const App: React.FC = () => {
           <div
             className={`shot ${proj.isPortrait ? 'shot-portrait' : 'shot-landscape'}`}
             style={proj.aspectRatio ? { aspectRatio: proj.aspectRatio } : undefined}
+            onClick={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
           >
             {curImg ? (
               <img
@@ -880,14 +890,13 @@ export const App: React.FC = () => {
     aboutItemTag2: false,
     aboutItemPills: false,
     aboutFolding: false,
-    aboutToBuilds: false,
+    bookSheenSweep: false,
     bookOpen: false,
     bookClose: false,
     buildsToMoments: false,
     cardCoinFlip: false,
     momentsToContact: false,
   });
-  const aboutToBuildsTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Mouse & tilt smoothing
   const mouseTargetRef = useRef({ x: 0, y: 0 });
@@ -905,18 +914,18 @@ export const App: React.FC = () => {
 
   // 3D Book Page Turning Callbacks (exact, obstacle-free page targets)
   const turnNext = useCallback(() => {
-    playSound('pageFlip');
+    playSound('bookOpen');
     resetScrollDrive();
     if (tgtRef.current < 0.46) {
-      tgtRef.current = 0.48; // Open cleanly to Page 1
+      tgtRef.current = 0.47; // Open cleanly to Page 1 (Flowmind)
     } else {
-      const curTurn = sg(tgtRef.current, 0.48, 0.60) * 3;
-      const curPage = Math.min(3, Math.floor(curTurn + 0.1));
+      const curTurn = sg(tgtRef.current, 0.47, 0.59) * 3;
+      const curPage = Math.min(3, Math.floor(curTurn + 0.15));
       if (curPage < 3) {
-        tgtRef.current = 0.48 + (curPage + 1) * (0.12 / 3);
-      } else if (curPage === 3) {
-        // At Page 4: CLOSE THE BOOK!
-        tgtRef.current = 0.64;
+        tgtRef.current = [0.47, 0.51, 0.55, 0.59][curPage + 1];
+      } else if (curPage === 3 && tgtRef.current < 0.615) {
+        // At Sulajh AI: CLOSE THE BOOK!
+        tgtRef.current = 0.645;
       } else {
         // From closed book: GO TO MOMENTS!
         goTo(3);
@@ -925,18 +934,18 @@ export const App: React.FC = () => {
   }, [goTo, resetScrollDrive]);
 
   const turnPrev = useCallback(() => {
-    playSound('pageFlip');
+    playSound('bookOpen');
     resetScrollDrive();
-    if (tgtRef.current <= 0.485) {
+    if (tgtRef.current <= 0.475) {
       tgtRef.current = 0.38; // Cleanly close back to cover
-    } else if (tgtRef.current >= 0.61) {
-      // Re-open from closed book back to Page 4
-      tgtRef.current = 0.60;
+    } else if (tgtRef.current >= 0.62) {
+      // Re-open from closed book back to Page 4 (Sulajh AI)
+      tgtRef.current = 0.59;
     } else {
-      const curTurn = sg(tgtRef.current, 0.48, 0.60) * 3;
-      const curPage = Math.min(3, Math.floor(curTurn + 0.1));
+      const curTurn = sg(tgtRef.current, 0.47, 0.59) * 3;
+      const curPage = Math.min(3, Math.ceil(curTurn - 0.15));
       if (curPage > 0) {
-        tgtRef.current = 0.48 + (curPage - 1) * (0.12 / 3);
+        tgtRef.current = [0.47, 0.51, 0.55, 0.59][curPage - 1];
       } else {
         tgtRef.current = 0.38; // Cleanly close back to cover
       }
@@ -947,9 +956,9 @@ export const App: React.FC = () => {
     playSound('bookOpen');
     resetScrollDrive();
     if (tgtRef.current < 0.46) {
-      tgtRef.current = 0.48;
-    } else if (tgtRef.current >= 0.61) {
-      tgtRef.current = 0.48;
+      tgtRef.current = 0.47;
+    } else if (tgtRef.current >= 0.615) {
+      tgtRef.current = 0.47;
     } else {
       tgtRef.current = 0.38;
     }
@@ -1090,6 +1099,11 @@ export const App: React.FC = () => {
     const onPointerDown = (e: PointerEvent) => {
       domeState.current.drag = { x: e.clientX, y: e.clientY };
       dw.style.cursor = 'grabbing';
+      if (momentsHoverTimerRef.current !== null) {
+        window.clearTimeout(momentsHoverTimerRef.current);
+        momentsHoverTimerRef.current = null;
+      }
+      activeHoveredCardRef.current = null;
     };
 
     const onPointerMove = (e: PointerEvent) => {
@@ -1155,6 +1169,20 @@ export const App: React.FC = () => {
 
       if (scrollDriveRef.current.currentVelocity !== 0) {
         tgtRef.current = cl(tgtRef.current + scrollDriveRef.current.currentVelocity * dt);
+      }
+
+      // Magnetic Page Settling: When user releases scroll inside the 3D book spread (0.455 <= tgt <= 0.615),
+      // auto-settle cleanly to the nearest spread so leaves NEVER get stuck in mid-air!
+      if (!isScrollActive && Math.abs(scrollDriveRef.current.currentVelocity) < 0.004) {
+        if (tgtRef.current >= 0.455 && tgtRef.current <= 0.615) {
+          const SPREAD_TARGETS = [0.47, 0.51, 0.55, 0.59];
+          const curTurn = sg(tgtRef.current, 0.47, 0.59) * 3;
+          const nearestPage = Math.min(3, Math.max(0, Math.round(curTurn)));
+          const targetSpreadP = SPREAD_TARGETS[nearestPage];
+          if (Math.abs(tgtRef.current - targetSpreadP) > 0.0003) {
+            tgtRef.current += (targetSpreadP - tgtRef.current) * (1 - Math.exp(-dt * 6.5));
+          }
+        }
       }
 
       // Smooth, unified progress tracking across the entire site with zero artificial slowdowns
@@ -1259,15 +1287,11 @@ export const App: React.FC = () => {
           playSound('rocket');
         }
 
-        // 2. Transition: About Me -> Builds (Wins / 3D Book)
-        // When the white page of About Me shifts to convert into the book of builds
-        // (triggered while the BUILDS written animation is in process: p >= 0.320, delayed by 0.4 seconds)
-        if (p >= 0.320 && !sfx.aboutToBuilds) {
-          sfx.aboutToBuilds = true;
-          if (aboutToBuildsTimerRef.current) clearTimeout(aboutToBuildsTimerRef.current);
-          aboutToBuildsTimerRef.current = setTimeout(() => {
-            playSound('cardFlip');
-          }, 400);
+        // 2. Builds Book: Specular light sheen sweeps across cover (p >= 0.370)
+        // Plays 3D Moment Card Flip sound ('cardFlip') precisely when the sheen sweeps across the book cover!
+        if (p >= 0.370 && !sfx.bookSheenSweep) {
+          sfx.bookSheenSweep = true;
+          playSound('cardFlip');
         }
 
         // Inside Builds: Book cover opens around spine revealing Page 1
@@ -1309,13 +1333,7 @@ export const App: React.FC = () => {
         if (p < 0.60) sfx.buildsToMoments = false;
         if (p < 0.58) sfx.bookClose = false;
         if (p < 0.38) sfx.bookOpen = false;
-        if (p < 0.28) {
-          sfx.aboutToBuilds = false;
-          if (aboutToBuildsTimerRef.current) {
-            clearTimeout(aboutToBuildsTimerRef.current);
-            aboutToBuildsTimerRef.current = null;
-          }
-        }
+        if (p < 0.34) sfx.bookSheenSweep = false;
         if (p < 0.24) sfx.aboutFolding = false;
         if (p < 0.205) sfx.aboutItemPills = false;
         if (p < 0.190) sfx.aboutItemTag2 = false;
@@ -1675,27 +1693,27 @@ export const App: React.FC = () => {
           // -----------------------------------------------------
           if (bookShineRef.current) {
             const uShine = sg(p, 0.37, 0.40);
-            bookShineRef.current.style.opacity = `${Math.sin(uShine * Math.PI) * 0.85}`;
+            bookShineRef.current.style.opacity = `${Math.sin(uShine * Math.PI) * 0.98}`;
             bookShineRef.current.style.transform = `translateX(${lp(-60, 60, uShine)}%)`;
           }
 
           // -----------------------------------------------------
           // Step 5: Clean, Unified Book Opening (Zero Tilt, Zero Wobble)
-          // p: 0.40 -> 0.48 (Front cover swings smoothly open from 0 to -180 deg)
+          // p: 0.38 -> 0.46 (Front cover swings smoothly open from 0 to -180 deg)
           // -----------------------------------------------------
-          const openT = sg(p, 0.40, 0.48);
+          const openT = sg(p, 0.38, 0.46);
           const openEase = io(openT);
 
           // -----------------------------------------------------
           // Step 6: Interactive 3D Physical Page Turns
-          // p: 0.48 -> 0.60 (3 physical turns across 4 projects)
+          // p: 0.47 -> 0.59 (3 physical turns across 4 projects)
           // -----------------------------------------------------
-          const turnProgress = sg(p, 0.48, 0.60) * 3;
+          const turnProgress = sg(p, 0.47, 0.59) * 3;
           const activePage = Math.min(3, Math.max(0, Math.round(turnProgress)));
           activePageRef.current = activePage;
-          if (p >= 0.47 && p <= 0.61) {
+          if (p >= 0.46 && p <= 0.615) {
             if (lastSoundPageRef.current !== -1 && lastSoundPageRef.current !== activePage) {
-              playSound('pageFlip');
+              playSound('bookOpen');
             }
             lastSoundPageRef.current = activePage;
           } else {
@@ -1704,16 +1722,16 @@ export const App: React.FC = () => {
 
           // -----------------------------------------------------
           // Step 7: Book Closes After Last Page!
-          // p: 0.60 -> 0.635 (Front cover & leaves swing shut together)
+          // p: 0.615 -> 0.645 (Front cover & leaves swing shut together)
           // -----------------------------------------------------
-          const closeT = sg(p, 0.60, 0.635);
+          const closeT = sg(p, 0.615, 0.645);
           const closeEase = io(closeT);
 
           // -----------------------------------------------------
           // Step 8: Smooth Zoom-Through Transition into Moments 3D Globe
-          // p: 0.635 -> 0.685 (Closed book zooms dramatically towards camera & dissolves into Moments)
+          // p: 0.645 -> 0.69 (Closed book zooms dramatically towards camera & dissolves into Moments)
           // -----------------------------------------------------
-          const zoomT = sg(p, 0.635, 0.685);
+          const zoomT = sg(p, 0.645, 0.69);
           const zoomEase = io(zoomT);
 
           // Fore-edge, top edge, and bottom edge:
@@ -1887,7 +1905,7 @@ export const App: React.FC = () => {
               baseRightRef.current.style.display = 'block';
               baseRightRef.current.style.opacity = '1';
               baseRightRef.current.style.zIndex = '4';
-              baseRightRef.current.style.pointerEvents = activePage === 3 ? 'auto' : 'none';
+              baseRightRef.current.style.pointerEvents = (activePage === 3 && closeT === 0) ? 'auto' : 'none';
             }
 
             for (let i = 0; i < 3; i++) {
@@ -1898,35 +1916,51 @@ export const App: React.FC = () => {
               const frontFace = leaf.querySelector('.leaf-face-front') as HTMLElement | null;
               const backFace = leaf.querySelector('.leaf-face-back') as HTMLElement | null;
 
-              if (turnProgress <= i) {
+              const u = cl(turnProgress - i);
+              const isFrontVisible = (activePage === i);
+              const isBackVisible = (activePage === i + 1);
+
+              if (u <= 0.001) {
                 // Flat on right side stack (unturned)
                 const stackZ = (2 - i) * 0.4;
                 leaf.style.transform = `translate3d(0, 0, ${stackZ.toFixed(1)}px) rotateY(0deg)`;
                 leaf.style.zIndex = `${15 - i}`;
-                const isCurrent = activePage === i;
-                leaf.style.pointerEvents = isCurrent ? 'auto' : 'none';
-                if (frontFace) frontFace.style.pointerEvents = isCurrent ? 'auto' : 'none';
+                leaf.style.pointerEvents = isFrontVisible ? 'auto' : 'none';
+                if (frontFace) frontFace.style.pointerEvents = isFrontVisible ? 'auto' : 'none';
                 if (backFace) backFace.style.pointerEvents = 'none';
-              } else if (turnProgress >= i + 1) {
+              } else if (u >= 0.999) {
                 // Flat on left side stack (already turned)
                 const stackZ = i * 0.4;
                 leaf.style.transform = `translate3d(0, 0, ${stackZ.toFixed(1)}px) rotateY(-180deg)`;
                 leaf.style.zIndex = `${6 + i}`;
-                const isCurrent = activePage === i + 1;
-                leaf.style.pointerEvents = isCurrent ? 'auto' : 'none';
+                leaf.style.pointerEvents = isBackVisible ? 'auto' : 'none';
                 if (frontFace) frontFace.style.pointerEvents = 'none';
-                if (backFace) backFace.style.pointerEvents = isCurrent ? 'auto' : 'none';
+                if (backFace) backFace.style.pointerEvents = isBackVisible ? 'auto' : 'none';
               } else {
                 // ACTIVE 3D PAGE FLIGHT between project i and i + 1!
-                const u = turnProgress - i;
                 const easeTurn = 0.5 - 0.5 * Math.cos(u * Math.PI);
                 const rotY = -180 * easeTurn;
                 const arcZ = Math.sin(u * Math.PI) * 45 + 5;
                 leaf.style.transform = `translate3d(0, 0, ${arcZ.toFixed(1)}px) rotateY(${rotY.toFixed(1)}deg)`;
                 leaf.style.zIndex = '50';
-                leaf.style.pointerEvents = 'none';
-                if (frontFace) frontFace.style.pointerEvents = 'none';
-                if (backFace) backFace.style.pointerEvents = 'none';
+
+                // Keep interactive unless in rapid scroll flight
+                const inRapidMotion = isScrollActive && Math.abs(scrollDriveRef.current.currentVelocity) > 0.008;
+                if (inRapidMotion) {
+                  leaf.style.pointerEvents = 'none';
+                  if (frontFace) frontFace.style.pointerEvents = 'none';
+                  if (backFace) backFace.style.pointerEvents = 'none';
+                } else {
+                  if (easeTurn < 0.5) {
+                    leaf.style.pointerEvents = isFrontVisible ? 'auto' : 'none';
+                    if (frontFace) frontFace.style.pointerEvents = isFrontVisible ? 'auto' : 'none';
+                    if (backFace) backFace.style.pointerEvents = 'none';
+                  } else {
+                    leaf.style.pointerEvents = isBackVisible ? 'auto' : 'none';
+                    if (frontFace) frontFace.style.pointerEvents = 'none';
+                    if (backFace) backFace.style.pointerEvents = isBackVisible ? 'auto' : 'none';
+                  }
+                }
               }
             }
           }
@@ -1941,18 +1975,18 @@ export const App: React.FC = () => {
           // Minimalist Bottom Controls & Dynamic Direct DOM Updates
           // STRICTLY VISIBLE ONLY WHEN BOOK IS FLAT OPEN AND READY FOR READING!
           if (bookControlsRef.current) {
-            const isOpenForReading = p >= 0.46 && p <= 0.60;
-            const ctrlFadeIn = io(sg(p, 0.46, 0.49));
-            const ctrlFadeOut = 1 - io(sg(p, 0.595, 0.61));
+            const isOpenForReading = p >= 0.45 && p <= 0.615;
+            const ctrlFadeIn = io(sg(p, 0.45, 0.48));
+            const ctrlFadeOut = 1 - io(sg(p, 0.61, 0.63));
             const ctrlOp = (isOpenForReading ? ctrlFadeIn * ctrlFadeOut : 0) * (1 - zoomT);
             bookControlsRef.current.style.opacity = `${ctrlOp.toFixed(2)}`;
             bookControlsRef.current.style.pointerEvents = ctrlOp > 0.5 ? 'auto' : 'none';
           }
 
           if (bookCounterRef.current) {
-            if (p < 0.46) {
+            if (p < 0.45) {
               bookCounterRef.current.textContent = 'COVER';
-            } else if (p > 0.60) {
+            } else if (p > 0.615) {
               bookCounterRef.current.textContent = 'CLOSED';
             } else {
               bookCounterRef.current.textContent = `0${activePageRef.current + 1} / 04`;
@@ -1960,7 +1994,7 @@ export const App: React.FC = () => {
           }
 
           if (bookNextBtnRef.current) {
-            if (p > 0.60) {
+            if (p > 0.615) {
               bookNextBtnRef.current.textContent = 'MOMENTS →';
             } else if (activePageRef.current >= 3) {
               bookNextBtnRef.current.textContent = 'CLOSE BOOK ›';
@@ -1970,22 +2004,22 @@ export const App: React.FC = () => {
           }
 
           if (bookPrevBtnRef.current) {
-            bookPrevBtnRef.current.disabled = (p < 0.46);
+            bookPrevBtnRef.current.disabled = (p < 0.45);
           }
         }
       }
 
       // =========================================================
-      // PANEL 3: MOMENTS (0.635 < p < 0.94) - Inside Globe & Clean Zoom Fly-Through
+      // PANEL 3: MOMENTS (0.645 < p < 0.94) - Inside Globe & Clean Zoom Fly-Through
       // =========================================================
-      const momentsVisible = p > 0.635 && p < 0.94;
+      const momentsVisible = p > 0.645 && p < 0.94;
       if (p4Ref.current) {
         p4Ref.current.style.display = momentsVisible ? 'block' : 'none';
         p4Ref.current.style.zIndex = p < 0.68 ? '3' : '4';
         p4Ref.current.style.pointerEvents = p >= 0.68 ? 'auto' : 'none';
         if (momentsVisible) {
-          // Entrance begins smoothly as the closed book zooms in (0.635 -> 0.72)
-          const momIn = io(sg(p, 0.635, 0.72));
+          // Entrance begins smoothly as the closed book zooms in (0.645 -> 0.72)
+          const momIn = io(sg(p, 0.645, 0.72));
           // Clean forward zoom into blank space (starts at 0.86, fully clears by 0.94)
           const momFly = io(sg(p, 0.86, 0.94));
           p4Ref.current.style.opacity = `${momIn * (1 - momFly)}`;
@@ -1997,7 +2031,7 @@ export const App: React.FC = () => {
           }
 
           // 3D Panoramic Fly-in & Clean Forward Zoom: Inside-the-Globe View
-          const en = io(sg(p, 0.635, 0.72));
+          const en = io(sg(p, 0.645, 0.72));
           const sr = sg(p, 0.65, 0.82);
 
           // Resting zoom keeps cards large and immersive; transition flies forward into blank space
@@ -2188,31 +2222,70 @@ export const App: React.FC = () => {
     return () => cancelAnimationFrame(animId);
   }, []);
 
-  // Intentional mouse move & scroll velocity tracking for card hover audio
+  // Intentional mouse move & dwell tracking for card hover audio
   const lastMouseMoveTimeRef = useRef(0);
-  const lastMomentsHoverTimeRef = useRef(0);
+  const momentsHoverTimerRef = useRef<number | null>(null);
+  const activeHoveredCardRef = useRef<number | null>(null);
+  const lastSoundCardRef = useRef<number | null>(null);
 
   useEffect(() => {
     const handlePointerMove = () => {
       lastMouseMoveTimeRef.current = performance.now();
     };
     window.addEventListener('pointermove', handlePointerMove, { passive: true });
-    return () => window.removeEventListener('pointermove', handlePointerMove);
+    return () => {
+      window.removeEventListener('pointermove', handlePointerMove);
+      if (momentsHoverTimerRef.current !== null) {
+        window.clearTimeout(momentsHoverTimerRef.current);
+      }
+    };
   }, []);
 
-  const handleMomentsCardHover = useCallback(() => {
+  // Intentional Hover Handler:
+  // Requires a brief 70ms dwell on a specific card.
+  // Rapid circular sweeps across multiple cards exit in < 40ms and stay completely silent!
+  const handleMomentsCardMouseEnter = useCallback((cardIdx: number) => {
     const now = performance.now();
     // 1. Must not be dragging the 3D globe
     if (domeState.current?.drag) return;
-    // 2. Must not be rapidly scrolling through sections
-    if (Math.abs(scrollDriveRef.current.currentVelocity) > 0.0005) return;
-    // 3. User must have moved the mouse intentionally recently (< 250ms)
-    if (now - lastMouseMoveTimeRef.current > 250) return;
-    // 4. Throttle sweeps so intentional hovers sound distinct and tactile
-    if (now - lastMomentsHoverTimeRef.current < 85) return;
-    lastMomentsHoverTimeRef.current = now;
+    // 2. Must not be rapidly scrolling between sections
+    if (Math.abs(scrollDriveRef.current.currentVelocity) > 0.015) return;
+    // 3. User must have moved mouse recently (< 1200ms) - prevents audio when globe rotates under stationary mouse
+    if (now - lastMouseMoveTimeRef.current > 1200) return;
+    // 4. Must be inside Moments section
+    if (tgtRef.current < 0.63 || tgtRef.current > 0.89) return;
 
-    playSound('glassTap');
+    // Clear any pending timer from a previous transit
+    if (momentsHoverTimerRef.current !== null) {
+      window.clearTimeout(momentsHoverTimerRef.current);
+      momentsHoverTimerRef.current = null;
+    }
+
+    activeHoveredCardRef.current = cardIdx;
+
+    // Settle / Dwell check (70ms):
+    // Only fires if the cursor intentionally pauses/dwells on this specific card.
+    momentsHoverTimerRef.current = window.setTimeout(() => {
+      if (
+        activeHoveredCardRef.current === cardIdx &&
+        !domeState.current?.drag &&
+        lastSoundCardRef.current !== cardIdx
+      ) {
+        playSound('glassTap');
+        lastSoundCardRef.current = cardIdx;
+      }
+      momentsHoverTimerRef.current = null;
+    }, 70);
+  }, []);
+
+  const handleMomentsCardMouseLeave = useCallback((cardIdx: number) => {
+    if (activeHoveredCardRef.current === cardIdx) {
+      activeHoveredCardRef.current = null;
+      if (momentsHoverTimerRef.current !== null) {
+        window.clearTimeout(momentsHoverTimerRef.current);
+        momentsHoverTimerRef.current = null;
+      }
+    }
   }, []);
 
   // Toggle card inspection: 1st click pops card out in 3D, 2nd click docks it back!
@@ -2247,7 +2320,8 @@ export const App: React.FC = () => {
           <div
             key={currentIdx}
             className="dt"
-            onMouseEnter={handleMomentsCardHover}
+            onMouseEnter={() => handleMomentsCardMouseEnter(currentIdx)}
+            onMouseLeave={() => handleMomentsCardMouseLeave(currentIdx)}
             onClick={(e) => {
               e.stopPropagation();
               handleCardClick(currentIdx);
@@ -2304,7 +2378,7 @@ export const App: React.FC = () => {
     });
 
     return tiles;
-  }, [domeConfig, activeCard, handleCardClick, handleMomentsCardHover]);
+  }, [domeConfig, activeCard, handleCardClick, handleMomentsCardMouseEnter, handleMomentsCardMouseLeave]);
 
   return (
     <div
@@ -2540,7 +2614,7 @@ export const App: React.FC = () => {
                   style={{
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: 'clamp(10px, 1.4vh, 16px)',
+                    gap: 'clamp(14px, 2vh, 22px)',
                   }}
                 >
                   <div className="rv" style={{ position: 'relative', overflow: 'hidden' }}>
@@ -2556,7 +2630,7 @@ export const App: React.FC = () => {
                         display: 'block',
                       }}
                     >
-                      Computer Engineering student at Mumbai University, graduating 2028. I build AI products end to end, across the frontend, backend and database, for real problems faced by students, small businesses and everyday users.
+                      Computer Engineering student at Mumbai University, graduating 2028. I build AI products from frontend to database for India’s underserved users. Our team won 1st place at the Axion Hackathon with FlowMind.
                     </span>
                   </div>
                   <div className="rv" style={{ position: 'relative', overflow: 'hidden' }}>
@@ -3208,7 +3282,8 @@ export const App: React.FC = () => {
         <div
           ref={coinCardRef}
           className="coin-sticker-wrap"
-          onMouseEnter={handleMomentsCardHover}
+          onMouseEnter={() => handleMomentsCardMouseEnter(9999)}
+          onMouseLeave={() => handleMomentsCardMouseLeave(9999)}
           onClick={() => {
             if (coinCardRef.current?.dataset.stuck === 'true') {
               goTo(3); // Jump back to moments on click (goTo already triggers physical mouse switch click)
