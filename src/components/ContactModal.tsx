@@ -17,6 +17,40 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
   const [cardLeft, setCardLeft] = useState<number | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const stampPlayedRef = useRef(false);
+  const lastKeySoundTimeRef = useRef(0);
+
+  const handleTypingSound = (e: React.KeyboardEvent) => {
+    // Ignore modifier and navigation keys alone
+    if (
+      [
+        'Shift',
+        'Control',
+        'Alt',
+        'Meta',
+        'Tab',
+        'CapsLock',
+        'Escape',
+        'ArrowLeft',
+        'ArrowRight',
+        'ArrowUp',
+        'ArrowDown',
+      ].includes(e.key)
+    ) {
+      return;
+    }
+    // Ignore keyboard shortcuts like Ctrl+C, Ctrl+V, etc.
+    if (e.ctrlKey || e.metaKey || e.altKey) {
+      return;
+    }
+    // Throttle repeat keys so holding down a key stays smooth and gentle
+    const now = performance.now();
+    if (now - lastKeySoundTimeRef.current < 45) return;
+    lastKeySoundTimeRef.current = now;
+
+    // Organic micro-pitch variation for realistic physical keyboard feel
+    const pitch = 0.96 + Math.random() * 0.08;
+    playSound('softTap', pitch);
+  };
 
   const handleSendStampSound = () => {
     if (stampPlayedRef.current) return;
@@ -200,7 +234,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
             </button>
           </div>
         ) : (
-          <form className="contact-modal-form" onSubmit={handleSubmit}>
+          <form className="contact-modal-form" onSubmit={handleSubmit} onKeyDown={handleTypingSound}>
             {status === 'error' && (
               <div className="contact-modal-state-box error">
                 <p className="contact-modal-state-desc">{errorMessage}</p>

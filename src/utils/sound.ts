@@ -7,8 +7,16 @@ export type SoundEffect =
   | 'pop'
   | 'folderOpen'
   | 'rocket'
+  | 'rocketLaunch'
+  | 'rocketAero'
+  | 'rocketArcade'
+  | 'rocketLaser'
+  | 'rocketCrystal'
+  | 'rocketHydraulic'
+  | 'rocketTurbine'
   | 'stickerStamp'
   | 'glassTap'
+  | 'softTap'
   // Scroll Timeline Transitions
   | 'bookOpen'
   | 'pageFlip'
@@ -102,13 +110,8 @@ export const CLICK_OPTIONS: ClickSoundOption[] = [
 let activeClickId = 'mouse';
 if (typeof window !== 'undefined') {
   try {
-    const saved = localStorage.getItem('portfolio_active_click');
-    if (saved && CLICK_OPTIONS.some((o) => o.id === saved)) {
-      activeClickId = saved;
-    } else {
-      activeClickId = 'mouse';
-      localStorage.setItem('portfolio_active_click', 'mouse');
-    }
+    localStorage.removeItem('portfolio_active_click');
+    activeClickId = 'mouse';
   } catch { }
 }
 
@@ -200,12 +203,76 @@ export const SOUND_CATALOG: SoundMetadata[] = [
     volume: 0.45,
   },
   {
+    id: 'rocketLaunch',
+    name: 'Sci-Fi Warp Glide (Active)',
+    category: 'interaction',
+    description: 'Crisp 2.5s futuristic ion rocket swoosh with ascending harmonic shimmer (zero heavy sub-bass)',
+    file: '/sounds/rocket-warp.wav',
+    volume: 0.55,
+  },
+  {
+    id: 'rocketAero',
+    name: 'Airy Wind & Chime',
+    category: 'interaction',
+    description: 'Breezy 2.3s aerodynamic soaring whoosh with delicate celestial chime (completely clear of bass)',
+    file: '/sounds/rocket-aero.wav',
+    volume: 0.55,
+  },
+  {
+    id: 'rocketArcade',
+    name: 'Playful Retro Rocket',
+    category: 'interaction',
+    description: 'Upbeat 2.0s melodic ascending slide whistle with star glitter',
+    file: '/sounds/rocket-arcade.wav',
+    volume: 0.55,
+  },
+  {
+    id: 'rocketLaser',
+    name: 'Cyber Laser Phaser',
+    category: 'interaction',
+    description: 'Sharp 2.2s electric sci-fi energy beam sweep with bright harmonic sparkle',
+    file: '/sounds/rocket-laser.wav',
+    volume: 0.52,
+  },
+  {
+    id: 'rocketCrystal',
+    name: 'Glass Crystal Chime Cascade',
+    category: 'interaction',
+    description: 'Magical 2.4s ascending 6-note crystalline glass harp chime cascade with gentle airy lift',
+    file: '/sounds/rocket-crystal.wav',
+    volume: 0.55,
+  },
+  {
+    id: 'rocketHydraulic',
+    name: 'Pneumatic Steam Launch',
+    category: 'interaction',
+    description: 'Tactile 2.2s mechanical latch click & pressurized steam release with metallic ring',
+    file: '/sounds/rocket-hydraulic.wav',
+    volume: 0.52,
+  },
+  {
+    id: 'rocketTurbine',
+    name: 'Supersonic Jet Turbine',
+    category: 'interaction',
+    description: 'Aerodynamic 2.4s whistling supersonic jet turbine flyby with smooth Doppler pan',
+    file: '/sounds/rocket-turbine.wav',
+    volume: 0.52,
+  },
+  {
     id: 'glassTap',
     name: 'Glass Micro-Tap',
     category: 'interaction',
     description: 'High-precision sleek glass micro-tap when the Open to Discuss card emerges',
     file: '/sounds/click-glass.wav',
     volume: 0.6,
+  },
+  {
+    id: 'softTap',
+    name: 'Muted Soft Tap',
+    category: 'interaction',
+    description: 'Low-frequency gentle tap played on each alphabet keystroke in Say Hello',
+    file: '/sounds/click-soft.wav',
+    volume: 0.5,
   },
 ];
 

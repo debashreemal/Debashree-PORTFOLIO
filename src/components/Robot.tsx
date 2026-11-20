@@ -172,7 +172,7 @@ const Robot = memo(function Robot({ onReady }: { onReady: () => void }) {
               <span className="hero-tooltip">GitHub</span>
             </a>
 
-            <a href="https://linkedin.com/in/debashree-mal-4a6214370" target="_blank" rel="noopener noreferrer" className="hero-vertical-icon">
+            <a href="https://linkedin.com/in/debashree-mal" target="_blank" rel="noopener noreferrer" className="hero-vertical-icon">
               <FiLinkedin size={28} strokeWidth={2} />
               <span className="hero-tooltip">LinkedIn</span>
             </a>

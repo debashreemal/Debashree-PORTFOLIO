@@ -12,7 +12,7 @@ export default function ContactPanel({ onClose }: PanelProps) {
       // @ts-ignore
       icon: <lord-icon src="/icons/xerxcacw.json" trigger="hover" colors="primary:#ffffff,secondary:#00c8ff,tertiary:#7c3aed" style={{ width: '120px', height: '120px', filter: 'grayscale(100%)', transition: 'filter 0.3s ease' }}></lord-icon>,
       title: "LinkedIn",
-      url: "https://linkedin.com/in/debashree-mal-4a6214370"
+      url: "https://linkedin.com/in/debashree-mal"
     },
     {
       // @ts-ignore
